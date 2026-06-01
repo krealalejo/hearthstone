@@ -9,5 +9,5 @@ export default defineEventHandler(async (event) => {
     new: true,
   });
   if (!task) throw createError({ statusCode: 404, statusMessage: "Not found" });
-  return task.toJSON();
+  const doc = task.toJSON(); return { ...doc, id: doc._id.toString() };
 });

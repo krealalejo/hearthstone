@@ -1,6 +1,7 @@
 import { ShoppingItem } from "#server/models/ShoppingItem";
+import { serializeLean } from "#server/utils/serialize";
 
 export default defineEventHandler(async (event) => {
   const { householdId } = event.context.user;
-  return await ShoppingItem.find({ householdId }).lean({ virtuals: true });
+  return serializeLean(await ShoppingItem.find({ householdId }).lean());
 });

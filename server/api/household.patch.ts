@@ -21,5 +21,5 @@ export default defineEventHandler(async (event) => {
       statusCode: 404,
       statusMessage: "Household not found",
     });
-  return hh.toJSON();
+  const doc = hh.toJSON(); return { ...doc, id: doc._id.toString() };
 });

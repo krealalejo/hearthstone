@@ -15,5 +15,5 @@ export default defineEventHandler(async (event) => {
   );
   if (!member)
     throw createError({ statusCode: 404, statusMessage: "Member not found" });
-  return member.toJSON();
+  const doc = member.toJSON(); return { ...doc, id: doc._id.toString() };
 });

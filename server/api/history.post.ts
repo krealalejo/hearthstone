@@ -12,5 +12,5 @@ export default defineEventHandler(async (event) => {
     items: body.items,
     total: body.total,
   });
-  return entry.toJSON();
+  const doc = entry.toJSON(); return { ...doc, id: doc._id.toString() };
 });

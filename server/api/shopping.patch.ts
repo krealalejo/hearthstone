@@ -11,5 +11,5 @@ export default defineEventHandler(async (event) => {
     { new: true },
   );
   if (!item) throw createError({ statusCode: 404, statusMessage: "Not found" });
-  return item.toJSON();
+  const doc = item.toJSON(); return { ...doc, id: doc._id.toString() };
 });

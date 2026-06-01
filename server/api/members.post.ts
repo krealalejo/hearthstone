@@ -25,5 +25,5 @@ export default defineEventHandler(async (event) => {
     email: email.toLowerCase(),
     role,
   });
-  return invite.toJSON();
+  const doc = invite.toJSON(); return { ...doc, id: doc._id.toString() };
 });

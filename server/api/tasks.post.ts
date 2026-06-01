@@ -17,5 +17,5 @@ export default defineEventHandler(async (event) => {
     done: body.done,
     doneBy: body.doneBy,
   });
-  return task.toJSON();
+  const doc = task.toJSON(); return { ...doc, id: doc._id.toString() };
 });

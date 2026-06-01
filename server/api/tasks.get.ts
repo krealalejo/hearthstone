@@ -1,6 +1,7 @@
 import { Task } from "#server/models/Task";
+import { serializeLean } from "#server/utils/serialize";
 
 export default defineEventHandler(async (event) => {
   const { householdId } = event.context.user;
-  return await Task.find({ householdId }).lean({ virtuals: true });
+  return serializeLean(await Task.find({ householdId }).lean());
 });
