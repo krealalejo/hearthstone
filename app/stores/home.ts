@@ -178,15 +178,13 @@ export const useHomeStore = defineStore("home", {
     },
 
     async logout() {
-      await $fetch("/api/auth/logout", { method: "POST" });
-      this.authed = false;
-      this.currentUser = "";
-      this.currentUserId = "";
-      this.tasks = [];
-      this.inventory = [];
-      this.shopping = [];
-      this.history = [];
-      this.members = [];
+      await $fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+      // Hard reload clears all Nuxt useAsyncData/callOnce cache
+      if (import.meta.client) {
+        window.location.assign("/auth");
+      } else {
+        await navigateTo("/auth");
+      }
     },
 
     async _handle401() {

@@ -120,7 +120,7 @@ const { animateStagger } = useAnimations();
 // Forward cookies in SSR context so auth middleware receives the token
 const headers = useRequestHeaders(["cookie"]);
 
-await callOnce("current-user", async () => {
+await useAsyncData("current-user", async () => {
   const user = await $fetch<{ userId: string; name?: string; role: string }>(
     "/api/auth/me",
     { headers },
@@ -132,6 +132,7 @@ await callOnce("current-user", async () => {
       role: user.role,
     });
   }
+  return user;
 });
 
 await useAsyncData("tasks", async () => {
