@@ -23,12 +23,21 @@ Hearth is a shared home dashboard (Nuxt 4 + Vue 3 + Vuetify + Pinia + GSAP). Pha
 4. `.env.example` exists with MONGO_URI and JWT_SECRET placeholders; real `.env` gitignored
 
 **Plans**: 4 plans
-
 Plans:
+**Wave 1**
 
 - [ ] 01-01-PLAN.md — MongoDB models + env config (ENV-01, ENV-02, ENV-03, DATA-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 01-02-PLAN.md — Auth API routes + JWT middleware (AUTH-01–05, API-01–04)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 01-03-PLAN.md — Data API routes CRUD (API-05–10, DATA-04)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 01-04-PLAN.md — Pinia store refactor + page hydration (DATA-02, DATA-03)
 
 ## Progress
