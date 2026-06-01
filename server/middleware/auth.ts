@@ -4,7 +4,13 @@ import { verifyToken } from "#server/utils/jwt";
 export default defineEventHandler(async (event) => {
   // Only protect API routes; let page renders and assets through
   const path = event.path ?? getRequestURL(event).pathname;
-  if (!path.startsWith("/api/") || path.startsWith("/api/auth/")) return;
+  const PUBLIC_ROUTES = [
+    "/api/auth/register",
+    "/api/auth/login",
+    "/api/auth/logout",
+    "/api/auth/refresh",
+  ];
+  if (!path.startsWith("/api/") || PUBLIC_ROUTES.includes(path)) return;
 
   const token = getCookie(event, "access_token");
   if (!token) {
