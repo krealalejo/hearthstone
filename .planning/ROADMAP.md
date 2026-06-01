@@ -26,7 +26,7 @@ Hearth is a shared home dashboard (Nuxt 4 + Vue 3 + Vuetify + Pinia + GSAP). Pha
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — MongoDB models + env config (ENV-01, ENV-02, ENV-03, DATA-01)
+- [x] 01-01-PLAN.md — MongoDB models + env config (ENV-01, ENV-02, ENV-03, DATA-01)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -44,4 +44,4 @@ Plans:
 
 | Phase                    | Plans Complete | Status      | Completed |
 | ------------------------ | -------------- | ----------- | --------- |
-| 1. MongoDB + JWT Backend | 0/4            | Not started | -         |
+| 1. MongoDB + JWT Backend | 1/4            | In Progress | -         |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-06-01T15:35:58.239Z"
-last_activity: 2026-06-01 -- Phase 01 planning complete
+last_updated: "2026-06-01T18:02:00.000Z"
+last_activity: 2026-06-01 -- Completed 01-01 (Mongoose + env foundation)
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 4
-  completed_plans: 0
-  percent: 0
+  completed_plans: 2
+  percent: 25
 ---
 
 # Project State
@@ -23,11 +23,11 @@ progress:
 ## Current Position
 
 Phase: 1 of 1 (MongoDB + JWT Backend)
-Plan: 0 of TBD in current phase
-Status: Ready to execute
-Last activity: 2026-06-01 -- Phase 01 planning complete
+Plan: 2 of 4 in current phase (01-01 complete)
+Status: Executing
+Last activity: 2026-06-01 -- Completed 01-01 (Mongoose + env foundation)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███░░░░░░░] 25%
 
 ## Performance Metrics
 
@@ -41,13 +41,16 @@ Progress: [░░░░░░░░░░] 0%
 
 | Phase | Plans | Total | Avg/Plan |
 | ----- | ----- | ----- | -------- |
-| -     | -     | -     | -        |
+| 01-mongodb-jwt-backend | 1/4 | 22 min | 22 min |
 
 ## Accumulated Context
 
 ### Decisions
 
-None yet.
+- Mongoose hot-reload guard (mongoose.models.X || mongoose.model()) applied to all 7 models
+- Household._id serves as the householdId for other models; no self-referential field on Household
+- PendingInvite has compound unique index {householdId, email} for D-04 invite deduplication
+- runtimeConfig private keys (not under runtimeConfig.public) for mongoUri and jwtSecret
 
 ### Pending Todos
 
@@ -65,6 +68,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-01T15:08:25.824Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-mongodb-jwt-backend/01-CONTEXT.md
+Last session: 2026-06-01T18:02:00.000Z
+Stopped at: Completed 01-01-PLAN.md (Mongoose foundation + env config)
+Resume file: .planning/phases/01-mongodb-jwt-backend/01-02-PLAN.md
