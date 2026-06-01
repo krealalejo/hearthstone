@@ -22,7 +22,7 @@ const TaskSchema = new Schema<ITask>(
     },
     title: { type: String, required: true },
     desc: { type: String, default: "" },
-    roomId: { type: String, required: true },
+    roomId: { type: String, default: "" },
     assignee: { type: String, default: null },
     xp: { type: Number, default: 10 },
     recurring: { type: Boolean, default: false },
