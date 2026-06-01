@@ -2,9 +2,9 @@ import { defineEventHandler, getCookie, createError, getRequestURL } from "h3";
 import { verifyToken } from "#server/utils/jwt";
 
 export default defineEventHandler(async (event) => {
-  // Skip auth routes — they issue tokens, not consume them
-  const url = getRequestURL(event).pathname;
-  if (url.startsWith("/api/auth/")) return;
+  // Only protect API routes; let page renders and assets through
+  const path = event.path ?? getRequestURL(event).pathname;
+  if (!path.startsWith("/api/") || path.startsWith("/api/auth/")) return;
 
   const token = getCookie(event, "access_token");
   if (!token) {
