@@ -29,7 +29,7 @@ const TaskSchema = new Schema<ITask>(
     done: { type: Boolean, default: false },
     doneBy: { type: String, default: null },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true } },
 );
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload

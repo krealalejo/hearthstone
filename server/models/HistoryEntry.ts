@@ -25,7 +25,7 @@ const HistoryEntrySchema = new Schema<IHistoryEntry>(
     ],
     total: { type: Number, default: 0 },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true } },
 );
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload

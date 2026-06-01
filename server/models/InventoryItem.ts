@@ -31,7 +31,7 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
     price: { type: Number, default: null },
     icon: { type: String, default: "" },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true } },
 );
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload

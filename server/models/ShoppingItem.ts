@@ -29,7 +29,7 @@ const ShoppingItemSchema = new Schema<IShoppingItem>(
     price: { type: Number, default: null },
     checked: { type: Boolean, default: false },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true } },
 );
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload

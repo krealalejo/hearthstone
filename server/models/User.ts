@@ -41,7 +41,7 @@ const UserSchema = new Schema<IUser>(
     weekXp: { type: Number, default: 0 },
     totalXp: { type: Number, default: 0 },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true } },
 );
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload

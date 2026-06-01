@@ -12,7 +12,7 @@ const HouseholdSchema = new Schema<IHousehold>(
     name: { type: String, required: true },
     emoji: { type: String, default: "mdi-home" },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true } },
 );
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload

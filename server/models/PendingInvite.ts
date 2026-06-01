@@ -26,7 +26,7 @@ const PendingInviteSchema = new Schema<IPendingInvite>(
       default: "member",
     },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true } },
 );
 
 // Compound index to prevent duplicate invites to the same email in a household
