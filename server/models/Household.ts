@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, type Model } from "mongoose";
 
 // Note: householdId for other models is this document's _id.
 // The Household model is the root tenant entity — its own _id is the householdId.
@@ -16,6 +16,8 @@ const HouseholdSchema = new Schema<IHousehold>(
 );
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload
-export const Household =
-  mongoose.models.Household ||
-  mongoose.model<IHousehold>("Household", HouseholdSchema);
+export const Household = (mongoose.models.Household ||
+  mongoose.model<IHousehold>(
+    "Household",
+    HouseholdSchema,
+  )) as Model<IHousehold>;

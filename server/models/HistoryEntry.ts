@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Schema, Types, type Model } from "mongoose";
 
 export interface IHistoryEntry {
   householdId: Types.ObjectId;
@@ -29,6 +29,8 @@ const HistoryEntrySchema = new Schema<IHistoryEntry>(
 );
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload
-export const HistoryEntry =
-  mongoose.models.HistoryEntry ||
-  mongoose.model<IHistoryEntry>("HistoryEntry", HistoryEntrySchema);
+export const HistoryEntry = (mongoose.models.HistoryEntry ||
+  mongoose.model<IHistoryEntry>(
+    "HistoryEntry",
+    HistoryEntrySchema,
+  )) as Model<IHistoryEntry>;

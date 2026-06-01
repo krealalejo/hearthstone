@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Schema, Types, type Model } from "mongoose";
 
 export interface ITask {
   householdId: Types.ObjectId;
@@ -33,5 +33,5 @@ const TaskSchema = new Schema<ITask>(
 );
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload
-export const Task =
-  mongoose.models.Task || mongoose.model<ITask>("Task", TaskSchema);
+export const Task = (mongoose.models.Task ||
+  mongoose.model<ITask>("Task", TaskSchema)) as Model<ITask>;

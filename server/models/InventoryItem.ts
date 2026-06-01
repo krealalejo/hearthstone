@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Schema, Types, type Model } from "mongoose";
 
 export interface IInventoryItem {
   householdId: Types.ObjectId;
@@ -35,6 +35,8 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
 );
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload
-export const InventoryItem =
-  mongoose.models.InventoryItem ||
-  mongoose.model<IInventoryItem>("InventoryItem", InventoryItemSchema);
+export const InventoryItem = (mongoose.models.InventoryItem ||
+  mongoose.model<IInventoryItem>(
+    "InventoryItem",
+    InventoryItemSchema,
+  )) as Model<IInventoryItem>;
