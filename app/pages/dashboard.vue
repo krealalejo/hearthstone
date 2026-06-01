@@ -117,19 +117,25 @@ definePageMeta({ middleware: "auth" });
 const store = useHomeStore();
 const { animateStagger } = useAnimations();
 
+// Forward cookies in SSR context so auth middleware receives the token
+const headers = useRequestHeaders(["cookie"]);
+
 await callOnce("current-user", async () => {
   const user = await $fetch<{ userId: string; name?: string; role: string }>(
     "/api/auth/me",
-  );
-  store.setCurrentUser({
-    id: user.userId,
-    name: user.name ?? "",
-    role: user.role,
-  });
+    { headers },
+  ).catch(() => null);
+  if (user) {
+    store.setCurrentUser({
+      id: user.userId,
+      name: user.name ?? "",
+      role: user.role,
+    });
+  }
 });
 
 await useAsyncData("tasks", async () => {
-  const data = await $fetch<Task[]>("/api/tasks");
+  const data = await $fetch<Task[]>("/api/tasks", { headers });
   store.setTasks(data);
   return data;
 });

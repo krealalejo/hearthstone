@@ -264,16 +264,21 @@ import { useHomeStore, levelInfo } from "~/stores/home";
 definePageMeta({ middleware: "auth" });
 
 const store = useHomeStore();
+const headers = useRequestHeaders(["cookie"]);
 
 await useAsyncData("household", async () => {
-  const data =
-    await $fetch<import("~/stores/home").Household>("/api/household");
+  const data = await $fetch<import("~/stores/home").Household>(
+    "/api/household",
+    { headers },
+  );
   store.setHousehold(data);
   return data;
 });
 
 await useAsyncData("members", async () => {
-  const data = await $fetch<import("~/stores/home").Member[]>("/api/members");
+  const data = await $fetch<import("~/stores/home").Member[]>("/api/members", {
+    headers,
+  });
   store.setMembers(data);
   return data;
 });

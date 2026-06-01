@@ -60,9 +60,10 @@ import { useHomeStore } from "~/stores/home";
 definePageMeta({ middleware: "auth" });
 
 const store = useHomeStore();
+const headers = useRequestHeaders(["cookie"]);
 
 await useAsyncData("inventory", async () => {
-  const data = await $fetch<InventoryItem[]>("/api/inventory");
+  const data = await $fetch<InventoryItem[]>("/api/inventory", { headers });
   store.setInventory(data);
   return data;
 });

@@ -60,10 +60,13 @@ import { useHomeStore, money } from "~/stores/home";
 definePageMeta({ middleware: "auth" });
 
 const store = useHomeStore();
+const headers = useRequestHeaders(["cookie"]);
 
 await useAsyncData("history", async () => {
-  const data =
-    await $fetch<import("~/stores/home").HistoryEntry[]>("/api/history");
+  const data = await $fetch<import("~/stores/home").HistoryEntry[]>(
+    "/api/history",
+    { headers },
+  );
   store.setHistory(data);
   return data;
 });

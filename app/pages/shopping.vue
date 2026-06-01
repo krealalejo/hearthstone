@@ -151,10 +151,13 @@ import { useHomeStore, money } from "~/stores/home";
 definePageMeta({ middleware: "auth" });
 
 const store = useHomeStore();
+const headers = useRequestHeaders(["cookie"]);
 
 await useAsyncData("shopping", async () => {
-  const data =
-    await $fetch<import("~/stores/home").ShoppingItem[]>("/api/shopping");
+  const data = await $fetch<import("~/stores/home").ShoppingItem[]>(
+    "/api/shopping",
+    { headers },
+  );
   store.setShopping(data);
   return data;
 });
