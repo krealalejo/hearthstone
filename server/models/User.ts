@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Schema, Types, type Model } from "mongoose";
 
 export interface IUser {
   householdId: Types.ObjectId;
@@ -45,5 +45,5 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload
-export const User =
-  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+export const User = (mongoose.models.User ||
+  mongoose.model<IUser>("User", UserSchema)) as Model<IUser>;

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Schema, Types, type Model } from "mongoose";
 
 export interface IPendingInvite {
   householdId: Types.ObjectId;
@@ -33,6 +33,8 @@ const PendingInviteSchema = new Schema<IPendingInvite>(
 PendingInviteSchema.index({ householdId: 1, email: 1 }, { unique: true });
 
 // Hot-reload guard: prevent OverwriteModelError on dev hot-reload
-export const PendingInvite =
-  mongoose.models.PendingInvite ||
-  mongoose.model<IPendingInvite>("PendingInvite", PendingInviteSchema);
+export const PendingInvite = (mongoose.models.PendingInvite ||
+  mongoose.model<IPendingInvite>(
+    "PendingInvite",
+    PendingInviteSchema,
+  )) as Model<IPendingInvite>;
