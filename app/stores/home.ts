@@ -395,16 +395,18 @@ export const useHomeStore = defineStore("home", {
       if (!item) return;
       const previousQty = item.qty;
       item.qty = qty;
+      let tempId: string | null = null;
       if (qty <= item.min) {
         const exists = this.shopping.some((sh) => sh.invId === id);
         if (!exists) {
-          const tempId = "temp_" + Date.now().toString(36);
+          tempId = "temp_" + Date.now().toString(36);
+          const shopQty = Math.max(1, item.optimal - qty);
           this.shopping.unshift({
             id: tempId,
             name: item.name,
             source: "auto",
             invId: id,
-            qty: Math.max(1, item.optimal - qty),
+            qty: shopQty,
             price: item.price,
             checked: false,
           });
@@ -418,15 +420,28 @@ export const useHomeStore = defineStore("home", {
         }
       }
       try {
-        await $fetch("/api/inventory", {
-          method: "PATCH",
-          body: { id, qty },
-        });
+        await $fetch("/api/inventory", { method: "PATCH", body: { id, qty } });
+        if (tempId) {
+          const shopQty = Math.max(1, item.optimal - qty);
+          const created = await $fetch<ShoppingItem>("/api/shopping", {
+            method: "POST",
+            body: {
+              name: item.name,
+              source: "auto",
+              invId: id,
+              qty: shopQty,
+              price: item.price,
+            },
+          });
+          const idx = this.shopping.findIndex((sh) => sh.id === tempId);
+          if (idx !== -1) this.shopping[idx] = created;
+          if (this.flashShopId === tempId) this.flashShopId = created.id;
+        }
       } catch (err) {
         item.qty = previousQty;
-        this.shopping = this.shopping.filter(
-          (sh) => sh.invId !== id || sh.id.startsWith("temp_") === false,
-        );
+        if (tempId) {
+          this.shopping = this.shopping.filter((sh) => sh.id !== tempId);
+        }
         this._toast({
           kind: "info",
           title: "Update failed",
@@ -442,6 +457,7 @@ export const useHomeStore = defineStore("home", {
       if (data.id) {
         const idx = this.inventory.findIndex((i) => i.id === data.id);
         const previous = idx !== -1 ? { ...this.inventory[idx] } : null;
+        let saveInvTempId: string | null = null;
         if (idx !== -1) {
           this.inventory[idx] = {
             ...this.inventory[idx]!,
@@ -452,17 +468,18 @@ export const useHomeStore = defineStore("home", {
             item.qty <= item.min &&
             !this.shopping.some((sh) => sh.invId === item.id)
           ) {
-            const tempId = "temp_" + Date.now().toString(36);
+            saveInvTempId = "temp_" + Date.now().toString(36);
+            const shopQty = Math.max(1, item.optimal - item.qty);
             this.shopping.unshift({
-              id: tempId,
+              id: saveInvTempId,
               name: item.name,
               source: "auto",
               invId: item.id,
-              qty: Math.max(1, item.optimal - item.qty),
+              qty: shopQty,
               price: item.price,
               checked: false,
             });
-            this.flashShopId = tempId;
+            this.flashShopId = saveInvTempId;
             this._toast({
               kind: "restock",
               title: "Added to shopping list",
@@ -472,13 +489,33 @@ export const useHomeStore = defineStore("home", {
           }
         }
         try {
-          await $fetch("/api/inventory", {
-            method: "PATCH",
-            body: data,
-          });
+          await $fetch("/api/inventory", { method: "PATCH", body: data });
+          if (saveInvTempId) {
+            const updItem = this.inventory[idx]!;
+            const shopQty = Math.max(1, updItem.optimal - updItem.qty);
+            const created = await $fetch<ShoppingItem>("/api/shopping", {
+              method: "POST",
+              body: {
+                name: updItem.name,
+                source: "auto",
+                invId: updItem.id,
+                qty: shopQty,
+                price: updItem.price,
+              },
+            });
+            const si = this.shopping.findIndex((sh) => sh.id === saveInvTempId);
+            if (si !== -1) this.shopping[si] = created;
+            if (this.flashShopId === saveInvTempId)
+              this.flashShopId = created.id;
+          }
         } catch (err) {
           if (idx !== -1 && previous) {
             this.inventory[idx] = previous as InventoryItem;
+          }
+          if (saveInvTempId) {
+            this.shopping = this.shopping.filter(
+              (sh) => sh.id !== saveInvTempId,
+            );
           }
           this._toast({
             kind: "info",

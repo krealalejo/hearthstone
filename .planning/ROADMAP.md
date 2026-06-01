@@ -6,7 +6,7 @@ Hearth is a shared home dashboard (Nuxt 4 + Vue 3 + Vuetify + Pinia + GSAP). Pha
 
 ## Phases
 
-- [ ] **Phase 1: MongoDB + JWT Backend** - Replace seed data with real MongoDB persistence; add Nuxt server API routes for auth (JWT) and full CRUD; remove localStorage fallback
+- [x] **Phase 1: MongoDB + JWT Backend** - Replace seed data with real MongoDB persistence; add Nuxt server API routes for auth (JWT) and full CRUD; remove localStorage fallback
 
 ## Phase Details
 
@@ -30,18 +30,18 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Auth API routes + JWT middleware (AUTH-01–05, API-01–04)
+- [x] 01-02-PLAN.md — Auth API routes + JWT middleware (AUTH-01–05, API-01–04)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-03-PLAN.md — Data API routes CRUD (API-05–10, DATA-04)
+- [x] 01-03-PLAN.md — Data API routes CRUD (API-05–10, DATA-04)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-04-PLAN.md — Pinia store refactor + page hydration (DATA-02, DATA-03)
+- [x] 01-04-PLAN.md — Pinia store refactor + page hydration (DATA-02, DATA-03)
 
 ## Progress
 
 | Phase                    | Plans Complete | Status      | Completed |
 | ------------------------ | -------------- | ----------- | --------- |
-| 1. MongoDB + JWT Backend | 1/4            | In Progress | -         |
+| 1. MongoDB + JWT Backend | 4/4 | Complete | 2026-06-01 |
