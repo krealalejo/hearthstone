@@ -149,9 +149,3 @@ heartshtone/
 | ----------------- | ------------------------------------------------------------------- |
 | `NUXT_MONGO_URI`  | MongoDB connection string (e.g. `mongodb://localhost:27017/hearth`) |
 | `NUXT_JWT_SECRET` | Secret for signing JWT tokens (min 32 chars in production)          |
-
----
-
-## Deployment
-
-Build with `pnpm build` — outputs to `.output/`. Deploy the Nitro server (`node .output/server/index.mjs`) on any Node-compatible host (Fly.io, Railway, Render). Set `NUXT_MONGO_URI` and `NUXT_JWT_SECRET` as environment variables on the host. For static hosting, run `pnpm generate` instead (requires an external API layer for server routes).
