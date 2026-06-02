@@ -4,3 +4,4 @@ dist
 .planning
 .output
 .env
+.nuxt
