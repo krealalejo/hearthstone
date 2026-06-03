@@ -3,6 +3,6 @@ export default defineNuxtRouteMiddleware(async () => {
   try {
     await $fetch("/api/auth/me", { headers });
   } catch {
-    return navigateTo("/auth");
+    return navigateTo("/login");
   }
 });

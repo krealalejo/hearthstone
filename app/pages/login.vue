@@ -4,9 +4,11 @@
       <span class="glow" />
       <span class="glow two" />
       <div class="auth-brand">
-        <span class="brand-mark"><v-icon>mdi-home</v-icon></span>
+        <span class="brand-mark"
+          ><img src="/favicon.png" alt="Hearthstone"
+        /></span>
         <div>
-          <div class="brand-name">Hearth</div>
+          <div class="brand-name">Hearthstone</div>
           <div class="brand-sub">calm home, shared</div>
         </div>
       </div>
@@ -71,7 +73,7 @@
         </div>
         <div class="field">
           <label>Password</label>
-          <input v-model="password" type="password" />
+          <input v-model="password" type="password" @keyup.enter="handleAuth" />
         </div>
 
         <div
@@ -133,6 +135,22 @@ async function handleAuth() {
       : { name: name.value, email: email.value, password: password.value };
   try {
     await $fetch(endpoint, { method: "POST", body });
+    await Promise.all([
+      gsap.to(".auth-form-wrap", {
+        opacity: 0,
+        y: -28,
+        scale: 0.97,
+        duration: 0.38,
+        ease: "power2.in",
+      }),
+      gsap.to(".auth-art", {
+        opacity: 0,
+        x: -20,
+        duration: 0.32,
+        delay: 0.04,
+        ease: "power2.in",
+      }),
+    ]);
     await navigateTo("/dashboard");
   } catch (err: unknown) {
     authError.value =
