@@ -8,8 +8,9 @@ export default defineEventHandler(async (event) => {
   const item = await InventoryItem.findOneAndUpdate(
     { _id: id, householdId },
     updates,
-    { new: true },
+    { returnDocument: "after" },
   );
   if (!item) throw createError({ statusCode: 404, statusMessage: "Not found" });
-  const doc = item.toJSON(); return { ...doc, id: doc._id.toString() };
+  const doc = item.toJSON();
+  return { ...doc, id: doc._id.toString() };
 });

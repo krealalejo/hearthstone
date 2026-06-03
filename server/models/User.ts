@@ -9,6 +9,9 @@ export interface IUser {
   status: "active" | "pending";
   weekXp: number;
   totalXp: number;
+  accentColor?: string;
+  avatarEmoji?: string;
+  avatarImage?: string;
 }
 
 const UserSchema = new Schema<IUser>(
@@ -40,6 +43,9 @@ const UserSchema = new Schema<IUser>(
     },
     weekXp: { type: Number, default: 0 },
     totalXp: { type: Number, default: 0 },
+    accentColor: { type: String },
+    avatarEmoji: { type: String },
+    avatarImage: { type: String },
   },
   { timestamps: true, toJSON: { virtuals: true } },
 );

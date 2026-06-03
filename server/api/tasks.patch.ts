@@ -6,8 +6,9 @@ export default defineEventHandler(async (event) => {
   if (!id) throw createError({ statusCode: 400, statusMessage: "id required" });
 
   const task = await Task.findOneAndUpdate({ _id: id, householdId }, updates, {
-    new: true,
+    returnDocument: "after",
   });
   if (!task) throw createError({ statusCode: 404, statusMessage: "Not found" });
-  const doc = task.toJSON(); return { ...doc, id: doc._id.toString() };
+  const doc = task.toJSON();
+  return { ...doc, id: doc._id.toString() };
 });
