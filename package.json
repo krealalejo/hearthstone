@@ -15,6 +15,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
     "@pinia/nuxt": "^0.9.0",
     "bcryptjs": "^3.0.3",
     "gsap": "^3.12.7",
