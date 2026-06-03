@@ -1,9 +1,11 @@
 <template>
   <aside class="sidebar">
     <div class="brand">
-      <span class="brand-mark"><v-icon>mdi-home</v-icon></span>
+      <span class="brand-mark"
+        ><img src="~/public/favicon.png" alt="Hearthstone"
+      /></span>
       <div>
-        <div class="brand-name">Hearth</div>
+        <div class="brand-name">Hearthstone</div>
         <div class="brand-sub">calm home, shared</div>
       </div>
     </div>
@@ -22,19 +24,50 @@
     </div>
 
     <div class="nav-label">Menu</div>
-    <div
-      v-for="nav in NAV"
-      :key="nav.id"
-      class="nav-item"
-      :class="{ active: route.name === nav.id }"
-      @click="router.push('/' + nav.id)"
-    >
-      <v-icon style="font-size: 20px; width: 22px; text-align: center">{{
-        nav.icon
-      }}</v-icon>
-      {{ nav.label }}
-      <span v-if="badges[nav.id]" class="nav-badge">{{ badges[nav.id] }}</span>
-    </div>
+    <template v-for="nav in NAV" :key="nav.id">
+      <div
+        class="nav-item"
+        :class="{
+          active: nav.children
+            ? route.path.startsWith('/' + nav.id)
+            : route.name === nav.id,
+        }"
+        @click="onNavClick(nav)"
+      >
+        <v-icon style="font-size: 20px; width: 22px; text-align: center">{{
+          nav.icon
+        }}</v-icon>
+        {{ nav.label }}
+        <span v-if="badges[nav.id]" class="nav-badge">{{
+          badges[nav.id]
+        }}</span>
+        <v-icon
+          v-if="nav.children"
+          style="
+            font-size: 14px;
+            margin-left: auto;
+            color: var(--ink-3);
+            transition: transform 0.2s var(--ease);
+          "
+          :style="{
+            transform:
+              expandedId === nav.id ? 'rotate(180deg)' : 'rotate(0deg)',
+          }"
+          >mdi-chevron-down</v-icon
+        >
+      </div>
+      <div v-if="nav.children && expandedId === nav.id" class="nav-children">
+        <div
+          v-for="child in nav.children"
+          :key="child.id"
+          class="nav-sub"
+          :class="{ active: route.name === child.id }"
+          @click="router.push(child.path)"
+        >
+          {{ child.label }}
+        </div>
+      </div>
+    </template>
 
     <div class="sidebar-foot">
       <div class="me-card" @click="emit('open-profile')">
@@ -53,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useHomeStore, levelInfo } from "~/stores/home";
 
@@ -62,11 +95,47 @@ const store = useHomeStore();
 const route = useRoute();
 const router = useRouter();
 
+const expandedId = ref<string | null>(
+  route.path.startsWith("/history") ? "history" : null,
+);
+
+watch(
+  () => route.path,
+  (path) => {
+    if (path.startsWith("/history") && expandedId.value !== "history") {
+      expandedId.value = "history";
+    }
+  },
+);
+
+function onNavClick(nav: (typeof NAV)[number]) {
+  const { id } = nav;
+  if (nav.children) {
+    expandedId.value = expandedId.value === id ? null : id;
+    if (expandedId.value) router.push(nav.path ?? "/" + id);
+  } else {
+    router.push(nav.path ?? "/" + id);
+  }
+}
+
 const NAV = [
   { id: "dashboard", label: "Dashboard", icon: "mdi-view-dashboard" },
   { id: "inventory", label: "Inventory", icon: "mdi-package-variant" },
   { id: "shopping", label: "Shopping List", icon: "mdi-cart" },
-  { id: "history", label: "History", icon: "mdi-receipt" },
+  {
+    id: "history",
+    label: "History",
+    icon: "mdi-receipt-text-outline",
+    path: "/history/purchases",
+    children: [
+      {
+        id: "history-purchases",
+        label: "Purchases",
+        path: "/history/purchases",
+      },
+      { id: "history-weeks", label: "Weeks", path: "/history/weeks" },
+    ],
+  },
   { id: "household", label: "Household", icon: "mdi-account-group" },
 ];
 

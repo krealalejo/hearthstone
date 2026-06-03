@@ -4,11 +4,11 @@
       v-for="nav in NAV"
       :key="nav.id"
       class="tab"
-      :class="{ active: route.name === nav.id }"
-      @click="router.push('/' + nav.id)"
+      :class="{ active: isActive(nav) }"
+      @click="router.push(nav.path ?? '/' + nav.id)"
     >
       <v-icon class="tab-icon">{{
-        route.name === nav.id ? nav.iconFill : nav.icon
+        isActive(nav) ? nav.iconFill : nav.icon
       }}</v-icon>
       <span v-if="badges[nav.id]" class="tab-badge">{{ badges[nav.id] }}</span>
       {{ nav.label.split(" ")[0] }}
@@ -47,8 +47,10 @@ const NAV = [
   {
     id: "history",
     label: "History",
-    icon: "mdi-receipt-outline",
-    iconFill: "mdi-receipt",
+    icon: "mdi-receipt-text-outline",
+    iconFill: "mdi-receipt-text",
+    path: "/history/purchases",
+    prefix: "/history",
   },
   {
     id: "household",
@@ -57,6 +59,11 @@ const NAV = [
     iconFill: "mdi-account-group",
   },
 ];
+
+function isActive(nav: (typeof NAV)[number]): boolean {
+  if ("prefix" in nav && nav.prefix) return route.path.startsWith(nav.prefix);
+  return route.name === nav.id;
+}
 
 const badges = computed<Record<string, number | undefined>>(() => ({
   inventory: store.lowCount || undefined,

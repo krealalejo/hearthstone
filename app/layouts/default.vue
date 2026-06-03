@@ -5,7 +5,7 @@
       <AppTopbar />
       <div class="mobile-top">
         <span class="brand-mark">
-          <v-icon>mdi-home</v-icon>
+          <img src="/favicon.png" alt="Hearthstone" />
         </span>
         <span class="mt-title">{{ mobileTitle }}</span>
         <span class="mt-spacer" />
@@ -31,16 +31,20 @@
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useHomeStore } from "~/stores/home";
+import { useBootstrap } from "~/composables/useBootstrap";
 
 const store = useHomeStore();
 const route = useRoute();
 const profileOpen = ref(false);
 
+await useBootstrap();
+
 const VIEW_TITLES: Record<string, string> = {
   dashboard: "Hearth",
   inventory: "Inventory",
   shopping: "Shopping",
-  history: "History",
+  "history-purchases": "History",
+  "history-weeks": "History",
   household: "Household",
 };
 
