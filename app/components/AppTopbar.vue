@@ -19,6 +19,15 @@
       <v-icon style="font-size: 15px">mdi-refresh</v-icon>
       New week
     </button>
+    <button
+      class="btn btn-ghost btn-icon"
+      :title="isDark ? 'Light mode' : 'Dark mode'"
+      @click="toggle($event.currentTarget as Element)"
+    >
+      <v-icon style="font-size: 18px">{{
+        isDark ? "mdi-weather-sunny" : "mdi-weather-night"
+      }}</v-icon>
+    </button>
   </div>
 </template>
 
@@ -26,15 +35,21 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useHomeStore } from "~/stores/home";
+import { useColorMode } from "~/composables/useColorMode";
 
 const store = useHomeStore();
 const route = useRoute();
+const { isDark, toggle } = useColorMode();
 
 const TITLES: Record<string, { h: string; s: string }> = {
   dashboard: { h: "", s: "Here's what your home needs this week" },
   inventory: { h: "Inventory", s: "Track stock across food, cleaning & more" },
   shopping: { h: "Shopping List", s: "Auto-filled when stock runs low" },
-  history: { h: "Purchase History", s: "Every finalized shopping trip" },
+  "history-purchases": {
+    h: "Purchase History",
+    s: "Every finalized shopping trip",
+  },
+  "history-weeks": { h: "Week Recap", s: "Tasks, purchases & more by week" },
   household: { h: "Household", s: "Members, invites & sharing" },
 };
 
