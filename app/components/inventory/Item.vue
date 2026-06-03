@@ -18,10 +18,7 @@
         {{ item.name }}
         <span v-if="low" class="low-tag">Low</span>
       </div>
-      <div class="inv-meta">
-        min {{ item.min
-        }}{{ item.price != null ? ` · ${money(item.price)}` : "" }}
-      </div>
+      <div class="inv-meta">min {{ item.min }} · {{ money(item.price) }}</div>
       <div class="inv-thresh">
         <ProgressBar
           :value="item.qty"
@@ -41,7 +38,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { InventoryItem } from "~/stores/home";
-import { useHomeStore, money } from "~/stores/home";
+import { useHomeStore, useMoney } from "~/stores/home";
+
+const { money } = useMoney();
 
 const props = defineProps<{ item: InventoryItem }>();
 const emit = defineEmits<{ edit: [] }>();

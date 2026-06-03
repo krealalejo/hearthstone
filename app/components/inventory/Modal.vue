@@ -36,17 +36,21 @@
       <div class="field-row">
         <div class="field">
           <label>In stock now</label>
-          <input v-model.number="form.qty" type="number" min="0" />
+          <QuantityStepper :value="form.qty" @change="form.qty = $event" />
         </div>
         <div class="field">
           <label>Min threshold</label>
-          <input v-model.number="form.min" type="number" min="0" />
+          <QuantityStepper :value="form.min" @change="form.min = $event" />
         </div>
       </div>
       <div class="field-row">
         <div class="field">
           <label>Restock to</label>
-          <input v-model.number="form.optimal" type="number" min="1" />
+          <QuantityStepper
+            :value="form.optimal"
+            :min="1"
+            @change="form.optimal = $event"
+          />
         </div>
         <div class="field">
           <label
@@ -55,13 +59,19 @@
               >· optional</span
             ></label
           >
-          <input
-            v-model="form.price"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="0.00"
-          />
+          <div class="price-wrap">
+            <span v-if="form.price !== ''" class="price-currency">
+              {{ store.household.currency ?? "$" }}
+            </span>
+            <input
+              v-model="form.price"
+              class="price-input"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </div>
         </div>
       </div>
       <div
@@ -156,3 +166,55 @@ function handleDelete() {
   emit("close");
 }
 </script>
+
+<style scoped>
+input {
+  text-align: center;
+}
+
+:deep(.stepper) {
+  height: 42px;
+  justify-content: space-between;
+}
+:deep(.stepper button) {
+  width: 44px;
+  height: 42px;
+}
+
+.price-input {
+  height: 42px;
+  padding: 0 13px;
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  font-family: var(--font-ui);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.price-input:focus {
+  border-color: var(--accent);
+}
+.price-wrap {
+  position: relative;
+}
+.price-currency {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+.price-input::-webkit-outer-spin-button,
+.price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+.price-input {
+  -moz-appearance: textfield;
+}
+</style>
