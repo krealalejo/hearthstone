@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { watch } from "vue";
+import type { VNode } from "vue";
 import { useRouter } from "vue-router";
 import { useHomeStore } from "~/stores/home";
 import { useAnimations } from "~/composables/useAnimations";
@@ -75,8 +76,8 @@ function handleLink(link: string) {
   router.push("/" + link);
 }
 
-function onToastMounted(el: Element) {
-  animateToastIn(el);
+function onToastMounted(vnode: VNode) {
+  animateToastIn(vnode.el as Element);
 }
 </script>
 

@@ -6,7 +6,7 @@
   --font-display: "Bricolage Grotesque", sans-serif;
   --font-ui: "Hanken Grotesque", system-ui, sans-serif;
 
-  --accent: oklch(0.58 0.068 155);
+  --accent: #3ca8e5;
 
   --r-sm: 9px;
   --r-md: 14px;
@@ -64,13 +64,13 @@
   --bg-2: oklch(0.18 0.008 75);
   --surface: oklch(0.245 0.011 75);
   --surface-2: oklch(0.29 0.012 75);
-  --ink: oklch(0.93 0.008 85);
-  --ink-2: oklch(0.74 0.01 85);
-  --ink-3: oklch(0.58 0.012 80);
+  --ink: oklch(0.97 0.004 85);
+  --ink-2: oklch(0.84 0.008 85);
+  --ink-3: oklch(0.67 0.01 80);
   --hairline: oklch(0.34 0.011 75);
   --hairline-2: oklch(0.31 0.01 75);
 
-  --accent: oklch(0.68 0.085 155);
+  --accent: #3ca8e5;
   --accent-soft: oklch(from var(--accent) 0.32 calc(c * 0.7) h);
   --accent-soft-2: oklch(from var(--accent) 0.4 calc(c * 0.8) h);
   --accent-ink: oklch(from var(--accent) 0.82 calc(c * 0.9) h);
