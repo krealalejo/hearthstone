@@ -15,7 +15,7 @@
         class="brand-mark"
         style="width: 56px; height: 56px; font-size: 28px; border-radius: 16px"
       >
-        <v-icon>mdi-home</v-icon>
+        <img src="/favicon.png" alt="Hearthstone" />
       </span>
       <div style="flex: 1">
         <div v-if="editName" style="display: flex; gap: 8px">
@@ -100,7 +100,7 @@
           </div>
         </div>
         <button
-          v-if="isAdmin && m.id !== store.currentUser"
+          v-if="isAdmin && m.id !== store.currentUser && m.role !== 'admin'"
           class="btn btn-ghost btn-icon btn-sm"
           @click="confirmAction = { kind: 'remove', member: m }"
         >
@@ -145,7 +145,7 @@
       </div>
     </template>
 
-    <div style="margin-top: 28px; text-align: center">
+    <div v-if="!isAdmin" style="margin-top: 28px; text-align: center">
       <button
         class="btn btn-ghost btn-sm"
         style="color: oklch(0.55 0.15 25); border-color: transparent"
@@ -264,24 +264,6 @@ import { useHomeStore, levelInfo } from "~/stores/home";
 definePageMeta({ middleware: "auth" });
 
 const store = useHomeStore();
-const headers = useRequestHeaders(["cookie"]);
-
-await useAsyncData("household", async () => {
-  const data = await $fetch<import("~/stores/home").Household>(
-    "/api/household",
-    { headers },
-  );
-  store.setHousehold(data);
-  return data;
-});
-
-await useAsyncData("members", async () => {
-  const data = await $fetch<import("~/stores/home").Member[]>("/api/members", {
-    headers,
-  });
-  store.setMembers(data);
-  return data;
-});
 
 const isAdmin = computed(() => store.me.role === "admin");
 
@@ -316,7 +298,7 @@ function doConfirm() {
   if (!confirmAction.value) return;
   if (confirmAction.value.kind === "leave") {
     store.logout();
-    navigateTo("/auth");
+    navigateTo("/login");
   } else {
     store.removeMember(confirmAction.value.member.id);
   }

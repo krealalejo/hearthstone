@@ -60,7 +60,7 @@
     </div>
 
     <div class="dash-grid">
-      <div>
+      <div ref="taskListEl">
         <div v-if="!byRoom.length" class="empty">
           <v-icon class="empty-icon">mdi-broom</v-icon>
           <h3>Nothing here yet</h3>
@@ -107,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch, nextTick } from "vue";
 import type { Task } from "~/stores/home";
 import { useHomeStore } from "~/stores/home";
 import { useAnimations } from "~/composables/useAnimations";
@@ -117,32 +117,15 @@ definePageMeta({ middleware: "auth" });
 const store = useHomeStore();
 const { animateStagger } = useAnimations();
 
-// Forward cookies in SSR context so auth middleware receives the token
-const headers = useRequestHeaders(["cookie"]);
-
-await useAsyncData("current-user", async () => {
-  const user = await $fetch<{ userId: string; name?: string; role: string }>(
-    "/api/auth/me",
-    { headers },
-  ).catch(() => null);
-  if (user) {
-    store.setCurrentUser({
-      id: user.userId,
-      name: user.name ?? "",
-      role: user.role,
-    });
-  }
-  return user;
-});
-
-await useAsyncData("tasks", async () => {
-  const data = await $fetch<Task[]>("/api/tasks", { headers });
-  store.setTasks(data);
-  return data;
-});
-
 const filter = ref("all");
+const taskListEl = ref<HTMLElement | null>(null);
 const modalTask = ref<{ task?: Task } | null>(null);
+
+watch(filter, async () => {
+  await nextTick();
+  const rooms = taskListEl.value?.querySelectorAll(".room");
+  if (rooms?.length) animateStagger(rooms);
+});
 const taskModalOpen = computed({
   get: () => modalTask.value !== null,
   set: (v) => {

@@ -36,9 +36,17 @@ export function levelInfo(totalXp: number) {
   };
 }
 
-export function money(n: number | null | undefined): string {
-  if (n == null) return "—";
-  return "$" + Number(n).toFixed(2);
+export function money(n: number | null | undefined, currency = "$"): string {
+  if (n == null) return "— " + currency;
+  return Number(n).toFixed(2) + " " + currency;
+}
+
+export function useMoney() {
+  const store = useHomeStore();
+  return {
+    money: (n: number | null | undefined) =>
+      money(n, store.household.currency ?? "$"),
+  };
 }
 
 export interface Member {
@@ -49,6 +57,9 @@ export interface Member {
   status: "active" | "pending";
   weekXp: number;
   totalXp: number;
+  accentColor?: string;
+  avatarEmoji?: string;
+  avatarImage?: string;
 }
 
 export interface Room {
@@ -110,6 +121,9 @@ export interface Household {
   id: string;
   name: string;
   emoji: string;
+  lastResetWeek?: string;
+  weekStartDay?: "monday" | "sunday";
+  currency?: string;
 }
 
 function toastId(): string {
@@ -142,10 +156,43 @@ export const useHomeStore = defineStore("home", {
     history: [] as HistoryEntry[],
     toasts: [] as Toast[],
     flashShopId: null as string | null,
-    weekNo: 0,
   }),
 
   getters: {
+    weekNo: (s) => {
+      if (s.household.weekStartDay === "sunday") {
+        const d = new Date();
+        const start = new Date(d);
+        start.setDate(d.getDate() - d.getDay());
+        const jan1 = new Date(start.getFullYear(), 0, 1);
+        return Math.ceil((start.getTime() - jan1.getTime()) / 864e5 / 7) + 1;
+      }
+      const d = new Date();
+      const thu = new Date(
+        Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()),
+      );
+      thu.setUTCDate(thu.getUTCDate() + 4 - (thu.getUTCDay() || 7));
+      const jan1 = new Date(Date.UTC(thu.getUTCFullYear(), 0, 1));
+      return Math.ceil(((thu.getTime() - jan1.getTime()) / 86400000 + 1) / 7);
+    },
+    weekKey: (s) => {
+      if (s.household.weekStartDay === "sunday") {
+        const d = new Date();
+        const start = new Date(d);
+        start.setDate(d.getDate() - d.getDay());
+        return "S-" + start.toISOString().slice(0, 10);
+      }
+      const d = new Date();
+      const thu = new Date(
+        Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()),
+      );
+      thu.setUTCDate(thu.getUTCDate() + 4 - (thu.getUTCDay() || 7));
+      const jan1 = new Date(Date.UTC(thu.getUTCFullYear(), 0, 1));
+      const wk = Math.ceil(
+        ((thu.getTime() - jan1.getTime()) / 86400000 + 1) / 7,
+      );
+      return `${thu.getUTCFullYear()}-W${wk}`;
+    },
     lowCount: (s) => s.inventory.filter((i) => i.qty <= i.min).length,
     shopCount: (s) => s.shopping.filter((i) => !i.checked).length,
     me: (s) =>
@@ -171,24 +218,24 @@ export const useHomeStore = defineStore("home", {
 
     // ── Auth ──
     async login(email: string, password: string) {
-      await $fetch("/api/auth/login", {
+      await $fetch("/api/login/login", {
         method: "POST",
         body: { email, password },
       });
     },
 
     async logout() {
-      await $fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+      await $fetch("/api/login/logout", { method: "POST" }).catch(() => null);
       // Hard reload clears all Nuxt useAsyncData/callOnce cache
       if (import.meta.client) {
-        window.location.assign("/auth");
+        window.location.assign("/login");
       } else {
-        await navigateTo("/auth");
+        await navigateTo("/login");
       }
     },
 
     async _handle401() {
-      await navigateTo("/auth");
+      await navigateTo("/login");
     },
 
     dismissToast(id: string) {
@@ -263,6 +310,12 @@ export const useHomeStore = defineStore("home", {
           method: "PATCH",
           body: { id, done: tk.done, doneBy: tk.doneBy },
         });
+        if (member) {
+          await $fetch("/api/members", {
+            method: "PATCH",
+            body: { id: who, weekXp: member.weekXp, totalXp: member.totalXp },
+          });
+        }
       } catch (err) {
         tk.done = previousDone;
         tk.doneBy = previousDoneBy;
@@ -370,22 +423,47 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
-    resetWeek() {
+    async resetWeek() {
+      const toDelete = this.tasks.filter((tk) => !tk.recurring);
+      this.tasks = this.tasks.filter((tk) => tk.recurring);
       this.tasks.forEach((tk) => {
-        if (tk.recurring) {
-          tk.done = false;
-          tk.doneBy = null;
-        }
+        tk.done = false;
+        tk.doneBy = null;
       });
       this.members.forEach((m) => {
         m.weekXp = 0;
       });
-      this.weekNo++;
+      const key = this.weekKey;
+      this.household.lastResetWeek = key;
       this._toast({
         kind: "info",
         title: `Week ${this.weekNo} started`,
         body: "Recurring tasks reset · leaderboard cleared",
       });
+      await Promise.allSettled([
+        ...toDelete.map((tk) =>
+          $fetch("/api/tasks", { method: "DELETE", body: { id: tk.id } }),
+        ),
+        $fetch("/api/household", {
+          method: "PATCH",
+          body: { lastResetWeek: key },
+        }),
+      ]);
+    },
+
+    async checkAutoReset() {
+      const current = this.weekKey;
+      if (!this.household.lastResetWeek) {
+        this.household.lastResetWeek = current;
+        await $fetch("/api/household", {
+          method: "PATCH",
+          body: { lastResetWeek: current },
+        });
+        return;
+      }
+      if (this.household.lastResetWeek !== current) {
+        await this.resetWeek();
+      }
     },
 
     // ── Inventory ──
@@ -577,6 +655,11 @@ export const useHomeStore = defineStore("home", {
       if (item) item.qty = Math.max(1, qty);
     },
 
+    setShopPrice(id: string, price: number | null) {
+      const item = this.shopping.find((sh) => sh.id === id);
+      if (item) item.price = price;
+    },
+
     removeShop(id: string) {
       this.shopping = this.shopping.filter((sh) => sh.id !== id);
     },
@@ -606,7 +689,7 @@ export const useHomeStore = defineStore("home", {
       this._toast({
         kind: "check",
         title: "Purchase logged",
-        body: `${checked.length} item${checked.length > 1 ? "s" : ""}${restocked ? ` · ${restocked} restocked` : ""} · ${money(total)}`,
+        body: `${checked.length} item${checked.length > 1 ? "s" : ""}${restocked ? ` · ${restocked} restocked` : ""} · ${money(total, this.household.currency)}`,
         link: "history",
       });
       try {
@@ -660,8 +743,96 @@ export const useHomeStore = defineStore("home", {
       this.members = this.members.filter((m) => m.id !== id);
     },
 
-    renameHousehold(name: string) {
+    async renameHousehold(name: string) {
+      const prev = this.household.name;
       this.household.name = name;
+      try {
+        await $fetch("/api/household", { method: "PATCH", body: { name } });
+      } catch {
+        this.household.name = prev;
+        this.addToast({ message: "Failed to rename household", kind: "error" });
+      }
+    },
+
+    applyAccentColor() {
+      if (!import.meta.client) return;
+      const color = this.me.accentColor;
+      if (color) {
+        document.documentElement.style.setProperty("--accent", color);
+      } else {
+        document.documentElement.style.removeProperty("--accent");
+      }
+    },
+
+    async saveSettings(data: {
+      name: string;
+      accentColor: string;
+      avatarEmoji: string;
+      avatarImage: string;
+      weekStartDay?: "monday" | "sunday";
+      currency?: string;
+    }) {
+      const member = this.members.find((m) => m.id === this.currentUserId);
+      if (!member) return;
+      const prev = {
+        name: member.name,
+        accentColor: member.accentColor,
+        avatarEmoji: member.avatarEmoji,
+        avatarImage: member.avatarImage,
+        currentUser: this.currentUser,
+        weekStartDay: this.household.weekStartDay,
+        currency: this.household.currency,
+      };
+      member.name = data.name;
+      member.accentColor = data.accentColor || undefined;
+      member.avatarEmoji = data.avatarEmoji || undefined;
+      member.avatarImage = data.avatarImage || undefined;
+      this.currentUser = data.name;
+      if (data.weekStartDay) this.household.weekStartDay = data.weekStartDay;
+      if (data.currency) this.household.currency = data.currency;
+      this.applyAccentColor();
+      try {
+        await $fetch("/api/members", {
+          method: "PATCH",
+          body: {
+            id: this.currentUserId,
+            name: data.name,
+            accentColor: data.accentColor || null,
+            avatarEmoji: data.avatarEmoji || null,
+            avatarImage: data.avatarImage || null,
+          },
+        });
+        const householdChanged =
+          (data.weekStartDay && data.weekStartDay !== prev.weekStartDay) ||
+          (data.currency && data.currency !== prev.currency);
+        if (householdChanged) {
+          await $fetch("/api/household", {
+            method: "PATCH",
+            body: {
+              ...(data.weekStartDay ? { weekStartDay: data.weekStartDay } : {}),
+              ...(data.currency ? { currency: data.currency } : {}),
+            },
+          });
+        }
+        this._toast({ kind: "info", title: "Settings saved" });
+      } catch (err) {
+        member.name = prev.name;
+        member.accentColor = prev.accentColor;
+        member.avatarEmoji = prev.avatarEmoji;
+        member.avatarImage = prev.avatarImage;
+        this.currentUser = prev.currentUser;
+        if (data.weekStartDay) this.household.weekStartDay = prev.weekStartDay;
+        if (data.currency) this.household.currency = prev.currency;
+        this.applyAccentColor();
+        this._toast({
+          kind: "info",
+          title: "Save failed",
+          body: "Changes reverted",
+        });
+        if ((err as { statusCode?: number })?.statusCode === 401) {
+          await this._handle401();
+        }
+      }
     },
   },
 });

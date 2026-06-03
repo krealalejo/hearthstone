@@ -146,21 +146,13 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useHomeStore, money } from "~/stores/home";
+import { useHomeStore, useMoney } from "~/stores/home";
+
+const { money } = useMoney();
 
 definePageMeta({ middleware: "auth" });
 
 const store = useHomeStore();
-const headers = useRequestHeaders(["cookie"]);
-
-await useAsyncData("shopping", async () => {
-  const data = await $fetch<import("~/stores/home").ShoppingItem[]>(
-    "/api/shopping",
-    { headers },
-  );
-  store.setShopping(data);
-  return data;
-});
 
 const draft = ref("");
 
