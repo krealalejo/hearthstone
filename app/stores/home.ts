@@ -750,7 +750,7 @@ export const useHomeStore = defineStore("home", {
         await $fetch("/api/household", { method: "PATCH", body: { name } });
       } catch {
         this.household.name = prev;
-        this.addToast({ message: "Failed to rename household", kind: "error" });
+        this._toast({ kind: "error", title: "Failed to rename household" });
       }
     },
 
