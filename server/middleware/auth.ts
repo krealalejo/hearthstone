@@ -2,7 +2,6 @@ import { defineEventHandler, getCookie, createError, getRequestURL } from "h3";
 import { verifyToken } from "#server/utils/jwt";
 
 export default defineEventHandler(async (event) => {
-  // Only protect API routes; let page renders and assets through
   const path = event.path ?? getRequestURL(event).pathname;
   const PUBLIC_ROUTES = [
     "/api/auth/register",
@@ -17,7 +16,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
   }
 
-  const config = useRuntimeConfig(event); // pass event — required for env override
+  const config = useRuntimeConfig(event);
 
   try {
     const payload = await verifyToken(token, config.jwtSecret);

@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 export default defineNitroPlugin(async () => {
   const config = useRuntimeConfig();
 
-  // Guard: prevent duplicate connections on hot-reload
   if (mongoose.connection.readyState === 1) {
     console.log("[mongoose] reusing existing connection");
     return;
