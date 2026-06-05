@@ -6,3 +6,4 @@ dist
 .env
 .nuxt
 TODO.md
+coverage
