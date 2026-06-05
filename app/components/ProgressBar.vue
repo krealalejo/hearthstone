@@ -26,8 +26,8 @@ const pct = computed(() =>
   Math.max(0, Math.min(100, (props.value / Math.max(1, props.max)) * 100)),
 );
 const minMarkPct = computed(() =>
-  props.minMark != null
-    ? Math.min(100, (props.minMark / Math.max(1, props.max)) * 100)
-    : 0,
+  props.minMark == null
+    ? 0
+    : Math.min(100, (props.minMark / Math.max(1, props.max)) * 100),
 );
 </script>

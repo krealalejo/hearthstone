@@ -177,7 +177,7 @@ const weekGroups = computed<WeekGroup[]>(() => {
   }
 
   return [...map.values()].sort((a, b) =>
-    a.year !== b.year ? b.year - a.year : b.week - a.week,
+    a.year === b.year ? b.week - a.week : b.year - a.year,
   );
 });
 </script>

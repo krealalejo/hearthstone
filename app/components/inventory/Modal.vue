@@ -148,7 +148,7 @@ const form = reactive<{
   qty: props.item?.qty ?? 1,
   min: props.item?.min ?? 1,
   optimal: props.item?.optimal ?? 3,
-  price: props.item?.price != null ? props.item.price : "",
+  price: props.item?.price == null ? "" : props.item.price,
 });
 
 function handleSave() {
@@ -199,9 +199,14 @@ input {
   outline: none;
   width: 100%;
   transition: border-color 0.15s;
+  -moz-appearance: textfield;
 }
 .price-input:focus {
   border-color: var(--accent);
+}
+.price-input::-webkit-outer-spin-button,
+.price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
 }
 .price-wrap {
   position: relative;
@@ -215,12 +220,5 @@ input {
   font-weight: 600;
   color: var(--ink-3);
   pointer-events: none;
-}
-.price-input::-webkit-outer-spin-button,
-.price-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-}
-.price-input {
-  -moz-appearance: textfield;
 }
 </style>
