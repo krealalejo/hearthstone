@@ -148,7 +148,7 @@
     <div v-if="!isAdmin" style="margin-top: 28px; text-align: center">
       <button
         class="btn btn-ghost btn-sm"
-        style="color: oklch(0.55 0.15 25); border-color: transparent"
+        style="color: #b94642; border-color: transparent"
         @click="confirmAction = { kind: 'leave', member: store.me }"
       >
         <v-icon style="font-size: 15px">mdi-logout</v-icon>Leave household
@@ -246,7 +246,7 @@
           </button>
           <button
             class="btn btn-primary"
-            style="background: oklch(0.55 0.16 25)"
+            style="background: #bd413f"
             @click="doConfirm"
           >
             {{ confirmAction.kind === "leave" ? "Leave" : "Remove" }}

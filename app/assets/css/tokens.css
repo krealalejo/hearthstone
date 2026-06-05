@@ -14,12 +14,9 @@
   --r-lg: 20px;
   --r-xl: 28px;
 
-  --shadow-sm:
-    0 1px 2px rgba(52, 45, 35, 0.05), 0 1px 3px rgba(52, 45, 35, 0.06);
-  --shadow-md:
-    0 4px 14px rgba(52, 45, 35, 0.06), 0 2px 6px rgba(52, 45, 35, 0.05);
-  --shadow-lg:
-    0 18px 50px rgba(52, 45, 35, 0.14), 0 6px 16px rgba(52, 45, 35, 0.08);
+  --shadow-sm: 0 1px 2px #342d230d, 0 1px 3px #342d230f;
+  --shadow-md: 0 4px 14px #342d230f, 0 2px 6px #342d230d;
+  --shadow-lg: 0 18px 50px #342d2324, 0 6px 16px #342d2314;
 
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
 

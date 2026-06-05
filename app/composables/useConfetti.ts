@@ -6,13 +6,7 @@ function rand(): number {
   return (arr[0] ?? 0) / 0x100000000;
 }
 
-const COLORS = [
-  "oklch(0.7 0.13 150)",
-  "oklch(0.7 0.13 250)",
-  "oklch(0.72 0.14 60)",
-  "oklch(0.68 0.15 25)",
-  "oklch(0.7 0.13 320)",
-];
+const COLORS = ["#5cb572", "#5aa3ec", "#e38d3d", "#e66e68", "#c282d0"];
 
 function fire() {
   if (typeof document === "undefined") return;

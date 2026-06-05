@@ -1,15 +1,15 @@
 import { defineStore } from "pinia";
 
 export const MEMBER_COLORS: Record<string, string> = {
-  alex: "oklch(0.62 0.09 250)",
-  sam: "oklch(0.6 0.1 25)",
-  jordan: "oklch(0.58 0.09 150)",
-  riley: "oklch(0.62 0.1 320)",
-  casey: "oklch(0.6 0.09 70)",
+  alex: "#5b8abb",
+  sam: "#b46762",
+  jordan: "#51895e",
+  riley: "#a172ac",
+  casey: "#a37640",
 };
 
 export function memberColor(id: string): string {
-  return MEMBER_COLORS[id] ?? "oklch(0.6 0.04 75)";
+  return MEMBER_COLORS[id] ?? "#8f7d66";
 }
 
 export const LEVELS = [

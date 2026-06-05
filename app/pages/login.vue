@@ -84,11 +84,11 @@
         <div
           v-if="authError"
           style="
-            color: oklch(0.55 0.16 25);
+            color: #bd413f;
             font-size: 13px;
             margin-top: 4px;
             padding: 8px 12px;
-            background: oklch(0.97 0.03 25);
+            background: #ffeeeb;
             border-radius: 8px;
           "
         >

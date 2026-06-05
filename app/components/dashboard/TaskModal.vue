@@ -106,7 +106,7 @@
       <button
         v-if="task"
         class="btn btn-ghost"
-        style="margin-right: auto; color: oklch(0.55 0.15 25)"
+        style="margin-right: auto; color: #b94642"
         @click="handleDelete"
       >
         <v-icon style="font-size: 15px">mdi-trash-can</v-icon>Delete

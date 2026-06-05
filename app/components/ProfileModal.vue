@@ -147,16 +147,16 @@ const DEFAULT_COLOR = "#3ca8e5";
 
 const COLORS = [
   { label: "Default", value: DEFAULT_COLOR },
-  { label: "Sky", value: "oklch(0.62 0.11 215)" },
-  { label: "Teal", value: "oklch(0.58 0.10 185)" },
-  { label: "Green", value: "oklch(0.56 0.10 150)" },
-  { label: "Lime", value: "oklch(0.60 0.10 120)" },
-  { label: "Amber", value: "oklch(0.60 0.12 70)" },
-  { label: "Orange", value: "oklch(0.60 0.13 45)" },
-  { label: "Red", value: "oklch(0.58 0.13 25)" },
-  { label: "Pink", value: "oklch(0.60 0.11 355)" },
-  { label: "Purple", value: "oklch(0.58 0.12 300)" },
-  { label: "Violet", value: "oklch(0.56 0.11 270)" },
+  { label: "Sky", value: "#0096af" },
+  { label: "Teal", value: "#0d8d82" },
+  { label: "Green", value: "#458554" },
+  { label: "Lime", value: "#798940" },
+  { label: "Amber", value: "#ad721c" },
+  { label: "Orange", value: "#be6438" },
+  { label: "Red", value: "#bb5752" },
+  { label: "Pink", value: "#b36383" },
+  { label: "Purple", value: "#8668b6" },
+  { label: "Violet", value: "#5b70b5" },
 ];
 
 const AVATAR_IMAGES = [
@@ -169,11 +169,11 @@ const AVATAR_IMAGES = [
 ];
 
 const AVATAR_DEFAULT_COLOR: Record<string, string> = {
-  "pepe-mage.png": "oklch(0.56 0.10 150)", // Green
-  "jaina.png": "oklch(0.62 0.11 215)", // Sky/Blue
-  "paladin.png": "oklch(0.60 0.12 70)", // Amber
-  "kadghar.png": "oklch(0.58 0.12 300)", // Pink
-  "Garrosh.png": "oklch(0.58 0.13 25)", // Red
+  "pepe-mage.png": "#458554",
+  "jaina.png": "#0096af",
+  "paladin.png": "#ad721c",
+  "kadghar.png": "#8668b6",
+  "Garrosh.png": "#bb5752",
 };
 
 const CURRENCIES = [

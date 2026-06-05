@@ -4,8 +4,8 @@ import { gsap } from "gsap";
 
 const isDark = ref(false);
 
-const DARK_BG = "oklch(0.18 0.008 75)";
-const LIGHT_BG = "oklch(0.975 0.008 85)";
+const DARK_BG = "#14110e";
+const LIGHT_BG = "#f9f6f1";
 
 export function useColorMode() {
   const vuetifyTheme = useTheme();

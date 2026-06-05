@@ -5,8 +5,8 @@
       :style="
         low
           ? {
-              background: 'oklch(0.7 0.13 50 / 0.15)',
-              color: 'oklch(0.5 0.12 45)',
+              background: '#de844f26',
+              color: '#994920',
             }
           : {}
       "
@@ -24,7 +24,7 @@
           :value="item.qty"
           :max="barMax"
           :min-mark="item.min"
-          :color="low ? 'oklch(0.68 0.14 50)' : 'var(--accent)'"
+          :color="low ? '#dc7b40' : 'var(--accent)'"
         />
       </div>
     </div>
