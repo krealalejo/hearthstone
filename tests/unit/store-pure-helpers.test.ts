@@ -5,7 +5,7 @@ import {
   money,
   MEMBER_COLORS,
   LEVELS,
-} from "~/stores/home";
+} from "~/utils/home";
 
 describe("memberColor", () => {
   it("returns known color for 'alex'", () => {
