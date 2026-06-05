@@ -105,6 +105,7 @@ export const useHomeStore = defineStore("home", {
     },
     me: (s) =>
       s.members.find((m) => m.id === s.currentUserId) ??
+      s.members.find((m) => m.status === "active") ??
       ({
         id: "",
         name: "",
