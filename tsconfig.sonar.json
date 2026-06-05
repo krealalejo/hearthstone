@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "paths": {}
+  },
+  "include": ["app/**/*", "server/**/*", "tests/**/*"],
+  "exclude": ["node_modules", ".nuxt", "dist"]
+}
