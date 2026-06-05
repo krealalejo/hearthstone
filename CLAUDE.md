@@ -59,6 +59,10 @@ Auto-restock logic: when `inventory.qty <= inventory.min`, a shopping item is ad
 
 GSAP is registered as a client-only plugin (`app/plugins/gsap.client.ts`) and wrapped in `app/composables/useAnimations.ts`. Import `useAnimations()` in components, not `$gsap` directly.
 
+### Code style
+
+**No comments.** Never write `//` or `<!-- -->` comments in code. Names and structure must be self-explanatory. The only exception: a non-obvious WHY (hidden constraint, subtle invariant, specific bug workaround) that would genuinely surprise a reader — one short line max.
+
 ### Git hooks (lefthook)
 
 - **pre-push**: runs `typecheck` + `test` in parallel — both must pass
