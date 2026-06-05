@@ -1,6 +1,5 @@
 <template>
   <div class="content-inner">
-    <!-- Stat row -->
     <div ref="statsEl" class="stat-row">
       <div class="stat">
         <div>
@@ -36,7 +35,6 @@
       </div>
     </div>
 
-    <!-- Section header -->
     <div class="sec-head">
       <h2>Weekly tasks</h2>
       <span class="line" />
@@ -95,7 +93,6 @@
       <DashboardLeaderboard />
     </div>
 
-    <!-- Task modal -->
     <v-dialog v-model="taskModalOpen" max-width="480" class="qh-dialog">
       <DashboardTaskModal
         :task="modalTask?.task ?? null"

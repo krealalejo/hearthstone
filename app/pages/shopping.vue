@@ -13,7 +13,6 @@
 
     <div class="shop-layout">
       <div>
-        <!-- Add manual item -->
         <div class="shop-add">
           <input
             v-model="draft"
@@ -34,7 +33,6 @@
           </p>
         </div>
 
-        <!-- Auto-restock section -->
         <template v-if="autoItems.length">
           <div class="sec-head" style="margin-top: 6px">
             <h2
@@ -59,7 +57,6 @@
           />
         </template>
 
-        <!-- Manual items -->
         <template v-if="manualItems.length">
           <div class="sec-head" style="margin-top: 18px">
             <h2
@@ -84,7 +81,6 @@
         </template>
       </div>
 
-      <!-- Checkout panel -->
       <div class="card shop-summary">
         <h3>Checkout</h3>
         <p style="font-size: 12.5px; color: var(--ink-3); margin: 0 0 6px">
