@@ -1,44 +1,31 @@
 import { defineStore } from "pinia";
+import { money } from "~/utils/home";
+import type {
+  Member,
+  Room,
+  Task,
+  InventoryItem,
+  ShoppingItem,
+  HistoryEntry,
+  Toast,
+  Household,
+} from "~/types/home";
 
-export const MEMBER_COLORS: Record<string, string> = {
-  alex: "#5b8abb",
-  sam: "#b46762",
-  jordan: "#51895e",
-  riley: "#a172ac",
-  casey: "#a37640",
+export type {
+  Member,
+  Room,
+  Task,
+  InventoryItem,
+  ShoppingItem,
+  HistoryEntry,
+  Toast,
+  Household,
 };
 
-export function memberColor(id: string): string {
-  return MEMBER_COLORS[id] ?? "#8f7d66";
-}
-
-export const LEVELS = [
-  "Fresh Start",
-  "Tidy Sprout",
-  "House Helper",
-  "Home Keeper",
-  "Space Steward",
-  "Order Adept",
-  "Domestic Pro",
-  "Hearth Master",
-];
-
-export function levelInfo(totalXp: number) {
-  const per = 250;
-  const idx = Math.min(LEVELS.length - 1, Math.floor(totalXp / per));
-  const into = totalXp - idx * per;
-  return {
-    level: idx + 1,
-    name: LEVELS[idx],
-    into,
-    per,
-    pct: Math.round((into / per) * 100),
-  };
-}
-
-export function money(n: number | null | undefined, currency = "$"): string {
-  if (n == null) return "— " + currency;
-  return Number(n).toFixed(2) + " " + currency;
+function toastId(): string {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return "toast_" + Date.now().toString(36) + "_" + (arr[0] ?? 0).toString(36);
 }
 
 export function useMoney() {
@@ -47,89 +34,6 @@ export function useMoney() {
     money: (n: number | null | undefined) =>
       money(n, store.household.currency ?? "$"),
   };
-}
-
-export interface Member {
-  id: string;
-  name: string;
-  email: string;
-  role: "admin" | "member";
-  status: "active" | "pending";
-  weekXp: number;
-  totalXp: number;
-  accentColor?: string;
-  avatarEmoji?: string;
-  avatarImage?: string;
-}
-
-export interface Room {
-  id: string;
-  name: string;
-  icon: string;
-}
-
-export interface Task {
-  id: string;
-  title: string;
-  desc: string;
-  roomId: string;
-  assignee: string | null;
-  xp: number;
-  recurring: boolean;
-  done: boolean;
-  doneBy: string | null;
-}
-
-export interface InventoryItem {
-  id: string;
-  name: string;
-  cat: "food" | "cleaning" | "misc";
-  qty: number;
-  min: number;
-  optimal: number;
-  price: number | null;
-  icon: string;
-}
-
-export interface ShoppingItem {
-  id: string;
-  name: string;
-  source: "auto" | "manual";
-  invId: string | null;
-  qty: number;
-  price: number | null;
-  checked: boolean;
-}
-
-export interface HistoryEntry {
-  id: string;
-  date: string;
-  items: { name: string; qty: number; price: number | null }[];
-  total: number;
-}
-
-export interface Toast {
-  id: string;
-  kind: "xp" | "restock" | "check" | "info";
-  title: string;
-  body?: string;
-  link?: string;
-  celebrate?: boolean;
-}
-
-export interface Household {
-  id: string;
-  name: string;
-  emoji: string;
-  lastResetWeek?: string;
-  weekStartDay?: "monday" | "sunday";
-  currency?: string;
-}
-
-function toastId(): string {
-  const arr = new Uint32Array(1);
-  crypto.getRandomValues(arr);
-  return "toast_" + Date.now().toString(36) + "_" + (arr[0] ?? 0).toString(36);
 }
 
 export const useHomeStore = defineStore("home", {
@@ -185,16 +89,22 @@ export const useHomeStore = defineStore("home", {
       );
       thu.setUTCDate(thu.getUTCDate() + 4 - (thu.getUTCDay() || 7));
       const jan1 = new Date(Date.UTC(thu.getUTCFullYear(), 0, 1));
-      const wk = Math.ceil(
-        ((thu.getTime() - jan1.getTime()) / 86400000 + 1) / 7,
+      return (
+        "M-" +
+        new Date(
+          thu.getUTCFullYear(),
+          0,
+          1 +
+            (Math.ceil(((thu.getTime() - jan1.getTime()) / 86400000 + 1) / 7) -
+              1) *
+              7,
+        )
+          .toISOString()
+          .slice(0, 10)
       );
-      return `${thu.getUTCFullYear()}-W${wk}`;
     },
-    lowCount: (s) => s.inventory.filter((i) => i.qty <= i.min).length,
-    shopCount: (s) => s.shopping.filter((i) => !i.checked).length,
     me: (s) =>
       s.members.find((m) => m.id === s.currentUserId) ??
-      s.members.find((m) => m.status === "active") ??
       ({
         id: "",
         name: "",
@@ -206,6 +116,8 @@ export const useHomeStore = defineStore("home", {
       } as Member),
     activeMembers: (s) => s.members.filter((m) => m.status === "active"),
     pendingMembers: (s) => s.members.filter((m) => m.status === "pending"),
+    lowCount: (s) => s.inventory.filter((i) => i.qty <= i.min).length,
+    shopCount: (s) => s.shopping.filter((i) => !i.checked).length,
   },
 
   actions: {
@@ -213,7 +125,6 @@ export const useHomeStore = defineStore("home", {
       this.toasts.push({ id: toastId(), ...toast });
     },
 
-    // ── Auth ──
     async login(email: string, password: string) {
       await $fetch("/api/login/login", {
         method: "POST",
@@ -223,7 +134,6 @@ export const useHomeStore = defineStore("home", {
 
     async logout() {
       await $fetch("/api/login/logout", { method: "POST" }).catch(() => null);
-      // Hard reload clears all Nuxt useAsyncData/callOnce cache
       if (import.meta.client) {
         globalThis.location.assign("/login");
       } else {
@@ -243,7 +153,6 @@ export const useHomeStore = defineStore("home", {
       this.flashShopId = null;
     },
 
-    // ── Hydration setters ──
     setTasks(tasks: Task[]) {
       this.tasks = tasks;
     },
@@ -274,7 +183,6 @@ export const useHomeStore = defineStore("home", {
       this.authed = true;
     },
 
-    // ── Tasks ──
     async toggleTask(id: string) {
       const tk = this.tasks.find((t) => t.id === id);
       if (!tk) return;
@@ -456,7 +364,6 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
-    // ── Inventory ──
     async setInvQty(id: string, qty: number) {
       qty = Math.max(0, qty);
       const item = this.inventory.find((i) => i.id === id);
@@ -613,7 +520,6 @@ export const useHomeStore = defineStore("home", {
       this.shopping = this.shopping.filter((sh) => sh.invId !== id);
     },
 
-    // ── Shopping ──
     toggleShop(id: string) {
       const item = this.shopping.find((sh) => sh.id === id);
       if (item) item.checked = !item.checked;
@@ -700,7 +606,6 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
-    // ── Household ──
     invite(email: string) {
       if (!email.trim()) return;
       this.members.push({
