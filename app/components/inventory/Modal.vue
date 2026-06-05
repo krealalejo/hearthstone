@@ -15,11 +15,16 @@
     </div>
     <div class="modal-body">
       <div class="field">
-        <label>Name</label>
-        <input v-model="form.name" placeholder="e.g. Olive oil" autofocus />
+        <label for="inv-name">Name</label>
+        <input
+          id="inv-name"
+          v-model="form.name"
+          placeholder="e.g. Olive oil"
+          autofocus
+        />
       </div>
       <div class="field">
-        <label>Category</label>
+        <div class="label">Category</div>
         <div class="pick-grid">
           <button
             v-for="c in CATS"
@@ -35,17 +40,17 @@
       </div>
       <div class="field-row">
         <div class="field">
-          <label>In stock now</label>
+          <div class="label">In stock now</div>
           <QuantityStepper :value="form.qty" @change="form.qty = $event" />
         </div>
         <div class="field">
-          <label>Min threshold</label>
+          <div class="label">Min threshold</div>
           <QuantityStepper :value="form.min" @change="form.min = $event" />
         </div>
       </div>
       <div class="field-row">
         <div class="field">
-          <label>Restock to</label>
+          <div class="label">Restock to</div>
           <QuantityStepper
             :value="form.optimal"
             :min="1"
@@ -53,7 +58,7 @@
           />
         </div>
         <div class="field">
-          <label
+          <label for="inv-price"
             >Price
             <span style="color: var(--ink-3); font-weight: 400"
               >· optional</span
@@ -64,6 +69,7 @@
               {{ store.household.currency ?? "$" }}
             </span>
             <input
+              id="inv-price"
               v-model="form.price"
               class="price-input"
               type="number"

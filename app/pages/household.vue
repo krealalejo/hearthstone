@@ -173,8 +173,9 @@
         </div>
         <div class="modal-body">
           <div class="field">
-            <label>Email address</label>
+            <label for="invite-email">Email address</label>
             <input
+              id="invite-email"
               v-model="inviteEmail"
               type="email"
               placeholder="roommate@email.com"

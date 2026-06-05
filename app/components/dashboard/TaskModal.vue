@@ -15,24 +15,29 @@
     </div>
     <div class="modal-body">
       <div class="field">
-        <label>Title</label>
+        <label for="task-title">Title</label>
         <input
+          id="task-title"
           v-model="form.title"
           placeholder="e.g. Clean the windows"
           autofocus
         />
       </div>
       <div class="field">
-        <label
+        <label for="task-desc"
           >Description
           <span style="color: var(--ink-3); font-weight: 400"
             >· optional</span
           ></label
         >
-        <textarea v-model="form.desc" placeholder="Any details…" />
+        <textarea
+          id="task-desc"
+          v-model="form.desc"
+          placeholder="Any details…"
+        />
       </div>
       <div class="field">
-        <label>Room</label>
+        <div class="label">Room</div>
         <div class="pick-grid">
           <button
             v-for="r in store.rooms"
@@ -47,7 +52,7 @@
         </div>
       </div>
       <div class="field">
-        <label>Assign to</label>
+        <div class="label">Assign to</div>
         <div class="pick-grid">
           <button
             class="pick"
@@ -68,7 +73,7 @@
         </div>
       </div>
       <div class="field">
-        <label>Effort · {{ form.xp }} XP</label>
+        <div class="label">Effort · {{ form.xp }} XP</div>
         <div class="xp-pick">
           <button
             v-for="opt in XP_OPTS"
@@ -82,7 +87,7 @@
           </button>
         </div>
       </div>
-      <label
+      <button
         class="pick"
         style="justify-content: space-between; cursor: pointer"
         @click="form.recurring = !form.recurring"
@@ -95,7 +100,7 @@
             >mdi-check</v-icon
           >
         </span>
-      </label>
+      </button>
     </div>
     <div class="modal-foot">
       <button

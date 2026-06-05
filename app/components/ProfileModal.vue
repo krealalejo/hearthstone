@@ -19,8 +19,13 @@
         <AppAvatar :member="preview" size="xl" />
         <div style="flex: 1; min-width: 0">
           <div class="field">
-            <label>Name</label>
-            <input v-model="form.name" type="text" placeholder="Your name" />
+            <label for="profile-name">Name</label>
+            <input
+              id="profile-name"
+              v-model="form.name"
+              type="text"
+              placeholder="Your name"
+            />
           </div>
           <div style="color: var(--ink-3); font-size: 12.5px; margin-top: 6px">
             {{ store.me.email }}

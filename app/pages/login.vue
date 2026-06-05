@@ -64,16 +64,21 @@
         </p>
 
         <div v-if="mode === 'signup'" class="field">
-          <label>Full name</label>
-          <input v-model="name" placeholder="Jordan Lee" />
+          <label for="auth-name">Full name</label>
+          <input id="auth-name" v-model="name" placeholder="Jordan Lee" />
         </div>
         <div class="field">
-          <label>Email</label>
-          <input v-model="email" type="email" />
+          <label for="auth-email">Email</label>
+          <input id="auth-email" v-model="email" type="email" />
         </div>
         <div class="field">
-          <label>Password</label>
-          <input v-model="password" type="password" @keyup.enter="handleAuth" />
+          <label for="auth-password">Password</label>
+          <input
+            id="auth-password"
+            v-model="password"
+            type="password"
+            @keyup.enter="handleAuth"
+          />
         </div>
 
         <div
