@@ -6,7 +6,8 @@ vi.stubGlobal("navigateTo", vi.fn());
 vi.stubGlobal("$fetch", vi.fn());
 
 function makeFetch(returnValue: unknown = {}) {
-  return vi.mocked($fetch).mockResolvedValue(returnValue as never);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (vi.mocked($fetch) as any).mockResolvedValue(returnValue);
 }
 
 function makeFetchFail(statusCode = 500) {

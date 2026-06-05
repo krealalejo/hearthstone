@@ -271,7 +271,7 @@ describe("inventory/Modal", () => {
       props: { item: baseInvItem({ name: "Butter" }) },
     });
     const nameInput = wrapper.find("input[placeholder]");
-    expect(nameInput.element.value).toBe("Butter");
+    expect((nameInput.element as HTMLInputElement).value).toBe("Butter");
   });
 
   it("emits close when cancel clicked", async () => {

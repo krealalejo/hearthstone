@@ -51,9 +51,10 @@ describe("checkout", () => {
 
   it("removes checked items, adds history entry, resets linked inventory", async () => {
     const histEntry = { id: "h1", date: "2024-01-01", items: [], total: 5 };
-    vi.mocked($fetch)
-      .mockResolvedValueOnce(histEntry as never)
-      .mockResolvedValueOnce({} as never);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (vi.mocked($fetch) as any)
+      .mockResolvedValueOnce(histEntry)
+      .mockResolvedValueOnce({});
 
     const store = useHomeStore();
     store.household = { id: "hh1", name: "Home", emoji: "🏠", currency: "$" };

@@ -130,7 +130,7 @@ describe("pages/dashboard", () => {
     const wrapper = await mount(Component);
     const store = useHomeStore();
     store.tasks = [baseTask()];
-    store.rooms = [{ id: "kitchen", name: "Kitchen" }];
+    store.rooms = [{ id: "kitchen", name: "Kitchen", icon: "mdi-silverware" }];
     await nextTick();
     expect(wrapper.html()).toBeTruthy();
   });
