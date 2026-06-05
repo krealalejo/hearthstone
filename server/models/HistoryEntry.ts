@@ -28,7 +28,6 @@ const HistoryEntrySchema = new Schema<IHistoryEntry>(
   { timestamps: true, toJSON: { virtuals: true } },
 );
 
-// Hot-reload guard: prevent OverwriteModelError on dev hot-reload
 export const HistoryEntry = (mongoose.models.HistoryEntry ||
   mongoose.model<IHistoryEntry>(
     "HistoryEntry",

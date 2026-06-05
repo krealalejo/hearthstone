@@ -32,7 +32,6 @@ const ShoppingItemSchema = new Schema<IShoppingItem>(
   { timestamps: true, toJSON: { virtuals: true } },
 );
 
-// Hot-reload guard: prevent OverwriteModelError on dev hot-reload
 export const ShoppingItem = (mongoose.models.ShoppingItem ||
   mongoose.model<IShoppingItem>(
     "ShoppingItem",

@@ -34,7 +34,6 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
   { timestamps: true, toJSON: { virtuals: true } },
 );
 
-// Hot-reload guard: prevent OverwriteModelError on dev hot-reload
 export const InventoryItem = (mongoose.models.InventoryItem ||
   mongoose.model<IInventoryItem>(
     "InventoryItem",

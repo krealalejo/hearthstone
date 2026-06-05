@@ -29,10 +29,8 @@ const PendingInviteSchema = new Schema<IPendingInvite>(
   { timestamps: true, toJSON: { virtuals: true } },
 );
 
-// Compound index to prevent duplicate invites to the same email in a household
 PendingInviteSchema.index({ householdId: 1, email: 1 }, { unique: true });
 
-// Hot-reload guard: prevent OverwriteModelError on dev hot-reload
 export const PendingInvite = (mongoose.models.PendingInvite ||
   mongoose.model<IPendingInvite>(
     "PendingInvite",

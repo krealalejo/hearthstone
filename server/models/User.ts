@@ -50,6 +50,5 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true, toJSON: { virtuals: true } },
 );
 
-// Hot-reload guard: prevent OverwriteModelError on dev hot-reload
 export const User = (mongoose.models.User ||
   mongoose.model<IUser>("User", UserSchema)) as Model<IUser>;
