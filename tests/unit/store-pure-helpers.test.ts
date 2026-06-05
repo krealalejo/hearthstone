@@ -17,7 +17,7 @@ describe("memberColor", () => {
   });
 
   it("returns fallback oklch for unknown id", () => {
-    expect(memberColor("unknown_user_xyz")).toBe("oklch(0.6 0.04 75)");
+    expect(memberColor("unknown_user_xyz")).toBe("#8f7d66");
   });
 });
 
