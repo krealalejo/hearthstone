@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { Member } from "~/stores/home";
-import { memberColor } from "~/stores/home";
+import { memberColor } from "~/utils/home";
 
 const props = withDefaults(
   defineProps<{
