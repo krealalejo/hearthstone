@@ -36,7 +36,6 @@ export function useColorMode() {
 
     const next = !isDark.value;
 
-    // Spin the button icon
     if (btn) {
       gsap.fromTo(
         btn,
@@ -50,7 +49,6 @@ export function useColorMode() {
       );
     }
 
-    // Overlay cross-fade: cover with target-theme bg, switch, reveal
     const overlay = document.createElement("div");
     overlay.style.cssText = `position:fixed;inset:0;z-index:99999;pointer-events:none;background:${next ? DARK_BG : LIGHT_BG};opacity:0;`;
     document.body.appendChild(overlay);
