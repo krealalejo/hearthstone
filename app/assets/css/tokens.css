@@ -2,6 +2,7 @@
    Quiet Home — design tokens
    ─────────────────────────────────────────────────────────── */
 
+/* ── Light theme (default) ── */
 :root {
   --font-display: "Bricolage Grotesque", sans-serif;
   --font-ui: "Hanken Grotesque", system-ui, sans-serif;
@@ -21,10 +22,7 @@
     0 18px 50px oklch(0.3 0.02 75 / 0.14), 0 6px 16px oklch(0.3 0.02 75 / 0.08);
 
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
-}
 
-/* ── Light theme (default) ── */
-:root {
   --bg: oklch(0.975 0.008 85);
   --bg-2: oklch(0.955 0.01 85);
   --surface: oklch(0.995 0.004 85);
