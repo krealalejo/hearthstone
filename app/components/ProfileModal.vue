@@ -304,7 +304,6 @@ async function handleLogout() {
   border: 1.5px solid var(--hairline);
   background: var(--surface);
   cursor: pointer;
-  font-size: 18px;
   display: grid;
   place-items: center;
   transition:
