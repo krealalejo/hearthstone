@@ -54,9 +54,7 @@ const assignee = computed(
   () => store.members.find((m) => m.id === props.task.assignee) ?? null,
 );
 
-onMounted(() => {
-  // stagger-in handled by parent
-});
+onMounted(() => {});
 
 function handleToggle() {
   const el = rowEl.value?.querySelector(".check");

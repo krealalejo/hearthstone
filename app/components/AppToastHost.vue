@@ -52,7 +52,6 @@ watch(
         timers.set(t.id, timer);
       }
     });
-    // fire confetti for celebrate toasts at non-subtle game level
     const last = toasts[toasts.length - 1];
     if (last?.celebrate) {
       fireConfetti();
