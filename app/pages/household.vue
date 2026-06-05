@@ -1,6 +1,5 @@
 <template>
   <div class="content-inner" style="max-width: 760px">
-    <!-- Household header -->
     <div
       class="card"
       style="
@@ -76,7 +75,6 @@
       </button>
     </div>
 
-    <!-- Active members -->
     <div class="sec-head">
       <h2>Members</h2>
       <span class="count">{{ store.activeMembers.length }}</span
@@ -116,7 +114,6 @@
       </div>
     </div>
 
-    <!-- Pending invitations -->
     <template v-if="store.pendingMembers.length">
       <div class="sec-head">
         <h2>Pending invitations</h2>
@@ -155,123 +152,33 @@
       </button>
     </div>
 
-    <!-- Invite modal -->
-    <v-dialog v-model="inviteOpen" max-width="480" class="qh-dialog">
-      <div>
-        <div class="modal-head" style="position: relative">
-          <h2>Invite a member</h2>
-          <p>They'll get a link to join this household</p>
-          <div style="position: absolute; top: 0; right: 0">
-            <button
-              class="btn btn-ghost btn-icon btn-sm"
-              style="border: 0"
-              @click="inviteOpen = false"
-            >
-              <v-icon>mdi-close</v-icon>
-            </button>
-          </div>
-        </div>
-        <div class="modal-body">
-          <div class="field">
-            <label for="invite-email">Email address</label>
-            <input
-              id="invite-email"
-              v-model="inviteEmail"
-              type="email"
-              placeholder="roommate@email.com"
-              autofocus
-              @keydown.enter="doInvite"
-            />
-          </div>
-          <div
-            style="
-              font-size: 12.5px;
-              color: var(--ink-3);
-              display: flex;
-              gap: 8px;
-              align-items: flex-start;
-            "
-          >
-            <v-icon style="font-size: 15px; margin-top: 1px"
-              >mdi-information</v-icon
-            >
-            <span
-              >A pending invitation token is generated. The member joins your
-              shared tasks, inventory, and lists once they accept.</span
-            >
-          </div>
-        </div>
-        <div class="modal-foot">
-          <button class="btn btn-ghost" @click="inviteOpen = false">
-            Cancel
-          </button>
-          <button class="btn btn-primary" @click="doInvite">
-            <v-icon style="font-size: 17px">mdi-send</v-icon>Send invite
-          </button>
-        </div>
-      </div>
-    </v-dialog>
+    <HouseholdInviteDialog
+      v-model="inviteOpen"
+      @invite="store.invite($event)"
+    />
 
-    <!-- Confirm modal -->
-    <v-dialog v-model="confirmOpen" max-width="480" class="qh-dialog">
-      <div v-if="confirmAction">
-        <div class="modal-head" style="position: relative">
-          <h2>
-            {{
-              confirmAction.kind === "leave"
-                ? "Leave household?"
-                : `Remove ${confirmAction.member.name.split(" ")[0]}?`
-            }}
-          </h2>
-          <p>
-            {{
-              confirmAction.kind === "leave"
-                ? "You will lose access to shared tasks, inventory and lists."
-                : "They will lose access to this household."
-            }}
-          </p>
-          <div style="position: absolute; top: 0; right: 0">
-            <button
-              class="btn btn-ghost btn-icon btn-sm"
-              style="border: 0"
-              @click="confirmAction = null"
-            >
-              <v-icon>mdi-close</v-icon>
-            </button>
-          </div>
-        </div>
-        <div class="modal-foot">
-          <button class="btn btn-ghost" @click="confirmAction = null">
-            Cancel
-          </button>
-          <button
-            class="btn btn-primary"
-            style="background: #bd413f"
-            @click="doConfirm"
-          >
-            {{ confirmAction.kind === "leave" ? "Leave" : "Remove" }}
-          </button>
-        </div>
-      </div>
-    </v-dialog>
+    <HouseholdConfirmDialog
+      v-model="confirmOpen"
+      :action="confirmAction"
+      @confirm="doConfirm"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import type { Member } from "~/stores/home";
-import { useHomeStore, levelInfo } from "~/stores/home";
+import { useHomeStore } from "~/stores/home";
+import { levelInfo } from "~/utils/home";
 
 definePageMeta({ middleware: "auth" });
 
 const store = useHomeStore();
-
 const isAdmin = computed(() => store.me.role === "admin");
 
 const editName = ref(false);
 const hhNameEdit = ref(store.household.name);
 const inviteOpen = ref(false);
-const inviteEmail = ref("");
 const confirmAction = ref<{ kind: "remove" | "leave"; member: Member } | null>(
   null,
 );
@@ -286,22 +193,18 @@ function startEdit() {
   hhNameEdit.value = store.household.name;
   editName.value = true;
 }
+
 function saveName() {
   store.renameHousehold(hhNameEdit.value.trim() || store.household.name);
   editName.value = false;
 }
-function doInvite() {
-  store.invite(inviteEmail.value);
-  inviteEmail.value = "";
-  inviteOpen.value = false;
-}
-function doConfirm() {
-  if (!confirmAction.value) return;
-  if (confirmAction.value.kind === "leave") {
+
+function doConfirm(action: { kind: "remove" | "leave"; member: Member }) {
+  if (action.kind === "leave") {
     store.logout();
     navigateTo("/login");
   } else {
-    store.removeMember(confirmAction.value.member.id);
+    store.removeMember(action.member.id);
   }
   confirmAction.value = null;
 }
