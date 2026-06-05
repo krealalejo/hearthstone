@@ -14,10 +14,7 @@ export function useColorMode() {
     isDark.value = dark;
     vuetifyTheme.change(dark ? "dark" : "light");
     if (import.meta.client) {
-      document.documentElement.setAttribute(
-        "data-theme",
-        dark ? "dark" : "light",
-      );
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
       localStorage.setItem("theme", dark ? "dark" : "light");
     }
   }
@@ -27,7 +24,7 @@ export function useColorMode() {
     if (saved) {
       apply(saved === "dark");
     } else {
-      const prefersDark = window.matchMedia(
+      const prefersDark = globalThis.matchMedia(
         "(prefers-color-scheme: dark)",
       ).matches;
       apply(prefersDark);
