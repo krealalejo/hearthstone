@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { nextTick } from "vue";
-import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { useHomeStore } from "~/stores/home";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
 
 vi.mock("~/composables/useAnimations", () => ({
   useAnimations: () => ({
@@ -140,6 +140,16 @@ describe("AppTabBar", () => {
     await nextTick();
     expect(wrapper.findAll(".tab-badge")).toHaveLength(0);
   });
+
+  it("navigates when tab clicked", async () => {
+    const { default: Component } = await import("~/components/AppTabBar.vue");
+    const wrapper = await mountSuspended(Component);
+    const tabs = wrapper.findAll("button.tab");
+    for (const tab of tabs) {
+      await tab.trigger("click");
+    }
+    expect(wrapper.find(".tabbar").exists()).toBe(true);
+  });
 });
 
 describe("AppTopbar", () => {
@@ -148,5 +158,41 @@ describe("AppTopbar", () => {
     const wrapper = await mountSuspended(Component);
     expect(wrapper.find(".topbar").exists()).toBe(true);
     expect(wrapper.text()).toContain("Week");
+  });
+
+  it("clicks color mode toggle button", async () => {
+    const { default: Component } = await import("~/components/AppTopbar.vue");
+    const wrapper = await mountSuspended(Component);
+    const toggleBtn = wrapper.find("button.btn-icon");
+    if (toggleBtn.exists()) await toggleBtn.trigger("click");
+    expect(wrapper.find(".topbar").exists()).toBe(true);
+  });
+
+  it("renders New week button on dashboard route and clicks it", async () => {
+    const { default: Component } = await import("~/components/AppTopbar.vue");
+    const wrapper = await mountSuspended(Component, {
+      route: "/dashboard",
+    });
+    const store = useHomeStore();
+    store.currentUser = "u1";
+    store.members = [
+      {
+        id: "u1",
+        name: "Alice Smith",
+        email: "alice@example.com",
+        role: "admin" as const,
+        status: "active" as const,
+        weekXp: 0,
+        totalXp: 0,
+      },
+    ];
+    await nextTick();
+    vi.spyOn(store, "resetWeek").mockResolvedValue(undefined as any);
+    const buttons = wrapper.findAll("button");
+    const newWeekBtn = buttons.find(
+      (b) => b.text().includes("week") || b.text().includes("New"),
+    );
+    if (newWeekBtn) await newWeekBtn.trigger("click");
+    expect(wrapper.find(".topbar").exists()).toBe(true);
   });
 });

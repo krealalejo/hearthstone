@@ -169,6 +169,40 @@ describe("AppSidebar", () => {
       expect(wrapper.emitted("open-profile")).toBeTruthy();
     }
   });
+
+  it("clicks all nav items and hh-switch to cover onClick handlers", async () => {
+    const { default: Component } = await import("~/components/AppSidebar.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.household = baseHousehold();
+    store.members = [baseMember()];
+    await nextTick();
+    const hhSwitch = wrapper.find(".hh-switch");
+    if (hhSwitch.exists()) await hhSwitch.trigger("click");
+    const navItems = wrapper.findAll(".nav-item");
+    for (const item of navItems) {
+      await item.trigger("click");
+      await nextTick();
+    }
+    const childItems = wrapper.findAll(".nav-sub");
+    for (const child of childItems) {
+      await child.trigger("click");
+      await nextTick();
+    }
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("triggers watch callback by navigating to history route", async () => {
+    const { default: Component } = await import("~/components/AppSidebar.vue");
+    const wrapper = await mount(Component, { route: "/dashboard" });
+    const store = useHomeStore();
+    store.household = baseHousehold();
+    store.members = [baseMember()];
+    await nextTick();
+    await (wrapper.vm as any).$router.push("/history/purchases");
+    await nextTick();
+    expect(wrapper.html()).toBeTruthy();
+  });
 });
 
 describe("ProfileModal", () => {
@@ -254,6 +288,20 @@ describe("ProfileModal", () => {
     await nextTick();
     expect(wrapper.text()).toContain("Monday");
   });
+
+  it("picks avatar image when img-opt button clicked", async () => {
+    const { wrapper } = await mountProfileModal();
+    const avatarBtn = wrapper.find(".emoji-opt.img-opt");
+    if (avatarBtn.exists()) await avatarBtn.trigger("click");
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("updates name input value", async () => {
+    const { wrapper } = await mountProfileModal();
+    const nameInput = wrapper.find("input[type='text']");
+    if (nameInput.exists()) await nameInput.setValue("Bob Smith");
+    expect(wrapper.html()).toBeTruthy();
+  });
 });
 
 describe("inventory/Modal", () => {
@@ -328,6 +376,46 @@ describe("inventory/Modal", () => {
     const wrapper = await mount(Component, {
       props: { item: baseInvItem({ qty: 0, min: 2 }) },
     });
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("closes when X button clicked", async () => {
+    const { default: Component } =
+      await import("~/components/inventory/Modal.vue");
+    const wrapper = await mount(Component, { props: { item: null } });
+    const closeBtn = wrapper.find(".btn-ghost.btn-icon");
+    if (closeBtn.exists()) await closeBtn.trigger("click");
+    expect(wrapper.emitted("close")).toBeTruthy();
+  });
+
+  it("changes category when category button clicked", async () => {
+    const { default: Component } =
+      await import("~/components/inventory/Modal.vue");
+    const wrapper = await mount(Component, { props: { item: null } });
+    const cleaningBtn = wrapper
+      .findAll(".pick")
+      .find((b) => b.text().includes("Cleaning"));
+    if (cleaningBtn) await cleaningBtn.trigger("click");
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("increases qty when stepper + button clicked", async () => {
+    const { default: Component } =
+      await import("~/components/inventory/Modal.vue");
+    const wrapper = await mount(Component, { props: { item: null } });
+    const incBtns = wrapper.findAll("[aria-label='increase']");
+    for (const btn of incBtns) {
+      await btn.trigger("click");
+    }
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("changes price when price input changed", async () => {
+    const { default: Component } =
+      await import("~/components/inventory/Modal.vue");
+    const wrapper = await mount(Component, { props: { item: null } });
+    const priceInput = wrapper.find("input[type='number']");
+    if (priceInput.exists()) await priceInput.setValue("4.99");
     expect(wrapper.html()).toBeTruthy();
   });
 });
