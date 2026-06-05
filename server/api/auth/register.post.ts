@@ -18,9 +18,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const hash = await bcrypt.hash(password, 12); // async, 12 rounds — D-01
+  const hash = await bcrypt.hash(password, 12);
 
-  // D-04: check for pending invite matching this email
   let householdId: string;
   let role: "admin" | "member";
 
@@ -29,12 +28,10 @@ export default defineEventHandler(async (event) => {
   });
 
   if (pendingInvite) {
-    // D-04: auto-join the inviting household as member
     householdId = pendingInvite.householdId.toString();
     role = pendingInvite.role;
     await PendingInvite.deleteOne({ _id: pendingInvite._id });
   } else {
-    // D-02: auto-create household on signup
     const household = await Household.create({
       name: `${name.split(" ")[0]}'s Home`,
       emoji: "mdi-home",
@@ -54,7 +51,7 @@ export default defineEventHandler(async (event) => {
     totalXp: 0,
   });
 
-  const config = useRuntimeConfig(event); // pass event — required for env override
+  const config = useRuntimeConfig(event);
   const tokenPayload = {
     sub: user._id.toString(),
     householdId: householdId.toString(),
@@ -72,14 +69,14 @@ export default defineEventHandler(async (event) => {
     secure: isProd,
     sameSite: "lax",
     path: "/",
-    maxAge: 3600, // 1 hour — D-07
+    maxAge: 3600,
   });
   setCookie(event, "refresh_token", refreshToken, {
     httpOnly: true,
     secure: isProd,
     sameSite: "lax",
     path: "/",
-    maxAge: 2592000, // 30 days — D-08
+    maxAge: 2592000,
   });
 
   return {

@@ -10,7 +10,6 @@ export default defineEventHandler(async (event) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    // No user enumeration — same message for wrong email and wrong password
     throw createError({
       statusCode: 401,
       statusMessage: "Invalid credentials",
@@ -25,7 +24,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const config = useRuntimeConfig(event); // pass event — required for env override
+  const config = useRuntimeConfig(event);
   const tokenPayload = {
     sub: user._id.toString(),
     householdId: user.householdId.toString(),
@@ -43,14 +42,14 @@ export default defineEventHandler(async (event) => {
     secure: isProd,
     sameSite: "lax",
     path: "/",
-    maxAge: 3600, // 1 hour — D-07
+    maxAge: 3600,
   });
   setCookie(event, "refresh_token", refreshToken, {
     httpOnly: true,
     secure: isProd,
     sameSite: "lax",
     path: "/",
-    maxAge: 2592000, // 30 days — D-08
+    maxAge: 2592000,
   });
 
   return {
