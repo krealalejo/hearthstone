@@ -6,7 +6,26 @@ export default defineVitestConfig({
     globals: true,
     coverage: {
       provider: "v8",
-      reporter: ["text", "html"],
+      reporter: ["text", "html", "lcov"],
+      include: ["app/**/*.{ts,vue}", "server/**/*.ts"],
+      exclude: [
+        "app/plugins/**",
+        "app/middleware/**",
+        "app/pages/**",
+        "app/composables/useColorMode.ts",
+        "server/plugins/**",
+        "server/models/**",
+        "**/*.d.ts",
+        "**/.nuxt/**",
+        "**/dist/**",
+        "**/node_modules/**",
+      ],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+      },
     },
   },
 });
