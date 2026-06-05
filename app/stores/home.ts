@@ -129,7 +129,7 @@ export interface Household {
 function toastId(): string {
   const arr = new Uint32Array(1);
   crypto.getRandomValues(arr);
-  return "toast_" + Date.now().toString(36) + "_" + arr[0]!.toString(36);
+  return "toast_" + Date.now().toString(36) + "_" + (arr[0] ?? 0).toString(36);
 }
 
 export const useHomeStore = defineStore("home", {
@@ -225,7 +225,7 @@ export const useHomeStore = defineStore("home", {
       await $fetch("/api/login/logout", { method: "POST" }).catch(() => null);
       // Hard reload clears all Nuxt useAsyncData/callOnce cache
       if (import.meta.client) {
-        window.location.assign("/login");
+        globalThis.location.assign("/login");
       } else {
         await navigateTo("/login");
       }
@@ -355,31 +355,7 @@ export const useHomeStore = defineStore("home", {
     },
 
     async saveTask(data: Partial<Task> & { title: string }) {
-      if (data.id) {
-        const idx = this.tasks.findIndex((t) => t.id === data.id);
-        const previous = idx !== -1 ? { ...this.tasks[idx] } : null;
-        if (idx !== -1) {
-          this.tasks[idx] = { ...this.tasks[idx]!, ...data } as Task;
-        }
-        try {
-          await $fetch("/api/tasks", {
-            method: "PATCH",
-            body: data,
-          });
-        } catch (err) {
-          if (idx !== -1 && previous) {
-            this.tasks[idx] = previous as Task;
-          }
-          this._toast({
-            kind: "info",
-            title: "Update failed",
-            body: "Changes reverted",
-          });
-          if ((err as { statusCode?: number })?.statusCode === 401) {
-            await this._handle401();
-          }
-        }
-      } else {
+      if (!data.id) {
         try {
           const created = await $fetch<Task>("/api/tasks", {
             method: "POST",
@@ -396,6 +372,23 @@ export const useHomeStore = defineStore("home", {
             await this._handle401();
           }
         }
+        return;
+      }
+      const idx = this.tasks.findIndex((t) => t.id === data.id);
+      const previous = idx === -1 ? null : { ...this.tasks[idx] };
+      if (idx !== -1)
+        this.tasks[idx] = { ...this.tasks[idx]!, ...data } as Task;
+      try {
+        await $fetch("/api/tasks", { method: "PATCH", body: data });
+      } catch (err) {
+        if (idx !== -1 && previous) this.tasks[idx] = previous as Task;
+        this._toast({
+          kind: "info",
+          title: "Update failed",
+          body: "Changes reverted",
+        });
+        if ((err as { statusCode?: number })?.statusCode === 401)
+          await this._handle401();
       }
     },
 
@@ -529,79 +522,7 @@ export const useHomeStore = defineStore("home", {
     },
 
     async saveInv(data: Partial<InventoryItem> & { name: string }) {
-      if (data.id) {
-        const idx = this.inventory.findIndex((i) => i.id === data.id);
-        const previous = idx !== -1 ? { ...this.inventory[idx] } : null;
-        let saveInvTempId: string | null = null;
-        if (idx !== -1) {
-          this.inventory[idx] = {
-            ...this.inventory[idx]!,
-            ...data,
-          } as InventoryItem;
-          const item = this.inventory[idx]!;
-          if (
-            item.qty <= item.min &&
-            !this.shopping.some((sh) => sh.invId === item.id)
-          ) {
-            saveInvTempId = "temp_" + Date.now().toString(36);
-            const shopQty = Math.max(1, item.optimal - item.qty);
-            this.shopping.unshift({
-              id: saveInvTempId,
-              name: item.name,
-              source: "auto",
-              invId: item.id,
-              qty: shopQty,
-              price: item.price,
-              checked: false,
-            });
-            this.flashShopId = saveInvTempId;
-            this._toast({
-              kind: "restock",
-              title: "Added to shopping list",
-              body: `${item.name} is at or below its minimum`,
-              link: "shopping",
-            });
-          }
-        }
-        try {
-          await $fetch("/api/inventory", { method: "PATCH", body: data });
-          if (saveInvTempId) {
-            const updItem = this.inventory[idx]!;
-            const shopQty = Math.max(1, updItem.optimal - updItem.qty);
-            const created = await $fetch<ShoppingItem>("/api/shopping", {
-              method: "POST",
-              body: {
-                name: updItem.name,
-                source: "auto",
-                invId: updItem.id,
-                qty: shopQty,
-                price: updItem.price,
-              },
-            });
-            const si = this.shopping.findIndex((sh) => sh.id === saveInvTempId);
-            if (si !== -1) this.shopping[si] = created;
-            if (this.flashShopId === saveInvTempId)
-              this.flashShopId = created.id;
-          }
-        } catch (err) {
-          if (idx !== -1 && previous) {
-            this.inventory[idx] = previous as InventoryItem;
-          }
-          if (saveInvTempId) {
-            this.shopping = this.shopping.filter(
-              (sh) => sh.id !== saveInvTempId,
-            );
-          }
-          this._toast({
-            kind: "info",
-            title: "Update failed",
-            body: "Changes reverted",
-          });
-          if ((err as { statusCode?: number })?.statusCode === 401) {
-            await this._handle401();
-          }
-        }
-      } else {
+      if (!data.id) {
         try {
           const created = await $fetch<InventoryItem>("/api/inventory", {
             method: "POST",
@@ -618,6 +539,72 @@ export const useHomeStore = defineStore("home", {
             await this._handle401();
           }
         }
+        return;
+      }
+      const idx = this.inventory.findIndex((i) => i.id === data.id);
+      const previous = idx === -1 ? null : { ...this.inventory[idx] };
+      let tempId: string | null = null;
+      if (idx !== -1) {
+        this.inventory[idx] = {
+          ...this.inventory[idx]!,
+          ...data,
+        } as InventoryItem;
+        const item = this.inventory[idx]!;
+        if (
+          item.qty <= item.min &&
+          !this.shopping.some((sh) => sh.invId === item.id)
+        ) {
+          tempId = "temp_" + Date.now().toString(36);
+          const shopQty = Math.max(1, item.optimal - item.qty);
+          this.shopping.unshift({
+            id: tempId,
+            name: item.name,
+            source: "auto",
+            invId: item.id,
+            qty: shopQty,
+            price: item.price,
+            checked: false,
+          });
+          this.flashShopId = tempId;
+          this._toast({
+            kind: "restock",
+            title: "Added to shopping list",
+            body: `${item.name} is at or below its minimum`,
+            link: "shopping",
+          });
+        }
+      }
+      try {
+        await $fetch("/api/inventory", { method: "PATCH", body: data });
+        if (tempId) {
+          const item = this.inventory[idx]!;
+          const shopQty = Math.max(1, item.optimal - item.qty);
+          const created = await $fetch<ShoppingItem>("/api/shopping", {
+            method: "POST",
+            body: {
+              name: item.name,
+              source: "auto",
+              invId: item.id,
+              qty: shopQty,
+              price: item.price,
+            },
+          });
+          const si = this.shopping.findIndex((sh) => sh.id === tempId);
+          if (si !== -1) this.shopping[si] = created;
+          if (this.flashShopId === tempId) this.flashShopId = created.id;
+        }
+      } catch (err) {
+        if (idx !== -1 && previous)
+          this.inventory[idx] = previous as InventoryItem;
+        if (tempId)
+          this.shopping = this.shopping.filter((sh) => sh.id !== tempId);
+        this._toast({
+          kind: "info",
+          title: "Update failed",
+          body: "Changes reverted",
+        });
+        if ((err as { statusCode?: number })?.statusCode === 401)
+          await this._handle401();
       }
     },
 
@@ -686,7 +673,7 @@ export const useHomeStore = defineStore("home", {
       this._toast({
         kind: "check",
         title: "Purchase logged",
-        body: `${checked.length} item${checked.length > 1 ? "s" : ""}${restocked ? ` · ${restocked} restocked` : ""} · ${money(total, this.household.currency)}`,
+        body: `${checked.length} item${checked.length > 1 ? "s" : ""}${restocked ? " · " + restocked + " restocked" : ""} · ${money(total, this.household.currency)}`,
         link: "history",
       });
       try {
@@ -799,16 +786,17 @@ export const useHomeStore = defineStore("home", {
             avatarImage: data.avatarImage || null,
           },
         });
-        const householdChanged =
-          (data.weekStartDay && data.weekStartDay !== prev.weekStartDay) ||
-          (data.currency && data.currency !== prev.currency);
-        if (householdChanged) {
+        const householdPatch: Record<string, string> = {};
+        if (data.weekStartDay && data.weekStartDay !== prev.weekStartDay) {
+          householdPatch.weekStartDay = data.weekStartDay;
+        }
+        if (data.currency && data.currency !== prev.currency) {
+          householdPatch.currency = data.currency;
+        }
+        if (Object.keys(householdPatch).length) {
           await $fetch("/api/household", {
             method: "PATCH",
-            body: {
-              ...(data.weekStartDay ? { weekStartDay: data.weekStartDay } : {}),
-              ...(data.currency ? { currency: data.currency } : {}),
-            },
+            body: householdPatch,
           });
         }
         this._toast({ kind: "info", title: "Settings saved" });
