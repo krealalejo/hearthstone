@@ -60,7 +60,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useHomeStore, levelInfo } from "~/stores/home";
+import { useHomeStore } from "~/stores/home";
+import { levelInfo } from "~/utils/home";
 
 const store = useHomeStore();
 

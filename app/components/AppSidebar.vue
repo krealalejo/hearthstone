@@ -88,7 +88,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useHomeStore, levelInfo } from "~/stores/home";
+import { useHomeStore } from "~/stores/home";
+import { levelInfo } from "~/utils/home";
 
 const emit = defineEmits<{ "open-profile": [] }>();
 const store = useHomeStore();

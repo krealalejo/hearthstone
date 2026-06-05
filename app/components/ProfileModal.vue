@@ -14,7 +14,6 @@
     </div>
 
     <div class="modal-body" style="gap: 20px">
-      <!-- Avatar + name row -->
       <div style="display: flex; align-items: center; gap: 16px">
         <AppAvatar :member="preview" size="xl" />
         <div style="flex: 1; min-width: 0">
@@ -33,7 +32,6 @@
         </div>
       </div>
 
-      <!-- Level card -->
       <div class="level-card" style="margin: 0">
         <div class="lv-top">
           <span class="lv-name">{{ lvl.name }}</span>
@@ -44,7 +42,6 @@
         <ProgressBar :value="lvl.into" :max="lvl.per" />
       </div>
 
-      <!-- Color -->
       <div>
         <div class="settings-label">Color</div>
         <div class="color-row">
@@ -60,7 +57,6 @@
         </div>
       </div>
 
-      <!-- Avatar picker -->
       <div>
         <div class="settings-label">Avatar</div>
         <div class="emoji-row">
@@ -86,7 +82,6 @@
         </div>
       </div>
 
-      <!-- Household settings (admin only) -->
       <div v-if="store.me.role === 'admin'">
         <div class="settings-label">Week starts on</div>
         <div class="seg">
@@ -135,7 +130,8 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
-import { useHomeStore, levelInfo } from "~/stores/home";
+import { useHomeStore } from "~/stores/home";
+import { levelInfo } from "~/utils/home";
 import type { Member } from "~/stores/home";
 
 const emit = defineEmits<{ close: [] }>();
@@ -200,11 +196,9 @@ const form = reactive({
   currency: store.household.currency ?? "$",
 });
 
-// Active color: if none set, highlight the default swatch
 const activeColor = computed(() => form.accentColor || DEFAULT_COLOR);
 
 function pickColor(value: string) {
-  // Selecting the default color = clear custom color
   form.accentColor = value === DEFAULT_COLOR ? "" : value;
 }
 
@@ -223,7 +217,6 @@ function avatarBtnStyle(filename: string): Record<string, string> {
   return { background: color, borderColor: color };
 }
 
-// Live preview member for avatar
 const preview = computed<Member>(() => ({
   ...store.me,
   name: form.name || store.me.name,
