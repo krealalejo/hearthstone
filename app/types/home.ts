@@ -9,6 +9,7 @@ export interface Member {
   accentColor?: string;
   avatarEmoji?: string;
   avatarImage?: string;
+  locale?: "en" | "es" | "ca";
 }
 
 export interface Room {
