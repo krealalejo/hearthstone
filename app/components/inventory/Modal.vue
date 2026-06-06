@@ -3,40 +3,39 @@
     <div class="modal-head" style="position: relative">
       <h2>{{ item ? "Edit item" : "New item" }}</h2>
       <p v-if="!item">Track stock and set a restock threshold</p>
-      <div style="position: absolute; top: 0; right: 0">
-        <button
-          class="btn btn-ghost btn-icon btn-sm"
-          style="border: 0"
-          @click="emit('close')"
-        >
-          <v-icon>mdi-close</v-icon>
-        </button>
-      </div>
+      <v-btn
+        icon
+        variant="text"
+        size="small"
+        style="position: absolute; top: 0; right: 0"
+        @click="emit('close')"
+      >
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
     </div>
     <div class="modal-body">
       <div class="field">
-        <label for="inv-name">Name</label>
-        <input
-          id="inv-name"
+        <v-text-field
           v-model="form.name"
+          label="Name"
           placeholder="e.g. Olive oil"
           autofocus
         />
       </div>
       <div class="field">
         <div class="label">Category</div>
-        <div class="pick-grid">
-          <button
+        <v-chip-group v-model="form.cat" mandatory column>
+          <v-chip
             v-for="c in CATS"
             :key="c.id"
-            class="pick"
-            :class="{ on: form.cat === c.id }"
-            @click="form.cat = c.id as 'food' | 'cleaning' | 'misc'"
+            :value="c.id"
+            variant="outlined"
+            size="small"
           >
-            <v-icon style="font-size: 15px">{{ c.icon }}</v-icon
-            >{{ c.name.split(" ")[0] }}
-          </button>
-        </div>
+            <v-icon :icon="c.icon" size="14" start />
+            {{ c.name.split(" ")[0] }}
+          </v-chip>
+        </v-chip-group>
       </div>
       <div class="field-row">
         <div class="field">
@@ -58,12 +57,12 @@
           />
         </div>
         <div class="field">
-          <label for="inv-price"
-            >Price
+          <div class="label">
+            Price
             <span style="color: var(--ink-3); font-weight: 400"
               >· optional</span
-            ></label
-          >
+            >
+          </div>
           <div class="price-wrap">
             <span v-if="form.price !== ''" class="price-currency">
               {{ store.household.currency ?? "$" }}
@@ -100,22 +99,19 @@
       </div>
     </div>
     <div class="modal-foot">
-      <button
-        v-if="item"
-        class="btn btn-ghost"
-        style="margin-right: auto; color: #b94642"
+      <v-btn
+        v-if="isEdit"
+        variant="text"
+        color="error"
+        style="margin-right: auto"
         @click="handleDelete"
       >
-        <v-icon style="font-size: 15px">mdi-trash-can</v-icon>Delete
-      </button>
-      <button class="btn btn-ghost" @click="emit('close')">Cancel</button>
-      <button
-        class="btn btn-primary"
-        :disabled="!form.name.trim()"
-        @click="handleSave"
-      >
+        <v-icon size="15" start>mdi-trash-can</v-icon>Delete
+      </v-btn>
+      <v-btn variant="text" @click="emit('close')">Cancel</v-btn>
+      <v-btn color="primary" :disabled="!form.name.trim()" @click="handleSave">
         {{ item ? "Save changes" : "Add item" }}
-      </button>
+      </v-btn>
     </div>
   </div>
 </template>
@@ -127,6 +123,7 @@ import { useHomeStore } from "~/stores/home";
 
 const props = defineProps<{ item?: InventoryItem | null }>();
 const emit = defineEmits<{ close: [] }>();
+const isEdit = !!props.item;
 const store = useHomeStore();
 
 const CATS = [
@@ -174,10 +171,6 @@ function handleDelete() {
 </script>
 
 <style scoped>
-input {
-  text-align: center;
-}
-
 :deep(.stepper) {
   height: 42px;
   justify-content: space-between;

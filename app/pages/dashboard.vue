@@ -38,23 +38,21 @@
     <div class="sec-head">
       <h2>Weekly tasks</h2>
       <span class="line" />
-      <div class="seg">
-        <button
-          v-for="[k, l] in [
-            ['all', 'All'],
-            ['mine', 'Mine'],
-            ['open', 'Up for grabs'],
-          ]"
-          :key="k"
-          :class="{ on: filter === k }"
-          @click="filter = k"
-        >
-          {{ l }}
-        </button>
-      </div>
-      <button class="btn btn-primary btn-sm" @click="modalTask = {}">
-        <v-icon style="font-size: 15px">mdi-plus</v-icon>New task
-      </button>
+      <v-btn-toggle
+        v-model="filter"
+        mandatory
+        density="compact"
+        variant="outlined"
+        rounded="sm"
+        class="seg"
+      >
+        <v-btn value="all" size="small">All</v-btn>
+        <v-btn value="mine" size="small">Mine</v-btn>
+        <v-btn value="open" size="small">Up for grabs</v-btn>
+      </v-btn-toggle>
+      <v-btn color="primary" size="small" @click="modalTask = {}">
+        <v-icon size="15" start>mdi-plus</v-icon>New task
+      </v-btn>
     </div>
 
     <div class="dash-grid">

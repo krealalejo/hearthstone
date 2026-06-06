@@ -17,38 +17,32 @@
         <img src="/favicon.png" alt="Hearthstone" />
       </span>
       <div style="flex: 1">
-        <div v-if="editName" style="display: flex; gap: 8px">
-          <input
+        <div
+          v-if="editName"
+          style="display: flex; gap: 8px; align-items: center"
+        >
+          <v-text-field
             v-model="hhNameEdit"
-            style="
-              height: 38px;
-              padding: 0 12px;
-              border: 1px solid var(--hairline);
-              border-radius: 9px;
-              background: var(--bg);
-              color: var(--ink);
-              font-size: 18px;
-              font-family: var(--font-display);
-              font-weight: 600;
-              outline: none;
-            "
             autofocus
+            hide-details
+            style="font-size: 18px"
             @keydown.enter="saveName"
           />
-          <button class="btn btn-primary btn-sm" @click="saveName">Save</button>
+          <v-btn color="primary" size="small" @click="saveName">Save</v-btn>
         </div>
         <div v-else style="display: flex; align-items: center; gap: 10px">
           <h2 style="font-family: var(--font-display); font-size: 26px">
             {{ store.household.name }}
           </h2>
-          <button
+          <v-btn
             v-if="isAdmin"
-            class="btn btn-ghost btn-icon btn-sm"
-            style="border: 0"
+            icon
+            variant="text"
+            size="small"
             @click="startEdit"
           >
             <v-icon>mdi-pencil</v-icon>
-          </button>
+          </v-btn>
         </div>
         <div style="color: var(--ink-3); font-size: 13.5px; margin-top: 2px">
           {{ store.activeMembers.length }} active member{{
@@ -70,9 +64,9 @@
           >
         </div>
       </div>
-      <button v-if="isAdmin" class="btn btn-primary" @click="inviteOpen = true">
-        <v-icon style="font-size: 17px">mdi-account-plus</v-icon>Invite
-      </button>
+      <v-btn v-if="isAdmin" color="primary" @click="inviteOpen = true">
+        <v-icon size="17" start>mdi-account-plus</v-icon>Invite
+      </v-btn>
     </div>
 
     <div class="sec-head">
@@ -97,20 +91,23 @@
             Level {{ levelInfo(m.totalXp).level }}
           </div>
         </div>
-        <button
+        <v-btn
           v-if="isAdmin && m.id !== store.currentUser && m.role !== 'admin'"
-          class="btn btn-ghost btn-icon btn-sm"
+          icon
+          variant="text"
+          size="small"
           @click="confirmAction = { kind: 'remove', member: m }"
         >
           <v-icon>mdi-dots-vertical</v-icon>
-        </button>
-        <button
+        </v-btn>
+        <v-btn
           v-else-if="m.id === store.currentUser && !isAdmin"
-          class="btn btn-ghost btn-sm"
+          variant="text"
+          size="small"
           @click="confirmAction = { kind: 'leave', member: m }"
         >
           Leave
-        </button>
+        </v-btn>
       </div>
     </div>
 
@@ -131,25 +128,27 @@
               Invitation sent · awaiting acceptance
             </div>
           </div>
-          <button
+          <v-btn
             v-if="isAdmin"
-            class="btn btn-ghost btn-sm"
+            variant="text"
+            size="small"
             @click="store.revoke(m.id)"
           >
             Revoke
-          </button>
+          </v-btn>
         </div>
       </div>
     </template>
 
     <div v-if="!isAdmin" style="margin-top: 28px; text-align: center">
-      <button
-        class="btn btn-ghost btn-sm"
-        style="color: #b94642; border-color: transparent"
+      <v-btn
+        variant="text"
+        color="error"
+        size="small"
         @click="confirmAction = { kind: 'leave', member: store.me }"
       >
-        <v-icon style="font-size: 15px">mdi-logout</v-icon>Leave household
-      </button>
+        <v-icon size="15" start>mdi-logout</v-icon>Leave household
+      </v-btn>
     </div>
 
     <HouseholdInviteDialog

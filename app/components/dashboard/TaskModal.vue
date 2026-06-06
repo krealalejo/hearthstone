@@ -3,15 +3,15 @@
     <div class="modal-head" style="position: relative">
       <h2>{{ task ? "Edit task" : "New task" }}</h2>
       <p v-if="!task">Add a chore and assign points</p>
-      <div style="position: absolute; top: 0; right: 0">
-        <button
-          class="btn btn-ghost btn-icon btn-sm"
-          style="border: 0"
-          @click="emit('close')"
-        >
-          <v-icon>mdi-close</v-icon>
-        </button>
-      </div>
+      <v-btn
+        icon
+        variant="text"
+        size="small"
+        style="position: absolute; top: 0; right: 0"
+        @click="emit('close')"
+      >
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
     </div>
     <div class="modal-body">
       <div class="field">
@@ -36,89 +36,95 @@
           placeholder="Any details…"
         />
       </div>
-      <div class="field">
+      <div class="field" style="align-items: center">
         <div class="label">Room</div>
-        <div class="pick-grid">
-          <button
+        <v-chip-group
+          v-model="form.roomId"
+          mandatory
+          column
+          style="justify-content: center"
+        >
+          <v-chip
             v-for="r in store.rooms"
             :key="r.id"
-            class="pick"
-            :class="{ on: form.roomId === r.id }"
-            @click="form.roomId = r.id"
+            :value="r.id"
+            variant="outlined"
+            size="small"
           >
-            <v-icon style="font-size: 15px">{{ r.icon }}</v-icon
-            >{{ r.name }}
-          </button>
-        </div>
+            <v-icon :icon="r.icon" size="14" start />
+            {{ r.name }}
+          </v-chip>
+        </v-chip-group>
       </div>
-      <div class="field">
+      <div class="field" style="align-items: center">
         <div class="label">Assign to</div>
-        <div class="pick-grid">
-          <button
-            class="pick"
-            :class="{ on: form.assignee === null }"
-            @click="form.assignee = null"
-          >
-            <v-icon style="font-size: 15px">mdi-account-group</v-icon>Anyone
-          </button>
-          <button
+        <v-chip-group
+          v-model="form.assignee"
+          column
+          style="justify-content: center"
+        >
+          <v-chip :value="null" variant="outlined" size="small">
+            <v-icon icon="mdi-account-group" size="14" start />
+            Anyone
+          </v-chip>
+          <v-chip
             v-for="m in store.activeMembers"
             :key="m.id"
-            class="pick"
-            :class="{ on: form.assignee === m.id }"
-            @click="form.assignee = m.id"
+            :value="m.id"
+            variant="outlined"
+            size="small"
           >
-            <AppAvatar :member="m" size="sm" />{{ m.name.split(" ")[0] }}
-          </button>
-        </div>
+            <AppAvatar :member="m" size="sm" style="margin-right: 5px" />
+            {{ m.name.split(" ")[0] }}
+          </v-chip>
+        </v-chip-group>
       </div>
-      <div class="field">
+      <div class="field" style="align-items: center">
         <div class="label">Effort · {{ form.xp }} XP</div>
-        <div class="xp-pick">
-          <button
+        <v-btn-toggle
+          v-model="form.xp"
+          mandatory
+          density="compact"
+          variant="outlined"
+          rounded="sm"
+        >
+          <v-btn
             v-for="opt in XP_OPTS"
             :key="opt.n"
-            class="xp-opt"
-            :class="{ on: form.xp === opt.n }"
-            @click="form.xp = opt.n"
+            :value="opt.n"
+            size="small"
           >
-            <div class="xp-n">{{ opt.n }}</div>
-            <div class="xp-l">{{ opt.l }}</div>
-          </button>
-        </div>
+            <div style="text-align: center; line-height: 1.2">
+              <div style="font-weight: 600">{{ opt.n }}</div>
+              <div style="font-size: 10px; opacity: 0.75">{{ opt.l }}</div>
+            </div>
+          </v-btn>
+        </v-btn-toggle>
       </div>
-      <button
-        class="pick"
-        style="justify-content: space-between; cursor: pointer"
-        @click="form.recurring = !form.recurring"
-      >
-        <span style="display: flex; align-items: center; gap: 8px">
-          <v-icon style="font-size: 15px">mdi-sync</v-icon>Recurring weekly
-        </span>
-        <span class="check" :class="{ done: form.recurring }">
-          <v-icon v-if="form.recurring" style="font-size: 15px"
-            >mdi-check</v-icon
-          >
-        </span>
-      </button>
+      <v-switch
+        v-model="form.recurring"
+        label="Recurring weekly"
+        prepend-icon="mdi-sync"
+        color="primary"
+        density="compact"
+        hide-details
+        style="align-self: center"
+      />
     </div>
     <div class="modal-foot">
-      <button
-        v-if="task"
-        class="btn btn-ghost"
-        style="margin-right: auto; color: #b94642"
+      <v-btn
+        v-if="isEdit"
+        variant="text"
+        color="error"
+        style="margin-right: auto"
         @click="handleDelete"
       >
-        <v-icon style="font-size: 15px">mdi-trash-can</v-icon>Delete
-      </button>
-      <button class="btn btn-ghost" @click="emit('close')">Cancel</button>
-      <button
-        class="btn btn-primary"
-        :disabled="!form.title.trim()"
-        @click="handleSave"
-      >
+        <v-icon size="15" start>mdi-trash-can</v-icon>Delete
+      </v-btn>
+      <v-btn variant="text" @click="emit('close')">Cancel</v-btn>
+      <v-btn color="primary" :disabled="!form.title.trim()" @click="handleSave">
         {{ task ? "Save changes" : "Add task" }}
-      </button>
+      </v-btn>
     </div>
   </div>
 </template>
@@ -130,6 +136,7 @@ import { useHomeStore } from "~/stores/home";
 
 const props = defineProps<{ task?: Task | null }>();
 const emit = defineEmits<{ close: []; saved: [] }>();
+const isEdit = !!props.task;
 const store = useHomeStore();
 
 const XP_OPTS = [

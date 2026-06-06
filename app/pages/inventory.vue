@@ -8,21 +8,23 @@
         }}</span
       >
       <span class="line" />
-      <div class="seg">
-        <button :class="{ on: tab === 'all' }" @click="tab = 'all'">All</button>
-        <button
-          v-for="c in CATS"
-          :key="c.id"
-          :class="{ on: tab === c.id }"
-          @click="tab = c.id"
-        >
-          <v-icon style="font-size: 15px">{{ c.icon }}</v-icon
-          >{{ c.name.split(" ")[0] }}
-        </button>
-      </div>
-      <button class="btn btn-primary btn-sm" @click="modalItem = {}">
-        <v-icon style="font-size: 15px">mdi-plus</v-icon>New item
-      </button>
+      <v-btn-toggle
+        v-model="tab"
+        mandatory
+        density="compact"
+        variant="outlined"
+        rounded="sm"
+        class="seg"
+      >
+        <v-btn value="all" size="small">All</v-btn>
+        <v-btn v-for="c in CATS" :key="c.id" :value="c.id" size="small">
+          <v-icon :icon="c.icon" size="15" start />
+          {{ c.name.split(" ")[0] }}
+        </v-btn>
+      </v-btn-toggle>
+      <v-btn color="primary" size="small" @click="modalItem = {}">
+        <v-icon size="15" start>mdi-plus</v-icon>New item
+      </v-btn>
     </div>
 
     <div ref="invListEl">

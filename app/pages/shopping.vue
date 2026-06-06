@@ -14,14 +14,15 @@
     <div class="shop-layout">
       <div>
         <div class="shop-add">
-          <input
+          <v-text-field
             v-model="draft"
             placeholder="Add a one-off item…  (e.g. birthday candles)"
+            hide-details
             @keydown.enter="addItem"
           />
-          <button class="btn btn-primary" @click="addItem">
-            <v-icon style="font-size: 17px">mdi-plus</v-icon>Add
-          </button>
+          <v-btn color="primary" @click="addItem">
+            <v-icon size="17" start>mdi-plus</v-icon>Add
+          </v-btn>
         </div>
 
         <div v-if="!store.shopping.length" class="empty">
@@ -106,15 +107,15 @@
           <span class="tl">Estimated total</span>
           <span class="tv">{{ money(knownTotal) }}</span>
         </div>
-        <button
-          class="btn btn-primary"
-          style="width: 100%; height: 46px"
+        <v-btn
+          color="primary"
+          block
+          style="height: 46px"
           :disabled="!checkedItems.length"
           @click="store.checkout()"
         >
-          <v-icon style="font-size: 17px">mdi-check-bold</v-icon>Finalize
-          purchase
-        </button>
+          <v-icon size="17" start>mdi-check-bold</v-icon>Finalize purchase
+        </v-btn>
         <div
           v-if="restockCount > 0"
           style="
