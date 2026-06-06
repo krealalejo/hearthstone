@@ -1,21 +1,21 @@
 <template>
   <div class="content-inner">
     <div class="sec-head">
-      <h2>Purchases</h2>
-      <span class="count"
-        >{{ store.history.length }} trips ·
-        {{ money(grandTotal) }} all-time</span
-      >
+      <h2>{{ $t("history.purchasesTitle") }}</h2>
+      <span class="count">{{
+        $t(
+          "history.purchasesCount",
+          { n: store.history.length, total: money(grandTotal) },
+          store.history.length,
+        )
+      }}</span>
       <span class="line" />
     </div>
 
     <div v-if="!store.history.length" class="empty">
       <v-icon class="empty-icon">mdi-receipt</v-icon>
-      <h3>No purchases yet</h3>
-      <p>
-        Finalize a shopping list and it will be archived here with the date,
-        items, and total spend.
-      </p>
+      <h3>{{ $t("history.noTitle") }}</h3>
+      <p>{{ $t("history.noBody") }}</p>
     </div>
 
     <div v-for="h in store.history" :key="h.id" class="card hist-item">
@@ -29,13 +29,14 @@
         <div>
           <div class="hist-date">{{ fmt(h.date) }}</div>
           <div class="hist-sub">
-            {{ h.items.length }} item{{ h.items.length !== 1 ? "s" : "" }} ·
-            {{ h.items.reduce((s, i) => s + i.qty, 0) }} units
+            {{ $t("history.itemCount", { n: h.items.length }, h.items.length) }}
+            · {{ h.items.reduce((s, i) => s + i.qty, 0) }}
+            {{ $t("history.units") }}
           </div>
         </div>
         <div class="hist-total">
           <div class="tv">{{ money(h.total) }}</div>
-          <div class="tl">total spend</div>
+          <div class="tl">{{ $t("history.totalSpend") }}</div>
         </div>
       </div>
       <div class="hist-goods">
@@ -58,6 +59,7 @@ import { computed } from "vue";
 import { useHomeStore, useMoney } from "~/stores/home";
 
 const { money } = useMoney();
+const { locale } = useI18n();
 
 definePageMeta({ middleware: "auth" });
 
@@ -68,7 +70,7 @@ const grandTotal = computed(() =>
 );
 
 function fmt(d: string): string {
-  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+  return new Date(d + "T00:00:00").toLocaleDateString(locale.value, {
     weekday: "short",
     month: "long",
     day: "numeric",
