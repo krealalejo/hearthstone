@@ -661,6 +661,7 @@ export const useHomeStore = defineStore("home", {
       avatarImage: string;
       weekStartDay?: "monday" | "sunday";
       currency?: string;
+      locale?: "en" | "es" | "ca";
     }) {
       const member = this.members.find((m) => m.id === this.currentUserId);
       if (!member) return;
@@ -669,6 +670,7 @@ export const useHomeStore = defineStore("home", {
         accentColor: member.accentColor,
         avatarEmoji: member.avatarEmoji,
         avatarImage: member.avatarImage,
+        locale: member.locale,
         currentUser: this.currentUser,
         weekStartDay: this.household.weekStartDay,
         currency: this.household.currency,
@@ -677,6 +679,7 @@ export const useHomeStore = defineStore("home", {
       member.accentColor = data.accentColor || undefined;
       member.avatarEmoji = data.avatarEmoji || undefined;
       member.avatarImage = data.avatarImage || undefined;
+      member.locale = data.locale || undefined;
       this.currentUser = data.name;
       if (data.weekStartDay) this.household.weekStartDay = data.weekStartDay;
       if (data.currency) this.household.currency = data.currency;
@@ -690,6 +693,7 @@ export const useHomeStore = defineStore("home", {
             accentColor: data.accentColor || null,
             avatarEmoji: data.avatarEmoji || null,
             avatarImage: data.avatarImage || null,
+            locale: data.locale || null,
           },
         });
         const householdPatch: Record<string, string> = {};
@@ -711,6 +715,7 @@ export const useHomeStore = defineStore("home", {
         member.accentColor = prev.accentColor;
         member.avatarEmoji = prev.avatarEmoji;
         member.avatarImage = prev.avatarImage;
+        member.locale = prev.locale;
         this.currentUser = prev.currentUser;
         if (data.weekStartDay) this.household.weekStartDay = prev.weekStartDay;
         if (data.currency) this.household.currency = prev.currency;
