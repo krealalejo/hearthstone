@@ -1,44 +1,49 @@
 <template>
   <div class="content-inner">
     <div class="sec-head">
-      <h2>Weeks</h2>
-      <span class="count"
-        >{{ weekGroups.length }} week{{
-          weekGroups.length !== 1 ? "s" : ""
-        }}</span
-      >
+      <h2>{{ $t("history.weeksTitle") }}</h2>
+      <span class="count">{{
+        $t("history.weekCount", { n: weekGroups.length }, weekGroups.length)
+      }}</span>
       <span class="line" />
     </div>
 
     <div v-if="!weekGroups.length" class="empty">
       <v-icon class="empty-icon">mdi-calendar-blank-outline</v-icon>
-      <h3>No week history yet</h3>
-      <p>
-        Completed tasks, purchases, and inventory changes will appear here
-        grouped by week.
-      </p>
+      <h3>{{ $t("history.weekNoHistory") }}</h3>
+      <p>{{ $t("history.weekNoHistoryBody") }}</p>
     </div>
 
     <div v-for="wg in weekGroups" :key="wg.key" class="card week-card">
       <div class="week-head">
         <div>
           <div class="week-num">
-            Week {{ wg.week }} · {{ wg.year }}
-            <span v-if="wg.isCurrent" class="chip chip-current">Current</span>
+            {{ $t("history.weekLabel", { week: wg.week, year: wg.year }) }}
+            <span v-if="wg.isCurrent" class="chip chip-current">{{
+              $t("history.current")
+            }}</span>
           </div>
           <div class="week-range">{{ wg.range }}</div>
         </div>
         <div class="week-meta">
           <span v-if="wg.doneTasks.length" class="chip chip-xp">
             <v-icon style="font-size: 13px">mdi-check-circle</v-icon>
-            {{ wg.doneTasks.length }} task{{
-              wg.doneTasks.length !== 1 ? "s" : ""
+            {{
+              $t(
+                "history.task",
+                { n: wg.doneTasks.length },
+                wg.doneTasks.length,
+              )
             }}
           </span>
           <span v-if="wg.purchases.length" class="chip">
             <v-icon style="font-size: 13px">mdi-receipt-outline</v-icon>
-            {{ wg.purchases.length }} purchase{{
-              wg.purchases.length !== 1 ? "s" : ""
+            {{
+              $t(
+                "history.purchase",
+                { n: wg.purchases.length },
+                wg.purchases.length,
+              )
             }}
           </span>
           <span v-if="wg.totalSpend > 0" class="chip">{{
@@ -48,7 +53,7 @@
       </div>
 
       <div v-if="wg.doneTasks.length" class="week-section">
-        <div class="week-sec-label">Tasks completed</div>
+        <div class="week-sec-label">{{ $t("history.tasksCompleted") }}</div>
         <div class="week-chips">
           <span v-for="tk in wg.doneTasks" :key="tk.id" class="good-chip">
             <v-icon style="font-size: 12px; color: var(--accent-ink)"
@@ -60,7 +65,7 @@
       </div>
 
       <div v-if="wg.purchases.length" class="week-section">
-        <div class="week-sec-label">Purchases</div>
+        <div class="week-sec-label">{{ $t("history.purchasesTab") }}</div>
         <div v-for="p in wg.purchases" :key="p.id" class="week-purchase">
           <div class="wp-head">
             <span class="wp-date">{{ fmt(p.date) }}</span>
@@ -88,6 +93,7 @@ import { computed } from "vue";
 import { useHomeStore, useMoney } from "~/stores/home";
 
 const { money } = useMoney();
+const { locale } = useI18n();
 import type { HistoryEntry, Task } from "~/stores/home";
 
 definePageMeta({ middleware: "auth" });
@@ -95,7 +101,7 @@ definePageMeta({ middleware: "auth" });
 const store = useHomeStore();
 
 function fmt(d: string): string {
-  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+  return new Date(d + "T00:00:00").toLocaleDateString(locale.value, {
     weekday: "short",
     month: "long",
     day: "numeric",
@@ -120,7 +126,7 @@ function weekRange(year: number, week: number): string {
   const sun = new Date(mon);
   sun.setUTCDate(mon.getUTCDate() + 6);
   const f = (d: Date) =>
-    d.toLocaleDateString("en-US", {
+    d.toLocaleDateString(locale.value, {
       month: "short",
       day: "numeric",
       timeZone: "UTC",
