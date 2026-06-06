@@ -8,7 +8,7 @@ export default defineNuxtPlugin({
 
     const vuetify = nuxtApp.vueApp.config.globalProperties.$vuetify;
     if (vuetify) {
-      vuetify.theme.global.name.value = dark ? "dark" : "light";
+      vuetify.theme.change(dark ? "dark" : "light");
     }
   },
 });
