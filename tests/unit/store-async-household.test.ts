@@ -74,4 +74,16 @@ describe("invite", () => {
     expect(store.members).toHaveLength(0);
     expect(store.toasts[0]!.title).toBe("Invite failed");
   });
+
+  it("calls _handle401 when invite fails with 401", async () => {
+    makeFetchFail(401);
+    const store = useHomeStore();
+    const handle401 = vi
+      .spyOn(store, "_handle401")
+      .mockResolvedValue(undefined as any);
+
+    await store.invite("bob@example.com");
+
+    expect(handle401).toHaveBeenCalled();
+  });
 });
