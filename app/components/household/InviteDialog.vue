@@ -7,8 +7,8 @@
   >
     <div>
       <div class="modal-head" style="position: relative">
-        <h2>Invite a member</h2>
-        <p>They'll get a link to join this household</p>
+        <h2>{{ $t("household.inviteTitle") }}</h2>
+        <p>{{ $t("household.inviteSubtitle") }}</p>
         <div style="position: absolute; top: 0; right: 0">
           <button
             class="btn btn-ghost btn-icon btn-sm"
@@ -21,12 +21,12 @@
       </div>
       <div class="modal-body">
         <div class="field">
-          <label for="invite-email">Email address</label>
+          <label for="invite-email">{{ $t("household.inviteLabel") }}</label>
           <input
             id="invite-email"
             v-model="email"
             type="email"
-            placeholder="roommate@email.com"
+            :placeholder="$t('household.invitePlaceholder')"
             autofocus
             @keydown.enter="submit"
           />
@@ -43,18 +43,16 @@
           <v-icon style="font-size: 15px; margin-top: 1px"
             >mdi-information</v-icon
           >
-          <span
-            >A pending invitation token is generated. The member joins your
-            shared tasks, inventory, and lists once they accept.</span
-          >
+          <span>{{ $t("household.inviteInfo") }}</span>
         </div>
       </div>
       <div class="modal-foot">
         <button class="btn btn-ghost" @click="emit('update:modelValue', false)">
-          Cancel
+          {{ $t("household.cancel") }}
         </button>
         <button class="btn btn-primary" @click="submit">
-          <v-icon style="font-size: 17px">mdi-send</v-icon>Send invite
+          <v-icon style="font-size: 17px">mdi-send</v-icon
+          >{{ $t("household.sendInvite") }}
         </button>
       </div>
     </div>
