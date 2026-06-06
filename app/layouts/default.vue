@@ -40,7 +40,7 @@ const profileOpen = ref(false);
 await useBootstrap();
 
 const VIEW_TITLES: Record<string, string> = {
-  dashboard: "Hearth",
+  dashboard: "Hearthstone",
   inventory: "Inventory",
   shopping: "Shopping",
   "history-purchases": "History",
