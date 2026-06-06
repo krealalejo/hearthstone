@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <div class="modal-body" style="gap: 20px">
+    <div ref="bodyEl" class="modal-body" style="gap: 20px">
       <div style="display: flex; align-items: center; gap: 16px">
         <AppAvatar :member="preview" size="xl" />
         <div style="flex: 1; min-width: 0">
@@ -100,6 +100,20 @@
         </div>
       </div>
 
+      <div>
+        <div class="settings-label">Language</div>
+        <div class="seg">
+          <button
+            v-for="loc in LOCALES"
+            :key="loc.code"
+            :class="{ on: form.locale === loc.code }"
+            @click="form.locale = loc.code as 'en' | 'es' | 'ca'"
+          >
+            {{ loc.name }}
+          </button>
+        </div>
+      </div>
+
       <div v-if="store.me.role === 'admin'">
         <div class="settings-label">Currency</div>
         <div class="currency-row">
@@ -130,12 +144,23 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useHomeStore } from "~/stores/home";
 import { levelInfo } from "~/utils/home";
+import { useAnimations } from "~/composables/useAnimations";
 import type { Member } from "~/stores/home";
 
 const emit = defineEmits<{ close: [] }>();
+const { locale, setLocale } = useI18n();
+const { animateLocaleChange } = useAnimations();
 const store = useHomeStore();
+const bodyEl = ref<HTMLElement | null>(null);
+
+const LOCALES = [
+  { code: "en", name: "English" },
+  { code: "es", name: "Español" },
+  { code: "ca", name: "Català" },
+];
 const lvl = computed(() => levelInfo(store.me.totalXp));
 const saving = ref(false);
 
@@ -161,7 +186,6 @@ const AVATAR_IMAGES = [
   { filename: "jaina.png", label: "Jaina" },
   { filename: "paladin.png", label: "Paladin" },
   { filename: "kadghar.png", label: "Kadghar" },
-  { filename: "Garrosh.png", label: "Garrosh" },
 ];
 
 const AVATAR_DEFAULT_COLOR: Record<string, string> = {
@@ -169,7 +193,6 @@ const AVATAR_DEFAULT_COLOR: Record<string, string> = {
   "jaina.png": "#0096af",
   "paladin.png": "#ad721c",
   "kadghar.png": "#8668b6",
-  "Garrosh.png": "#bb5752",
 };
 
 const CURRENCIES = [
@@ -194,6 +217,7 @@ const form = reactive({
   weekStartDay:
     store.household.weekStartDay ?? ("monday" as "monday" | "sunday"),
   currency: store.household.currency ?? "$",
+  locale: (store.me.locale ?? locale.value) as "en" | "es" | "ca",
 });
 
 const activeColor = computed(() => form.accentColor || DEFAULT_COLOR);
@@ -228,6 +252,9 @@ const preview = computed<Member>(() => ({
 async function handleSave() {
   if (!form.name.trim()) return;
   saving.value = true;
+  if (form.locale !== locale.value) {
+    await animateLocaleChange(bodyEl.value, () => setLocale(form.locale));
+  }
   await store.saveSettings({
     name: form.name.trim(),
     accentColor: form.accentColor,
@@ -235,6 +262,7 @@ async function handleSave() {
     avatarImage: form.avatarImage,
     weekStartDay: form.weekStartDay,
     currency: form.currency,
+    locale: form.locale,
   });
   saving.value = false;
   emit("close");
