@@ -8,6 +8,8 @@ export default defineEventHandler(async (event) => {
     "/api/auth/login",
     "/api/auth/logout",
     "/api/auth/refresh",
+    "/api/auth/google",
+    "/api/auth/google/callback",
   ];
   if (!path.startsWith("/api/") || PUBLIC_ROUTES.includes(path)) return;
 
