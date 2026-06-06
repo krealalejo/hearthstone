@@ -1,21 +1,18 @@
 import { Household } from "#server/models/Household";
+import { householdPatchSchema, validate } from "#server/utils/validate";
 
 export default defineEventHandler(async (event) => {
   const { householdId } = event.context.user;
-  const { name, emoji, lastResetWeek, weekStartDay, currency } =
-    await readBody(event);
-  if (!name && !emoji && !lastResetWeek && !weekStartDay && !currency)
-    throw createError({
-      statusCode: 400,
-      statusMessage:
-        "name, emoji, lastResetWeek, weekStartDay, or currency required",
-    });
+  const { name, emoji, lastResetWeek, weekStartDay, currency } = validate(
+    householdPatchSchema,
+    await readBody(event),
+  );
 
   const updates: Record<string, unknown> = {};
   if (name) updates.name = name;
   if (emoji) updates.emoji = emoji;
   if (lastResetWeek) updates.lastResetWeek = lastResetWeek;
-  if (weekStartDay) updates.weekStartDay = weekStartDay;
+  if (weekStartDay !== undefined) updates.weekStartDay = weekStartDay;
   if (currency) updates.currency = currency;
 
   const hh = await Household.findByIdAndUpdate(householdId, updates, {

@@ -131,7 +131,7 @@ describe("auth/register.post", () => {
     mockReadBody.mockResolvedValue({
       name: "Bob",
       email: "bob@example.com",
-      password: "pass",
+      password: "Pass1word!",
     });
     mockUserFindOne.mockResolvedValue(fakeUser());
     const { default: handler } = await import("#server/api/auth/register.post");
@@ -144,7 +144,7 @@ describe("auth/register.post", () => {
     mockReadBody.mockResolvedValue({
       name: "Bob",
       email: "bob@example.com",
-      password: "pass",
+      password: "Pass1word!",
     });
     mockUserFindOne.mockResolvedValue(null);
     mockPendingInviteFindOne.mockResolvedValue(null);
@@ -166,7 +166,7 @@ describe("auth/register.post", () => {
     mockReadBody.mockResolvedValue({
       name: "Bob",
       email: "bob@example.com",
-      password: "pass",
+      password: "Pass1word!",
     });
     mockUserFindOne.mockResolvedValue(null);
     mockPendingInviteFindOne.mockResolvedValue({

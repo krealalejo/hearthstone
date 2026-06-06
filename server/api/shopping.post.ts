@@ -1,10 +1,9 @@
 import { ShoppingItem } from "#server/models/ShoppingItem";
+import { shoppingSchema, validate } from "#server/utils/validate";
 
 export default defineEventHandler(async (event) => {
   const { householdId } = event.context.user;
-  const body = await readBody(event);
-  if (!body.name)
-    throw createError({ statusCode: 400, statusMessage: "name required" });
+  const body = validate(shoppingSchema, await readBody(event));
 
   const item = await ShoppingItem.create({
     householdId,
@@ -15,5 +14,6 @@ export default defineEventHandler(async (event) => {
     price: body.price,
     checked: body.checked,
   });
-  const doc = item.toJSON(); return { ...doc, id: doc._id.toString() };
+  const doc = item.toJSON();
+  return { ...doc, id: doc._id.toString() };
 });

@@ -1,14 +1,13 @@
 import { User } from "#server/models/User";
 import { PendingInvite } from "#server/models/PendingInvite";
+import { memberInviteSchema, validate } from "#server/utils/validate";
 
 export default defineEventHandler(async (event) => {
   const { householdId, role: callerRole } = event.context.user;
   if (callerRole !== "admin")
     throw createError({ statusCode: 403, statusMessage: "Admin only" });
 
-  const { email, role = "member" } = await readBody(event);
-  if (!email)
-    throw createError({ statusCode: 400, statusMessage: "email required" });
+  const { email, role } = validate(memberInviteSchema, await readBody(event));
 
   const existing = await User.findOne({
     email: email.toLowerCase(),
@@ -25,5 +24,6 @@ export default defineEventHandler(async (event) => {
     email: email.toLowerCase(),
     role,
   });
-  const doc = invite.toJSON(); return { ...doc, id: doc._id.toString() };
+  const doc = invite.toJSON();
+  return { ...doc, id: doc._id.toString() };
 });

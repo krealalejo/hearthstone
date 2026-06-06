@@ -3,12 +3,13 @@ import { User } from "#server/models/User";
 import { Household } from "#server/models/Household";
 import { PendingInvite } from "#server/models/PendingInvite";
 import { signAccessToken, signRefreshToken } from "#server/utils/jwt";
+import { registerSchema, validate } from "#server/utils/validate";
 
 export default defineEventHandler(async (event) => {
-  const { name, email, password } = await readBody(event);
-  if (!name || !email || !password) {
-    throw createError({ statusCode: 400, statusMessage: "Missing fields" });
-  }
+  const { name, email, password } = validate(
+    registerSchema,
+    await readBody(event),
+  );
 
   const existing = await User.findOne({ email });
   if (existing) {

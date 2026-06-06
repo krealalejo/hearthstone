@@ -1,12 +1,10 @@
 import bcrypt from "bcryptjs";
 import { User } from "#server/models/User";
 import { signAccessToken, signRefreshToken } from "#server/utils/jwt";
+import { loginSchema, validate } from "#server/utils/validate";
 
 export default defineEventHandler(async (event) => {
-  const { email, password } = await readBody(event);
-  if (!email || !password) {
-    throw createError({ statusCode: 400, statusMessage: "Missing fields" });
-  }
+  const { email, password } = validate(loginSchema, await readBody(event));
 
   const user = await User.findOne({ email });
   if (!user) {

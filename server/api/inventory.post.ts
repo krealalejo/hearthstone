@@ -1,10 +1,9 @@
 import { InventoryItem } from "#server/models/InventoryItem";
+import { inventorySchema, validate } from "#server/utils/validate";
 
 export default defineEventHandler(async (event) => {
   const { householdId } = event.context.user;
-  const body = await readBody(event);
-  if (!body.name)
-    throw createError({ statusCode: 400, statusMessage: "name required" });
+  const body = validate(inventorySchema, await readBody(event));
 
   const item = await InventoryItem.create({
     householdId,
@@ -16,5 +15,6 @@ export default defineEventHandler(async (event) => {
     price: body.price,
     icon: body.icon,
   });
-  const doc = item.toJSON(); return { ...doc, id: doc._id.toString() };
+  const doc = item.toJSON();
+  return { ...doc, id: doc._id.toString() };
 });
