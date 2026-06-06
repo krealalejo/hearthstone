@@ -10,15 +10,17 @@
         <h2>
           {{
             action.kind === "leave"
-              ? "Leave household?"
-              : `Remove ${action.member.name.split(" ")[0]}?`
+              ? $t("household.leaveTitle")
+              : $t("household.removeTitle", {
+                  name: action.member.name.split(" ")[0],
+                })
           }}
         </h2>
         <p>
           {{
             action.kind === "leave"
-              ? "You will lose access to shared tasks, inventory and lists."
-              : "They will lose access to this household."
+              ? $t("household.leaveBody")
+              : $t("household.removeBody")
           }}
         </p>
         <div style="position: absolute; top: 0; right: 0">
@@ -33,14 +35,18 @@
       </div>
       <div class="modal-foot">
         <button class="btn btn-ghost" @click="emit('update:modelValue', false)">
-          Cancel
+          {{ $t("household.cancel") }}
         </button>
         <button
           class="btn btn-primary"
           style="background: #bd413f"
           @click="emit('confirm', action)"
         >
-          {{ action.kind === "leave" ? "Leave" : "Remove" }}
+          {{
+            action.kind === "leave"
+              ? $t("household.confirmLeave")
+              : $t("household.confirmRemove")
+          }}
         </button>
       </div>
     </div>
