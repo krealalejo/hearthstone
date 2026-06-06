@@ -160,6 +160,24 @@
                 {{ mode === "login" ? "Log in" : "Create account" }}
                 <v-icon style="font-size: 17px">mdi-arrow-right</v-icon>
               </button>
+
+              <div class="auth-divider"><span>or</span></div>
+
+              <a
+                href="/api/auth/google"
+                class="btn btn-ghost"
+                style="
+                  width: 100%;
+                  height: 46px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 8px;
+                "
+              >
+                <v-icon style="font-size: 18px">mdi-google</v-icon>
+                Continue with Google
+              </a>
             </div>
           </Transition>
         </div>
@@ -346,6 +364,24 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+  color: var(--ink);
+  opacity: 0.5;
+  font-size: 12px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
+}
+
 .theme-toggle {
   position: fixed;
   top: 16px;
