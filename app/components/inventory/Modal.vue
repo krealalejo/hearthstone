@@ -1,8 +1,12 @@
 <template>
   <div>
     <div class="modal-head" style="position: relative">
-      <h2>{{ item ? "Edit item" : "New item" }}</h2>
-      <p v-if="!item">Track stock and set a restock threshold</p>
+      <h2>
+        {{
+          item ? $t("inventoryModal.titleEdit") : $t("inventoryModal.titleNew")
+        }}
+      </h2>
+      <p v-if="!item">{{ $t("inventoryModal.subtitle") }}</p>
       <v-btn
         icon
         variant="text"
@@ -17,13 +21,13 @@
       <div class="field">
         <v-text-field
           v-model="form.name"
-          label="Name"
-          placeholder="e.g. Olive oil"
+          :label="$t('inventoryModal.fieldName')"
+          :placeholder="$t('inventoryModal.namePlaceholder')"
           autofocus
         />
       </div>
       <div class="field">
-        <div class="label">Category</div>
+        <div class="label">{{ $t("inventoryModal.fieldCat") }}</div>
         <v-chip-group v-model="form.cat" mandatory column>
           <v-chip
             v-for="c in CATS"
@@ -39,17 +43,17 @@
       </div>
       <div class="field-row">
         <div class="field">
-          <div class="label">In stock now</div>
+          <div class="label">{{ $t("inventoryModal.fieldQty") }}</div>
           <QuantityStepper :value="form.qty" @change="form.qty = $event" />
         </div>
         <div class="field">
-          <div class="label">Min threshold</div>
+          <div class="label">{{ $t("inventoryModal.fieldMin") }}</div>
           <QuantityStepper :value="form.min" @change="form.min = $event" />
         </div>
       </div>
       <div class="field-row">
         <div class="field">
-          <div class="label">Restock to</div>
+          <div class="label">{{ $t("inventoryModal.fieldOptimal") }}</div>
           <QuantityStepper
             :value="form.optimal"
             :min="1"
@@ -58,9 +62,9 @@
         </div>
         <div class="field">
           <div class="label">
-            Price
+            {{ $t("inventoryModal.fieldPrice") }}
             <span style="color: var(--ink-3); font-weight: 400"
-              >· optional</span
+              >· {{ $t("common.optional") }}</span
             >
           </div>
           <div class="price-wrap">
@@ -92,10 +96,7 @@
         "
       >
         <v-icon style="font-size: 16px; margin-top: 1px">mdi-auto-fix</v-icon>
-        <span
-          >When stock drops to <b>{{ form.min ?? 0 }}</b> or below, this item is
-          added to the shopping list automatically.</span
-        >
+        <span>{{ $t("inventoryModal.autoHint", { min: form.min ?? 0 }) }}</span>
       </div>
     </div>
     <div class="modal-foot">
@@ -106,18 +107,21 @@
         style="margin-right: auto"
         @click="handleDelete"
       >
-        <v-icon size="15" start>mdi-trash-can</v-icon>Delete
+        <v-icon size="15" start>mdi-trash-can</v-icon
+        >{{ $t("inventoryModal.delete") }}
       </v-btn>
-      <v-btn variant="text" @click="emit('close')">Cancel</v-btn>
+      <v-btn variant="text" @click="emit('close')">{{
+        $t("inventoryModal.cancel")
+      }}</v-btn>
       <v-btn color="primary" :disabled="!form.name.trim()" @click="handleSave">
-        {{ item ? "Save changes" : "Add item" }}
+        {{ item ? $t("inventoryModal.save") : $t("inventoryModal.add") }}
       </v-btn>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { reactive, computed } from "vue";
 import type { InventoryItem } from "~/stores/home";
 import { useHomeStore } from "~/stores/home";
 
@@ -125,12 +129,13 @@ const props = defineProps<{ item?: InventoryItem | null }>();
 const emit = defineEmits<{ close: [] }>();
 const isEdit = !!props.item;
 const store = useHomeStore();
+const { t } = useI18n();
 
-const CATS = [
-  { id: "food", name: "Food & Groceries", icon: "mdi-basket" },
-  { id: "cleaning", name: "Cleaning Supplies", icon: "mdi-spray" },
-  { id: "misc", name: "Miscellaneous", icon: "mdi-package-variant" },
-];
+const CATS = computed(() => [
+  { id: "food", name: t("inventory.catFood"), icon: "mdi-basket" },
+  { id: "cleaning", name: t("inventory.catCleaning"), icon: "mdi-spray" },
+  { id: "misc", name: t("inventory.catMisc"), icon: "mdi-package-variant" },
+]);
 
 const form = reactive<{
   name: string;
