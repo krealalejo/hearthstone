@@ -79,6 +79,12 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: "Hearth — Home Dashboard",
+      script: [
+        {
+          innerHTML: `(function(){var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=d?'dark':'light';})();`,
+          type: "text/javascript",
+        },
+      ],
       link: [
         { rel: "icon", type: "image/png", href: "/favicon.png" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
