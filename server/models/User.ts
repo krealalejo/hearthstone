@@ -4,7 +4,8 @@ export interface IUser {
   householdId: Types.ObjectId;
   name: string;
   email: string;
-  passwordHash: string;
+  passwordHash?: string;
+  googleId?: string;
   role: "admin" | "member";
   status: "active" | "pending";
   weekXp: number;
@@ -12,6 +13,7 @@ export interface IUser {
   accentColor?: string;
   avatarEmoji?: string;
   avatarImage?: string;
+  locale?: "en" | "es" | "ca";
 }
 
 const UserSchema = new Schema<IUser>(
@@ -30,7 +32,8 @@ const UserSchema = new Schema<IUser>(
       lowercase: true,
       trim: true,
     },
-    passwordHash: { type: String, required: true },
+    passwordHash: { type: String },
+    googleId: { type: String, unique: true, sparse: true, index: true },
     role: {
       type: String,
       enum: ["admin", "member"],
@@ -46,6 +49,7 @@ const UserSchema = new Schema<IUser>(
     accentColor: { type: String },
     avatarEmoji: { type: String },
     avatarImage: { type: String },
+    locale: { type: String, enum: ["en", "es", "ca"] },
   },
   { timestamps: true, toJSON: { virtuals: true } },
 );
