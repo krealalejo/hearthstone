@@ -40,6 +40,36 @@ function animateCheckToggle(el: Element | null, checked: boolean) {
   });
 }
 
+function animateLocaleChange(
+  el: Element | null,
+  onMid: () => void | Promise<void>,
+) {
+  if (!el) return Promise.resolve(onMid());
+  return new Promise<void>((resolve) => {
+    gsap.to(el, {
+      opacity: 0,
+      y: -6,
+      duration: 0.16,
+      ease: EASE,
+      onComplete() {
+        Promise.resolve(onMid()).then(() => {
+          gsap.fromTo(
+            el,
+            { opacity: 0, y: 6 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.22,
+              ease: EASE,
+              onComplete: () => resolve(),
+            },
+          );
+        });
+      },
+    });
+  });
+}
+
 function animateStagger(els: NodeListOf<Element> | Element[]) {
   gsap.from(Array.from(els), {
     opacity: 0,
@@ -57,6 +87,7 @@ export function useAnimations() {
     animateToastIn,
     animateShopItemIn,
     animateCheckToggle,
+    animateLocaleChange,
     animateStagger,
   };
 }
