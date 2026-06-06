@@ -28,7 +28,9 @@
             style="font-size: 18px"
             @keydown.enter="saveName"
           />
-          <v-btn color="primary" size="small" @click="saveName">Save</v-btn>
+          <v-btn color="primary" size="small" @click="saveName">{{
+            $t("household.save")
+          }}</v-btn>
         </div>
         <div v-else style="display: flex; align-items: center; gap: 10px">
           <h2 style="font-family: var(--font-display); font-size: 26px">
@@ -45,22 +47,31 @@
           </v-btn>
         </div>
         <div style="color: var(--ink-3); font-size: 13.5px; margin-top: 2px">
-          {{ store.activeMembers.length }} active member{{
-            store.activeMembers.length !== 1 ? "s" : ""
+          {{
+            $t(
+              "household.activeSuffix",
+              { n: store.activeMembers.length },
+              store.activeMembers.length,
+            )
           }}{{
             store.pendingMembers.length
-              ? ` · ${store.pendingMembers.length} pending`
+              ? $t(
+                  "household.pendingSuffix",
+                  { n: store.pendingMembers.length },
+                  store.pendingMembers.length,
+                )
               : ""
           }}
         </div>
       </div>
       <v-btn v-if="isAdmin" color="primary" @click="inviteOpen = true">
-        <v-icon size="17" start>mdi-account-plus</v-icon>Invite
+        <v-icon size="17" start>mdi-account-plus</v-icon
+        >{{ $t("household.invite") }}
       </v-btn>
     </div>
 
     <div class="sec-head">
-      <h2>Members</h2>
+      <h2>{{ $t("household.title") }}</h2>
       <span class="count">{{ store.activeMembers.length }}</span
       ><span class="line" />
     </div>
@@ -70,15 +81,19 @@
         <div class="member-meta">
           <div class="member-name">
             {{ m.name }}
-            <span v-if="m.role === 'admin'" class="role-tag">Admin</span>
-            <span v-if="m.id === store.currentUser" class="you-tag">you</span>
+            <span v-if="m.role === 'admin'" class="role-tag">{{
+              $t("household.admin")
+            }}</span>
+            <span v-if="m.id === store.currentUser" class="you-tag">{{
+              $t("household.you")
+            }}</span>
           </div>
           <div class="member-email">{{ m.email }}</div>
         </div>
         <div style="text-align: right; margin-right: 6px">
           <div class="member-xp">{{ m.totalXp.toLocaleString() }} XP</div>
           <div style="font-size: 11.5px; color: var(--ink-3)">
-            Level {{ levelInfo(m.totalXp).level }}
+            {{ $t("household.level", { n: levelInfo(m.totalXp).level }) }}
           </div>
         </div>
         <v-btn
@@ -96,14 +111,14 @@
           size="small"
           @click="confirmAction = { kind: 'leave', member: m }"
         >
-          Leave
+          {{ $t("household.confirmLeave") }}
         </v-btn>
       </div>
     </div>
 
     <template v-if="store.pendingMembers.length">
       <div class="sec-head">
-        <h2>Pending invitations</h2>
+        <h2>{{ $t("household.pendingTitle") }}</h2>
         <span class="count">{{ store.pendingMembers.length }}</span
         ><span class="line" />
       </div>
@@ -112,10 +127,13 @@
           <AppAvatar :member="m" size="lg" />
           <div class="member-meta">
             <div class="member-name">
-              {{ m.email }}<span class="pending-tag">Pending</span>
+              {{ m.email
+              }}<span class="pending-tag">{{
+                $t("household.pendingTag")
+              }}</span>
             </div>
             <div class="member-email">
-              Invitation sent · awaiting acceptance
+              {{ $t("household.inviteSent") }}
             </div>
           </div>
           <v-btn
@@ -124,7 +142,7 @@
             size="small"
             @click="store.revoke(m.id)"
           >
-            Revoke
+            {{ $t("household.revoke") }}
           </v-btn>
         </div>
       </div>
@@ -137,7 +155,7 @@
         size="small"
         @click="confirmAction = { kind: 'leave', member: store.me }"
       >
-        <v-icon size="15" start>mdi-logout</v-icon>Leave household
+        <v-icon size="15" start>mdi-logout</v-icon>{{ $t("household.leave") }}
       </v-btn>
     </div>
 
