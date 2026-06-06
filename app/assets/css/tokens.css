@@ -76,6 +76,10 @@
   box-sizing: border-box;
 }
 
+.theme-swap * {
+  transition: none !important;
+}
+
 html,
 body {
   height: 100%;

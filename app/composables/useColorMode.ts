@@ -37,13 +37,15 @@ export function useColorMode() {
     const next = !isDark.value;
 
     if (btn) {
+      const icon = btn.querySelector("i") ?? btn;
       gsap.fromTo(
-        btn,
-        { rotate: 0 },
+        icon,
+        { rotate: 0, scale: 1 },
         {
-          rotate: 180,
-          duration: 0.35,
-          ease: "back.out(1.4)",
+          rotate: 360,
+          scale: 1,
+          duration: 0.5,
+          ease: "power2.inOut",
           clearProps: "transform",
         },
       );
@@ -58,7 +60,13 @@ export function useColorMode() {
       duration: 0.18,
       ease: "power2.in",
       onComplete() {
+        document.documentElement.classList.add("theme-swap");
         apply(next);
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() =>
+            document.documentElement.classList.remove("theme-swap"),
+          ),
+        );
         gsap.to(overlay, {
           opacity: 0,
           duration: 0.28,

@@ -52,16 +52,6 @@
               ? ` · ${store.pendingMembers.length} pending`
               : ""
           }}
-          · Household ID
-          <code
-            style="
-              font-family: monospace;
-              background: var(--surface-2);
-              padding: 1px 6px;
-              border-radius: 5px;
-            "
-            >{{ store.household.id }}-2026</code
-          >
         </div>
       </div>
       <v-btn v-if="isAdmin" color="primary" @click="inviteOpen = true">
