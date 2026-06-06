@@ -357,6 +357,14 @@
   background: var(--accent-soft);
   color: var(--accent-ink);
 }
+.chip-current {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  vertical-align: middle;
+  font-size: 10px;
+  height: 19px;
+}
 
 /* Avatar */
 .avatar {

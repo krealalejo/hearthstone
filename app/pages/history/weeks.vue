@@ -22,7 +22,10 @@
     <div v-for="wg in weekGroups" :key="wg.key" class="card week-card">
       <div class="week-head">
         <div>
-          <div class="week-num">Week {{ wg.week }} · {{ wg.year }}</div>
+          <div class="week-num">
+            Week {{ wg.week }} · {{ wg.year }}
+            <span v-if="wg.isCurrent" class="chip chip-current">Current</span>
+          </div>
           <div class="week-range">{{ wg.range }}</div>
         </div>
         <div class="week-meta">
@@ -133,6 +136,7 @@ interface WeekGroup {
   purchases: HistoryEntry[];
   doneTasks: Task[];
   totalSpend: number;
+  isCurrent: boolean;
 }
 
 const weekGroups = computed<WeekGroup[]>(() => {
@@ -150,6 +154,7 @@ const weekGroups = computed<WeekGroup[]>(() => {
         purchases: [],
         doneTasks: [],
         totalSpend: 0,
+        isCurrent: false,
       });
     }
     const wg = map.get(key)!;
@@ -160,21 +165,21 @@ const weekGroups = computed<WeekGroup[]>(() => {
   const today = new Date().toISOString().slice(0, 10);
   const { year: cy, week: cw } = getISOWeek(today);
   const curKey = `${cy}-W${String(cw).padStart(2, "0")}`;
-  const doneTasks = store.tasks.filter((t) => t.done);
-  if (doneTasks.length) {
-    if (!map.has(curKey)) {
-      map.set(curKey, {
-        key: curKey,
-        year: cy,
-        week: cw,
-        range: weekRange(cy, cw),
-        purchases: [],
-        doneTasks: [],
-        totalSpend: 0,
-      });
-    }
-    map.get(curKey)!.doneTasks = doneTasks;
+  if (!map.has(curKey)) {
+    map.set(curKey, {
+      key: curKey,
+      year: cy,
+      week: cw,
+      range: weekRange(cy, cw),
+      purchases: [],
+      doneTasks: [],
+      totalSpend: 0,
+      isCurrent: true,
+    });
   }
+  const curGroup = map.get(curKey)!;
+  curGroup.isCurrent = true;
+  curGroup.doneTasks = store.tasks.filter((t) => t.done);
 
   return [...map.values()].sort((a, b) =>
     a.year === b.year ? b.week - a.week : b.year - a.year,
