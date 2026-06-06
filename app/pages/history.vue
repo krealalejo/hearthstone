@@ -10,7 +10,7 @@
         }"
       >
         <v-icon style="font-size: 16px">mdi-receipt-outline</v-icon>
-        Purchases
+        {{ $t("history.purchasesTab") }}
       </NuxtLink>
       <NuxtLink
         to="/history/weeks"
@@ -18,7 +18,7 @@
         :class="{ active: route.path.endsWith('/weeks') }"
       >
         <v-icon style="font-size: 16px">mdi-calendar-week</v-icon>
-        Weeks
+        {{ $t("history.weeksTab") }}
       </NuxtLink>
     </nav>
     <NuxtPage />
