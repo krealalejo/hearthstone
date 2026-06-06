@@ -1,10 +1,16 @@
 <template>
   <div class="content-inner">
     <div class="sec-head">
-      <h2>Inventory</h2>
+      <h2>{{ $t("inventory.title") }}</h2>
       <span class="count"
-        >{{ store.inventory.length }} items{{
-          store.lowCount ? ` · ${store.lowCount} low` : ""
+        >{{
+          $t(
+            "inventory.itemCount",
+            { n: store.inventory.length },
+            store.inventory.length,
+          )
+        }}{{
+          store.lowCount ? $t("inventory.lowSuffix", { n: store.lowCount }) : ""
         }}</span
       >
       <span class="line" />
@@ -16,14 +22,14 @@
         rounded="sm"
         class="seg"
       >
-        <v-btn value="all" size="small">All</v-btn>
+        <v-btn value="all" size="small">{{ $t("dashboard.filterAll") }}</v-btn>
         <v-btn v-for="c in CATS" :key="c.id" :value="c.id" size="small">
           <v-icon :icon="c.icon" size="15" start />
           {{ c.name.split(" ")[0] }}
         </v-btn>
       </v-btn-toggle>
       <v-btn color="primary" size="small" @click="modalItem = {}">
-        <v-icon size="15" start>mdi-plus</v-icon>New item
+        <v-icon size="15" start>mdi-plus</v-icon>{{ $t("inventory.newItem") }}
       </v-btn>
     </div>
 
@@ -66,12 +72,13 @@ definePageMeta({ middleware: "auth" });
 
 const store = useHomeStore();
 const { animateStagger } = useAnimations();
+const { t } = useI18n();
 
-const CATS = [
-  { id: "food", name: "Food & Groceries", icon: "mdi-basket" },
-  { id: "cleaning", name: "Cleaning Supplies", icon: "mdi-spray" },
-  { id: "misc", name: "Miscellaneous", icon: "mdi-package-variant" },
-];
+const CATS = computed(() => [
+  { id: "food", name: t("inventory.catFood"), icon: "mdi-basket" },
+  { id: "cleaning", name: t("inventory.catCleaning"), icon: "mdi-spray" },
+  { id: "misc", name: t("inventory.catMisc"), icon: "mdi-package-variant" },
+]);
 
 const tab = ref("all");
 const invListEl = ref<HTMLElement | null>(null);
@@ -91,7 +98,9 @@ const invModalOpen = computed({
 });
 
 const activeCats = computed(() =>
-  tab.value === "all" ? CATS : CATS.filter((c) => c.id === tab.value),
+  tab.value === "all"
+    ? CATS.value
+    : CATS.value.filter((c) => c.id === tab.value),
 );
 
 function catItems(catId: string) {
