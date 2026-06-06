@@ -3,7 +3,7 @@
     <div ref="statsEl" class="stat-row">
       <div class="stat">
         <div>
-          <div class="lbl">Tasks done</div>
+          <div class="lbl">{{ $t("dashboard.tasksDone") }}</div>
           <div class="num">
             {{ doneCount }}<small> / {{ store.tasks.length }}</small>
           </div>
@@ -14,14 +14,14 @@
       </div>
       <div class="stat">
         <div>
-          <div class="lbl">Your points</div>
+          <div class="lbl">{{ $t("dashboard.yourPoints") }}</div>
           <div class="num">{{ store.me.weekXp }}<small> XP</small></div>
         </div>
         <AppAvatar :member="store.me" size="lg" />
       </div>
       <div class="stat">
         <div>
-          <div class="lbl">Household total</div>
+          <div class="lbl">{{ $t("dashboard.householdTotal") }}</div>
           <div class="num">{{ hhXp }}<small> XP</small></div>
         </div>
         <div class="avatar-stack">
@@ -36,7 +36,7 @@
     </div>
 
     <div class="sec-head">
-      <h2>Weekly tasks</h2>
+      <h2>{{ $t("dashboard.weeklyTasks") }}</h2>
       <span class="line" />
       <v-btn-toggle
         v-model="filter"
@@ -46,12 +46,16 @@
         rounded="sm"
         class="seg"
       >
-        <v-btn value="all" size="small">All</v-btn>
-        <v-btn value="mine" size="small">Mine</v-btn>
-        <v-btn value="open" size="small">Up for grabs</v-btn>
+        <v-btn value="all" size="small">{{ $t("dashboard.filterAll") }}</v-btn>
+        <v-btn value="mine" size="small">{{
+          $t("dashboard.filterMine")
+        }}</v-btn>
+        <v-btn value="open" size="small">{{
+          $t("dashboard.filterOpen")
+        }}</v-btn>
       </v-btn-toggle>
       <v-btn color="primary" size="small" @click="modalTask = {}">
-        <v-icon size="15" start>mdi-plus</v-icon>New task
+        <v-icon size="15" start>mdi-plus</v-icon>{{ $t("dashboard.newTask") }}
       </v-btn>
     </div>
 
@@ -59,8 +63,8 @@
       <div ref="taskListEl">
         <div v-if="!byRoom.length" class="empty">
           <v-icon class="empty-icon">mdi-broom</v-icon>
-          <h3>Nothing here yet</h3>
-          <p>No tasks match this filter. Try "All" or add a new task.</p>
+          <h3>{{ $t("dashboard.emptyTitle") }}</h3>
+          <p>{{ $t("dashboard.emptyBody") }}</p>
         </div>
         <div v-for="{ room, items } in byRoom" :key="room.id" class="room">
           <div class="room-head">
@@ -69,15 +73,14 @@
             >
             <h3>{{ room.name }}</h3>
             <span class="meta"
-              >· {{ items.length }} task{{
-                items.length !== 1 ? "s" : ""
+              >·
+              {{
+                $t("dashboard.task", { n: items.length }, items.length)
               }}</span
             >
             <span class="prog"
-              >{{ items.filter((t) => t.done).length }}/{{
-                items.length
-              }}
-              done</span
+              >{{ items.filter((t) => t.done).length }}/{{ items.length }}
+              {{ $t("dashboard.done") }}</span
             >
           </div>
           <DashboardTaskRow
