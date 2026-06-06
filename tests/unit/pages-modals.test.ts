@@ -383,7 +383,9 @@ describe("inventory/Modal", () => {
     const { default: Component } =
       await import("~/components/inventory/Modal.vue");
     const wrapper = await mount(Component, { props: { item: null } });
-    const closeBtn = wrapper.find(".btn-ghost.btn-icon");
+    const closeBtn = wrapper.find(".btn-ghost.btn-icon").exists()
+      ? wrapper.find(".btn-ghost.btn-icon")
+      : wrapper.find("button.v-btn--icon");
     if (closeBtn.exists()) await closeBtn.trigger("click");
     expect(wrapper.emitted("close")).toBeTruthy();
   });
