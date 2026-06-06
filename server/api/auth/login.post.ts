@@ -14,6 +14,14 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  if (!user.passwordHash) {
+    throw createError({
+      statusCode: 401,
+      statusMessage:
+        "This account uses Google sign-in. Continue with Google instead.",
+    });
+  }
+
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
     throw createError({
