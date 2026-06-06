@@ -22,6 +22,7 @@ export default defineVitestConfig({
         "**/.nuxt/**",
         "**/dist/**",
         "**/node_modules/**",
+        "app/types/**",
       ],
       thresholds: {
         lines: 80,
