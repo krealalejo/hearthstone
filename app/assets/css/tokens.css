@@ -72,6 +72,35 @@
   --on-accent: #14110d;
 }
 
+/* Override Vuetify's SSR-baked light theme vars when dark is detected before hydration */
+[data-theme="dark"] .v-theme--light {
+  --v-theme-background: 46 41 37;
+  --v-theme-on-background: 255 255 255;
+  --v-theme-surface: 58 52 46;
+  --v-theme-on-surface: 255 255 255;
+  --v-theme-surface-bright: 72 65 57;
+  --v-theme-surface-light: 46 41 37;
+  --v-theme-surface-variant: 72 65 57;
+  --v-theme-on-surface-variant: 255 255 255;
+  --v-theme-primary: 126 196 160;
+  --v-theme-on-primary: 0 0 0;
+  --v-theme-primary-darken-1: 90 154 120;
+  --v-theme-on-primary-darken-1: 0 0 0;
+  --v-theme-secondary: 168 157 138;
+  --v-theme-on-secondary: 0 0 0;
+  --v-theme-error: 224 123 96;
+  --v-theme-on-error: 0 0 0;
+  --v-theme-info: 122 176 204;
+  --v-theme-on-info: 0 0 0;
+  --v-theme-success: 122 191 144;
+  --v-theme-on-success: 0 0 0;
+  --v-theme-warning: 212 154 90;
+  --v-theme-on-warning: 0 0 0;
+  --v-theme-overlay-multiplier: 2;
+  --v-border-color: 255 255 255;
+  --v-border-opacity: 0.12;
+}
+
 * {
   box-sizing: border-box;
 }
