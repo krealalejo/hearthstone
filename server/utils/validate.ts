@@ -57,8 +57,8 @@ export const householdPatchSchema = z
   .object({
     name: z.string().min(1).max(100).optional(),
     emoji: z.string().optional(),
-    lastResetWeek: z.number().int().optional(),
-    weekStartDay: z.number().int().min(0).max(6).optional(),
+    lastResetWeek: z.string().optional(),
+    weekStartDay: z.enum(["monday", "sunday"]).optional(),
     currency: z.string().max(10).optional(),
   })
   .refine(
