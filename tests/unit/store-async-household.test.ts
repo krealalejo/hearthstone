@@ -42,3 +42,36 @@ describe("renameHousehold", () => {
     expect(store.toasts[0]!.title).toBe("Failed to rename household");
   });
 });
+
+describe("invite", () => {
+  it("adds pending member with given email and posts toast", async () => {
+    makeFetch({});
+    const store = useHomeStore();
+
+    await store.invite("bob@example.com");
+
+    expect(store.members).toHaveLength(1);
+    expect(store.members[0]!.email).toBe("bob@example.com");
+    expect(store.members[0]!.status).toBe("pending");
+    expect(store.toasts).toHaveLength(1);
+    expect(store.toasts[0]!.kind).toBe("info");
+  });
+
+  it("ignores empty string", async () => {
+    const store = useHomeStore();
+
+    await store.invite("   ");
+
+    expect(store.members).toHaveLength(0);
+  });
+
+  it("rolls back member and toasts on failure", async () => {
+    makeFetchFail(500);
+    const store = useHomeStore();
+
+    await store.invite("bob@example.com");
+
+    expect(store.members).toHaveLength(0);
+    expect(store.toasts[0]!.title).toBe("Invite failed");
+  });
+});
