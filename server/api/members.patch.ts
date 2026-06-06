@@ -8,7 +8,13 @@ export default defineEventHandler(async (event) => {
   if (updates.role && callerRole !== "admin")
     throw createError({ statusCode: 403, statusMessage: "Admin only" });
 
-  const profileFields = ["name", "accentColor", "avatarEmoji", "avatarImage"];
+  const profileFields = [
+    "name",
+    "accentColor",
+    "avatarEmoji",
+    "avatarImage",
+    "locale",
+  ];
   const updatingProfile = profileFields.some((f) => f in updates);
   if (updatingProfile && callerRole !== "admin" && id !== userId)
     throw createError({ statusCode: 403, statusMessage: "Forbidden" });
