@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   if (currency) updates.currency = currency;
 
   const hh = await Household.findByIdAndUpdate(householdId, updates, {
-    new: true,
+    returnDocument: "after",
   });
   if (!hh)
     throw createError({
