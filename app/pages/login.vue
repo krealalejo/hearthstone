@@ -65,11 +65,33 @@
 
         <div v-if="mode === 'signup'" class="field">
           <label for="auth-name">Full name</label>
-          <input id="auth-name" v-model="name" placeholder="Jordan Lee" />
+          <input
+            id="auth-name"
+            v-model="name"
+            placeholder="Jordan Lee"
+            :class="{ 'field-error': errors.name }"
+            @blur="touchField('name')"
+            @input="revalidateIfTouched('name')"
+          />
+          <Transition name="field-msg">
+            <span v-if="errors.name" class="field-msg">{{ errors.name }}</span>
+          </Transition>
         </div>
         <div class="field">
           <label for="auth-email">Email</label>
-          <input id="auth-email" v-model="email" type="email" />
+          <input
+            id="auth-email"
+            v-model="email"
+            type="email"
+            :class="{ 'field-error': errors.email }"
+            @blur="touchField('email')"
+            @input="revalidateIfTouched('email')"
+          />
+          <Transition name="field-msg">
+            <span v-if="errors.email" class="field-msg">{{
+              errors.email
+            }}</span>
+          </Transition>
         </div>
         <div class="field">
           <label for="auth-password">Password</label>
@@ -77,8 +99,22 @@
             id="auth-password"
             v-model="password"
             type="password"
+            :class="{ 'field-error': errors.password }"
+            @blur="touchField('password')"
+            @input="revalidateIfTouched('password')"
             @keyup.enter="handleAuth"
           />
+          <Transition name="field-msg">
+            <span v-if="errors.password" class="field-msg">{{
+              errors.password
+            }}</span>
+          </Transition>
+          <div v-if="mode === 'signup'" class="pw-hints">
+            <span :class="{ met: pwChecks.length }">8+ characters</span>
+            <span :class="{ met: pwChecks.upper }">1 uppercase</span>
+            <span :class="{ met: pwChecks.number }">1 number</span>
+            <span :class="{ met: pwChecks.symbol }">1 symbol</span>
+          </div>
         </div>
 
         <div
@@ -116,7 +152,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
+import { z } from "zod";
 import { useAnimations } from "~/composables/useAnimations";
 import { gsap } from "gsap";
 
@@ -129,9 +166,61 @@ const email = ref("");
 const password = ref("");
 const name = ref("");
 const authError = ref("");
+const touched = ref<Record<string, boolean>>({});
+const errors = ref<Record<string, string>>({});
+
+const passwordSchema = z
+  .string()
+  .min(8, "At least 8 characters")
+  .regex(/[A-Z]/, "At least 1 uppercase letter")
+  .regex(/[0-9]/, "At least 1 number")
+  .regex(/[^A-Za-z0-9]/, "At least 1 symbol");
+
+const pwChecks = computed(() => ({
+  length: password.value.length >= 8,
+  upper: /[A-Z]/.test(password.value),
+  number: /[0-9]/.test(password.value),
+  symbol: /[^A-Za-z0-9]/.test(password.value),
+}));
+
+function validateFields(): boolean {
+  const errs: Record<string, string> = {};
+
+  if (mode.value === "signup") {
+    if (!name.value.trim()) errs.name = "Name is required";
+  }
+
+  const emailResult = z
+    .string()
+    .email("Invalid email address")
+    .safeParse(email.value);
+  if (!emailResult.success) errs.email = emailResult.error.issues[0]!.message;
+
+  if (mode.value === "signup") {
+    const pwResult = passwordSchema.safeParse(password.value);
+    if (!pwResult.success) errs.password = pwResult.error.issues[0]!.message;
+  } else if (!password.value) {
+    errs.password = "Password is required";
+  }
+
+  errors.value = errs;
+  return Object.keys(errs).length === 0;
+}
+
+function touchField(field: string) {
+  touched.value[field] = true;
+  validateFields();
+}
+
+function revalidateIfTouched(field: string) {
+  if (touched.value[field]) validateFields();
+}
 
 async function handleAuth() {
   authError.value = "";
+  touched.value = { name: true, email: true, password: true };
+  if (!validateFields()) return;
+
   const endpoint =
     mode.value === "login" ? "/api/auth/login" : "/api/auth/register";
   const body =
@@ -181,3 +270,59 @@ onMounted(() => {
   });
 });
 </script>
+
+<style scoped>
+.field-msg {
+  display: block;
+  font-size: 12px;
+  color: #bd413f;
+  margin-top: 3px;
+  overflow: hidden;
+}
+
+.field-msg-enter-active,
+.field-msg-leave-active {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    max-height 0.18s ease;
+  max-height: 40px;
+}
+
+.field-msg-enter-from,
+.field-msg-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+  max-height: 0;
+}
+
+input.field-error {
+  border-color: #bd413f;
+  outline-color: #bd413f;
+}
+
+.pw-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.pw-hints span {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--hairline);
+  color: var(--ink);
+  opacity: 0.55;
+  transition:
+    opacity 0.15s,
+    background 0.15s;
+}
+
+.pw-hints span.met {
+  background: #d4edda;
+  color: #1a5c2a;
+  opacity: 1;
+}
+</style>
