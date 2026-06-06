@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="modal-head" style="position: relative">
-      <h2>{{ task ? "Edit task" : "New task" }}</h2>
-      <p v-if="!task">Add a chore and assign points</p>
+      <h2>{{ task ? $t("taskModal.titleEdit") : $t("taskModal.titleNew") }}</h2>
+      <p v-if="!task">{{ $t("taskModal.subtitle") }}</p>
       <v-btn
         icon
         variant="text"
@@ -15,29 +15,29 @@
     </div>
     <div class="modal-body">
       <div class="field">
-        <label for="task-title">Title</label>
+        <label for="task-title">{{ $t("taskModal.fieldTitle") }}</label>
         <input
           id="task-title"
           v-model="form.title"
-          placeholder="e.g. Clean the windows"
+          :placeholder="$t('taskModal.titlePlaceholder')"
           autofocus
         />
       </div>
       <div class="field">
         <label for="task-desc"
-          >Description
+          >{{ $t("taskModal.fieldDesc") }}
           <span style="color: var(--ink-3); font-weight: 400"
-            >· optional</span
+            >· {{ $t("taskModal.optional") }}</span
           ></label
         >
         <textarea
           id="task-desc"
           v-model="form.desc"
-          placeholder="Any details…"
+          :placeholder="$t('taskModal.descPlaceholder')"
         />
       </div>
       <div class="field" style="align-items: center">
-        <div class="label">Room</div>
+        <div class="label">{{ $t("taskModal.fieldRoom") }}</div>
         <v-chip-group
           v-model="form.roomId"
           mandatory
@@ -57,7 +57,7 @@
         </v-chip-group>
       </div>
       <div class="field" style="align-items: center">
-        <div class="label">Assign to</div>
+        <div class="label">{{ $t("taskModal.fieldAssign") }}</div>
         <v-chip-group
           v-model="form.assignee"
           column
@@ -65,7 +65,7 @@
         >
           <v-chip :value="null" variant="outlined" size="small">
             <v-icon icon="mdi-account-group" size="14" start />
-            Anyone
+            {{ $t("taskModal.anyone") }}
           </v-chip>
           <v-chip
             v-for="m in store.activeMembers"
@@ -80,7 +80,9 @@
         </v-chip-group>
       </div>
       <div class="field" style="align-items: center">
-        <div class="label">Effort · {{ form.xp }} XP</div>
+        <div class="label">
+          {{ $t("taskModal.fieldEffort", { xp: form.xp }) }}
+        </div>
         <v-btn-toggle
           v-model="form.xp"
           mandatory
@@ -103,7 +105,7 @@
       </div>
       <v-switch
         v-model="form.recurring"
-        label="Recurring weekly"
+        :label="$t('taskModal.recurring')"
         prepend-icon="mdi-sync"
         color="primary"
         density="compact"
@@ -119,18 +121,21 @@
         style="margin-right: auto"
         @click="handleDelete"
       >
-        <v-icon size="15" start>mdi-trash-can</v-icon>Delete
+        <v-icon size="15" start>mdi-trash-can</v-icon
+        >{{ $t("taskModal.delete") }}
       </v-btn>
-      <v-btn variant="text" @click="emit('close')">Cancel</v-btn>
+      <v-btn variant="text" @click="emit('close')">{{
+        $t("taskModal.cancel")
+      }}</v-btn>
       <v-btn color="primary" :disabled="!form.title.trim()" @click="handleSave">
-        {{ task ? "Save changes" : "Add task" }}
+        {{ task ? $t("taskModal.save") : $t("taskModal.add") }}
       </v-btn>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { reactive, computed } from "vue";
 import type { Task } from "~/stores/home";
 import { useHomeStore } from "~/stores/home";
 
@@ -138,14 +143,15 @@ const props = defineProps<{ task?: Task | null }>();
 const emit = defineEmits<{ close: []; saved: [] }>();
 const isEdit = !!props.task;
 const store = useHomeStore();
+const { t } = useI18n();
 
-const XP_OPTS = [
-  { n: 5, l: "Quick" },
-  { n: 10, l: "Light" },
-  { n: 20, l: "Medium" },
-  { n: 35, l: "Hard" },
-  { n: 50, l: "Deep" },
-];
+const XP_OPTS = computed(() => [
+  { n: 5, l: t("taskModal.effortQuick") },
+  { n: 10, l: t("taskModal.effortLight") },
+  { n: 20, l: t("taskModal.effortMedium") },
+  { n: 35, l: t("taskModal.effortHard") },
+  { n: 50, l: t("taskModal.effortDeep") },
+]);
 
 const form = reactive({
   title: props.task?.title ?? "",

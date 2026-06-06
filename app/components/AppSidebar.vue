@@ -2,11 +2,11 @@
   <aside class="sidebar">
     <div class="brand">
       <span class="brand-mark"
-        ><img src="~/public/favicon.png" alt="Hearthstone"
+        ><img src="/favicon.png" alt="Hearthstone"
       /></span>
       <div>
         <div class="brand-name">Hearthstone</div>
-        <div class="brand-sub">calm home, shared</div>
+        <div class="brand-sub">{{ $t("login.brandSub") }}</div>
       </div>
     </div>
 
@@ -16,14 +16,16 @@
       >
       <div style="flex: 1; min-width: 0">
         <div class="hh-name">{{ store.household.name }}</div>
-        <div class="hh-count">{{ store.activeMembers.length }} members</div>
+        <div class="hh-count">
+          {{ store.activeMembers.length }} {{ $t("nav.members") }}
+        </div>
       </div>
       <v-icon style="color: var(--ink-3); font-size: 15px"
         >mdi-unfold-more-horizontal</v-icon
       >
     </div>
 
-    <div class="nav-label">Menu</div>
+    <div class="nav-label">{{ $t("nav.menu") }}</div>
     <template v-for="nav in NAV" :key="nav.id">
       <div
         class="nav-item"
@@ -75,8 +77,10 @@
         <div style="flex: 1; min-width: 0">
           <div class="me-name">{{ store.me.name }}</div>
           <div class="me-role">
-            Level {{ levelInfo(store.me.totalXp).level }} ·
-            {{ store.me.totalXp.toLocaleString() }} XP
+            {{
+              $t("household.level", { n: levelInfo(store.me.totalXp).level })
+            }}
+            · {{ store.me.totalXp.toLocaleString() }} XP
           </div>
         </div>
         <v-icon style="color: var(--ink-3); font-size: 18px">mdi-cog</v-icon>
@@ -95,6 +99,7 @@ const emit = defineEmits<{ "open-profile": [] }>();
 const store = useHomeStore();
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 
 const expandedId = ref<string | null>(
   route.path.startsWith("/history") ? "history" : null,
@@ -109,7 +114,32 @@ watch(
   },
 );
 
-function onNavClick(nav: (typeof NAV)[number]) {
+const NAV = computed(() => [
+  { id: "dashboard", label: t("nav.dashboard"), icon: "mdi-view-dashboard" },
+  { id: "inventory", label: t("nav.inventory"), icon: "mdi-package-variant" },
+  { id: "shopping", label: t("nav.shopping"), icon: "mdi-cart" },
+  {
+    id: "history",
+    label: t("nav.history"),
+    icon: "mdi-receipt-text-outline",
+    path: "/history/purchases",
+    children: [
+      {
+        id: "history-purchases",
+        label: t("history.purchasesTab"),
+        path: "/history/purchases",
+      },
+      {
+        id: "history-weeks",
+        label: t("history.weeksTab"),
+        path: "/history/weeks",
+      },
+    ],
+  },
+  { id: "household", label: t("nav.household"), icon: "mdi-account-group" },
+]);
+
+function onNavClick(nav: (typeof NAV.value)[number]) {
   const { id } = nav;
   if (nav.children) {
     expandedId.value = expandedId.value === id ? null : id;
@@ -118,27 +148,6 @@ function onNavClick(nav: (typeof NAV)[number]) {
     router.push(nav.path ?? "/" + id);
   }
 }
-
-const NAV = [
-  { id: "dashboard", label: "Dashboard", icon: "mdi-view-dashboard" },
-  { id: "inventory", label: "Inventory", icon: "mdi-package-variant" },
-  { id: "shopping", label: "Shopping List", icon: "mdi-cart" },
-  {
-    id: "history",
-    label: "History",
-    icon: "mdi-receipt-text-outline",
-    path: "/history/purchases",
-    children: [
-      {
-        id: "history-purchases",
-        label: "Purchases",
-        path: "/history/purchases",
-      },
-      { id: "history-weeks", label: "Weeks", path: "/history/weeks" },
-    ],
-  },
-  { id: "household", label: "Household", icon: "mdi-account-group" },
-];
 
 const badges = computed<Record<string, number | undefined>>(() => ({
   inventory: store.lowCount || undefined,

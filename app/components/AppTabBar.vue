@@ -24,29 +24,30 @@ import { useHomeStore } from "~/stores/home";
 const store = useHomeStore();
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 
-const NAV = [
+const NAV = computed(() => [
   {
     id: "dashboard",
-    label: "Dashboard",
+    label: t("nav.dashboard"),
     icon: "mdi-view-dashboard-outline",
     iconFill: "mdi-view-dashboard",
   },
   {
     id: "inventory",
-    label: "Inventory",
+    label: t("nav.inventory"),
     icon: "mdi-package-variant-closed",
     iconFill: "mdi-package-variant",
   },
   {
     id: "shopping",
-    label: "Shopping",
+    label: t("nav.shopping"),
     icon: "mdi-cart-outline",
     iconFill: "mdi-cart",
   },
   {
     id: "history",
-    label: "History",
+    label: t("nav.history"),
     icon: "mdi-receipt-text-outline",
     iconFill: "mdi-receipt-text",
     path: "/history/purchases",
@@ -54,13 +55,13 @@ const NAV = [
   },
   {
     id: "household",
-    label: "Household",
+    label: t("nav.household"),
     icon: "mdi-account-group-outline",
     iconFill: "mdi-account-group",
   },
-];
+]);
 
-function isActive(nav: (typeof NAV)[number]): boolean {
+function isActive(nav: (typeof NAV.value)[number]): boolean {
   if ("prefix" in nav && nav.prefix) return route.path.startsWith(nav.prefix);
   return route.name === nav.id;
 }

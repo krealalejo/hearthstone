@@ -9,7 +9,7 @@
       <v-icon style="color: var(--accent-ink); font-size: 15px"
         >mdi-calendar-week</v-icon
       >
-      Week {{ store.weekNo }} · 2026
+      {{ $t("topbar.week") }} {{ store.weekNo }} · 2026
     </div>
     <button
       v-if="route.name === 'dashboard'"
@@ -17,7 +17,7 @@
       @click="store.resetWeek()"
     >
       <v-icon style="font-size: 15px">mdi-refresh</v-icon>
-      New week
+      {{ $t("topbar.newWeek") }}
     </button>
     <button
       class="btn btn-ghost btn-icon"
@@ -40,24 +40,28 @@ import { useColorMode } from "~/composables/useColorMode";
 const store = useHomeStore();
 const route = useRoute();
 const { isDark, toggle } = useColorMode();
+const { t } = useI18n();
 
-const TITLES: Record<string, { h: string; s: string }> = {
-  dashboard: { h: "", s: "Here's what your home needs this week" },
-  inventory: { h: "Inventory", s: "Track stock across food, cleaning & more" },
-  shopping: { h: "Shopping List", s: "Auto-filled when stock runs low" },
+const TITLES = computed(() => ({
+  dashboard: { h: "", s: t("topbar.dashSub") },
+  inventory: { h: t("nav.inventory"), s: t("topbar.inventorySub") },
+  shopping: { h: t("nav.shopping"), s: t("topbar.shoppingSub") },
   "history-purchases": {
-    h: "Purchase History",
-    s: "Every finalized shopping trip",
+    h: t("nav.purchases") + " " + t("nav.history"),
+    s: t("topbar.histPurchasesSub"),
   },
-  "history-weeks": { h: "Week Recap", s: "Tasks, purchases & more by week" },
-  household: { h: "Household", s: "Members, invites & sharing" },
-};
+  "history-weeks": { h: t("history.weeksTitle"), s: t("topbar.histWeeksSub") },
+  household: { h: t("nav.household"), s: t("topbar.householdSub") },
+}));
 
 const title = computed(() => {
   const view = route.name as string;
-  if (view === "dashboard") return `Hi, ${store.me.name.split(" ")[0]}`;
-  return TITLES[view]?.h ?? "";
+  if (view === "dashboard")
+    return t("topbar.hiName", { name: store.me.name.split(" ")[0] });
+  return TITLES.value[view as keyof typeof TITLES.value]?.h ?? "";
 });
 
-const subtitle = computed(() => TITLES[route.name as string]?.s ?? "");
+const subtitle = computed(
+  () => TITLES.value[route.name as keyof typeof TITLES.value]?.s ?? "",
+);
 </script>

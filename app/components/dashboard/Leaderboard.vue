@@ -3,7 +3,7 @@
     <template v-if="gameLevel === 'full'">
       <div class="leader-head">
         <v-icon>mdi-medal</v-icon>
-        <h3>This week</h3>
+        <h3>{{ $t("leaderboard.thisWeek") }}</h3>
       </div>
       <div class="level-card">
         <div class="lv-top">
@@ -21,10 +21,10 @@
     <template v-else>
       <div class="leader-head">
         <v-icon>mdi-medal</v-icon>
-        <h3>Leaderboard</h3>
+        <h3>{{ $t("leaderboard.title") }}</h3>
       </div>
     </template>
-    <div class="leader-sub">Members ranked by points earned this week</div>
+    <div class="leader-sub">{{ $t("leaderboard.sub") }}</div>
     <div class="leader-list">
       <div
         v-for="(m, i) in ranked"
@@ -40,7 +40,9 @@
         <div class="lr-meta">
           <div class="lr-name">
             {{ m.name.split(" ")[0] }}
-            <span v-if="m.id === store.currentUser" class="you-tag">you</span>
+            <span v-if="m.id === store.currentUser" class="you-tag">{{
+              $t("household.you")
+            }}</span>
           </div>
           <ProgressBar
             v-if="gameLevel !== 'subtle'"
@@ -49,7 +51,7 @@
             :max="maxXp"
           />
           <div v-else class="lr-xp">
-            {{ m.totalXp.toLocaleString() }} total XP
+            {{ $t("leaderboard.totalXp", { n: m.totalXp.toLocaleString() }) }}
           </div>
         </div>
         <span class="lr-points">{{ m.weekXp }}</span>
