@@ -161,6 +161,15 @@
                 <v-icon style="font-size: 17px">mdi-arrow-right</v-icon>
               </button>
 
+              <div
+                v-if="mode === 'login'"
+                style="text-align: center; margin-top: 10px"
+              >
+                <button class="forgot-link" @click="forgotOpen = true">
+                  Forgot password?
+                </button>
+              </div>
+
               <div class="auth-divider"><span>or</span></div>
 
               <a
@@ -190,6 +199,93 @@
         </div>
       </div>
     </div>
+
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="forgotOpen" class="modal-backdrop" @click.self="closeForgot">
+          <div
+            class="modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="forgot-title"
+          >
+            <div v-if="forgotDone" class="modal-done">
+              <v-icon
+                style="font-size: 36px; color: #2d6a4f; margin-bottom: 10px"
+                >mdi-email-check-outline</v-icon
+              >
+              <h2 id="forgot-title">Check your inbox</h2>
+              <p>
+                If that email is registered, you'll receive a reset link
+                shortly.
+              </p>
+              <button
+                class="btn btn-primary"
+                style="width: 100%; height: 42px; margin-top: 16px"
+                @click="closeForgot"
+              >
+                Done
+              </button>
+            </div>
+            <template v-else>
+              <div class="modal-header">
+                <h2 id="forgot-title">Reset password</h2>
+                <button class="btn btn-ghost btn-icon" @click="closeForgot">
+                  <v-icon style="font-size: 18px">mdi-close</v-icon>
+                </button>
+              </div>
+              <p
+                style="
+                  font-size: 14px;
+                  color: var(--ink);
+                  opacity: 0.7;
+                  margin-bottom: 20px;
+                "
+              >
+                Enter your email and we'll send a reset link.
+              </p>
+              <div class="field">
+                <label for="forgot-email">Email</label>
+                <input
+                  id="forgot-email"
+                  v-model="forgotEmail"
+                  type="email"
+                  :class="{ 'field-error': forgotEmailError }"
+                  @keyup.enter="sendForgot"
+                />
+                <Transition name="field-msg">
+                  <span v-if="forgotEmailError" class="field-msg">{{
+                    forgotEmailError
+                  }}</span>
+                </Transition>
+              </div>
+              <div
+                v-if="forgotApiError"
+                style="
+                  color: #bd413f;
+                  font-size: 13px;
+                  margin-top: 4px;
+                  padding: 8px 12px;
+                  background: #ffeeeb;
+                  border-radius: 8px;
+                "
+              >
+                {{ forgotApiError }}
+              </div>
+              <button
+                class="btn btn-primary"
+                style="width: 100%; height: 42px; margin-top: 16px"
+                :disabled="forgotLoading"
+                @click="sendForgot"
+              >
+                {{ forgotLoading ? "Sending…" : "Send reset link" }}
+                <v-icon style="font-size: 17px">mdi-arrow-right</v-icon>
+              </button>
+            </template>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -345,6 +441,46 @@ async function handleAuth() {
   }
 }
 
+const forgotOpen = ref(false);
+const forgotEmail = ref("");
+const forgotEmailError = ref("");
+const forgotApiError = ref("");
+const forgotLoading = ref(false);
+const forgotDone = ref(false);
+
+function closeForgot() {
+  forgotOpen.value = false;
+  forgotEmail.value = "";
+  forgotEmailError.value = "";
+  forgotApiError.value = "";
+  forgotDone.value = false;
+}
+
+async function sendForgot() {
+  forgotEmailError.value = "";
+  forgotApiError.value = "";
+  const r = z
+    .string()
+    .email("Invalid email address")
+    .safeParse(forgotEmail.value);
+  if (!r.success) {
+    forgotEmailError.value = r.error.issues[0]!.message;
+    return;
+  }
+  forgotLoading.value = true;
+  try {
+    await $fetch("/api/auth/forgot-password", {
+      method: "POST",
+      body: { email: forgotEmail.value },
+    });
+    forgotDone.value = true;
+  } catch {
+    forgotApiError.value = "Something went wrong. Please try again.";
+  } finally {
+    forgotLoading.value = false;
+  }
+}
+
 onMounted(() => {
   animateIn(document.querySelector(".auth-form"), { y: 20, duration: 0.4 });
   gsap.from(".auth-art .auth-quote", {
@@ -451,5 +587,83 @@ input.field-error {
   background: #d4edda;
   color: #1a5c2a;
   opacity: 1;
+}
+
+.forgot-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: var(--accent);
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.forgot-link:hover {
+  opacity: 1;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.modal-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 28px 28px 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--shadow-lg, 0 20px 60px rgba(0, 0, 0, 0.18));
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.modal-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.modal-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-active .modal-card,
+.modal-leave-active .modal-card {
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .modal-card,
+.modal-leave-to .modal-card {
+  transform: translateY(12px) scale(0.97);
+  opacity: 0;
 }
 </style>
