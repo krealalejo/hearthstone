@@ -38,7 +38,6 @@
     "@capacitor/cli": "^8.4.0",
     "@capacitor/core": "^8.4.0",
     "@nuxt/test-utils": "^4.0.3",
-    "@types/bcryptjs": "^3.0.0",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vitest/coverage-v8": "^4.1.8",
     "@vue/test-utils": "^2.4.6",
