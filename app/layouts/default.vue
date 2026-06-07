@@ -9,6 +9,15 @@
         </span>
         <span class="mt-title">{{ mobileTitle }}</span>
         <span class="mt-spacer" />
+        <button
+          class="btn btn-ghost btn-icon"
+          :title="isDark ? 'Light mode' : 'Dark mode'"
+          @click="toggle($event.currentTarget as Element)"
+        >
+          <v-icon style="font-size: 18px">{{
+            isDark ? "mdi-weather-sunny" : "mdi-weather-night"
+          }}</v-icon>
+        </button>
         <AppAvatar
           :member="store.me"
           size="md"
@@ -32,7 +41,9 @@ import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useHomeStore } from "~/stores/home";
 import { useBootstrap } from "~/composables/useBootstrap";
+import { useColorMode } from "~/composables/useColorMode";
 
+const { isDark, toggle } = useColorMode();
 const store = useHomeStore();
 const route = useRoute();
 const profileOpen = ref(false);
