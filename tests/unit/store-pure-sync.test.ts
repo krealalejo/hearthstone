@@ -257,6 +257,22 @@ describe("home store — sync actions", () => {
     expect(store.shopping[0]!.id).toBe("s2");
   });
 
+  it("invite adds pending member with given email and posts toast", () => {
+    const store = useHomeStore();
+    store.invite("bob@example.com");
+    expect(store.members).toHaveLength(1);
+    expect(store.members[0]!.email).toBe("bob@example.com");
+    expect(store.members[0]!.status).toBe("pending");
+    expect(store.toasts).toHaveLength(1);
+    expect(store.toasts[0]!.kind).toBe("info");
+  });
+
+  it("invite ignores empty string", () => {
+    const store = useHomeStore();
+    store.invite("   ");
+    expect(store.members).toHaveLength(0);
+  });
+
   it("revoke removes member by id", () => {
     const store = useHomeStore();
     store.members = [

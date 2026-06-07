@@ -607,42 +607,22 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
-    async invite(email: string) {
-      const trimmed = email.trim();
-      if (!trimmed) return;
-      const tempId = "inv_" + Date.now().toString(36);
+    invite(email: string) {
+      if (!email.trim()) return;
       this.members.push({
-        id: tempId,
+        id: "inv_" + Date.now().toString(36),
         name: "",
-        email: trimmed,
+        email: email.trim(),
         role: "member",
         status: "pending",
         weekXp: 0,
         totalXp: 0,
       });
-      try {
-        await $fetch("/api/members", {
-          method: "POST",
-          body: { email: trimmed },
-        });
-        this._toast({
-          kind: "info",
-          title: "Invitation sent",
-          body: `Pending invite to ${trimmed}`,
-        });
-      } catch (err) {
-        this.members = this.members.filter((m) => m.id !== tempId);
-        this._toast({
-          kind: "info",
-          title: "Invite failed",
-          body:
-            (err as { statusMessage?: string })?.statusMessage ??
-            "Could not send invite",
-        });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
-          await this._handle401();
-        }
-      }
+      this._toast({
+        kind: "info",
+        title: "Invitation sent",
+        body: `Pending invite to ${email.trim()}`,
+      });
     },
 
     revoke(id: string) {
@@ -666,27 +646,11 @@ export const useHomeStore = defineStore("home", {
 
     applyAccentColor() {
       if (!import.meta.client) return;
-      const root = document.documentElement.style;
       const color = this.me.accentColor;
       if (color) {
-        root.setProperty("--accent", color);
-        root.setProperty(
-          "--accent-soft",
-          `color-mix(in srgb, ${color} 18%, var(--surface))`,
-        );
-        root.setProperty(
-          "--accent-soft-2",
-          `color-mix(in srgb, ${color} 30%, var(--surface))`,
-        );
-        root.setProperty(
-          "--accent-ink",
-          `color-mix(in srgb, ${color} 65%, var(--ink))`,
-        );
+        document.documentElement.style.setProperty("--accent", color);
       } else {
-        root.removeProperty("--accent");
-        root.removeProperty("--accent-soft");
-        root.removeProperty("--accent-soft-2");
-        root.removeProperty("--accent-ink");
+        document.documentElement.style.removeProperty("--accent");
       }
     },
 
