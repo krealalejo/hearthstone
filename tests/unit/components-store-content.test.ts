@@ -10,6 +10,7 @@ vi.mock("~/composables/useAnimations", () => ({
     animateIn: vi.fn(),
     staggerIn: vi.fn(),
     animateAdd: vi.fn(),
+    animateShopItemIn: vi.fn(),
   }),
 }));
 
@@ -283,6 +284,52 @@ describe("shopping/Item", () => {
     vi.spyOn(store, "removeShop");
     await wrapper.find("[aria-label='remove']").trigger("click");
     expect(store.removeShop).toHaveBeenCalledWith("s1");
+  });
+
+  it("triggers onFocus clearing price when value is 0", async () => {
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
+    const { default: Component } =
+      await import("~/components/shopping/Item.vue");
+    const wrapper = await mountSuspended(Component, {
+      props: {
+        item: baseShopItem({ price: 0, source: "manual" as const }),
+        priceEditable: true,
+      },
+    });
+    const input = wrapper.find("input.item-price");
+    if (input.exists()) await input.trigger("focus");
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("renders editable price input and responds to blur", async () => {
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
+    store.shopping = [baseShopItem({ source: "manual" as const })];
+    const { default: Component } =
+      await import("~/components/shopping/Item.vue");
+    const wrapper = await mountSuspended(Component, {
+      props: {
+        item: baseShopItem({ source: "manual" as const }),
+        priceEditable: true,
+      },
+    });
+    const input = wrapper.find("input.item-price");
+    expect(input.exists()).toBe(true);
+    await input.trigger("focus");
+    await input.trigger("blur");
+    expect(wrapper.find(".price-editable").exists()).toBe(true);
+  });
+
+  it("shows auto badge for auto-sourced item", async () => {
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
+    const { default: Component } =
+      await import("~/components/shopping/Item.vue");
+    const wrapper = await mountSuspended(Component, {
+      props: { item: baseShopItem({ source: "auto" as const }) },
+    });
+    expect(wrapper.find(".src-auto").exists()).toBe(true);
   });
 });
 

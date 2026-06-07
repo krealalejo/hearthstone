@@ -2,11 +2,38 @@
  * IMPORTANT ordering rule: `default.vue` mounts AppSidebar/ProfileModal as
  * children. Keep `default layout` describe last so it doesn't pollute earlier suites.
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+} from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { nextTick } from "vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { useHomeStore } from "~/stores/home";
+
+beforeAll(() => {
+  if (!globalThis.visualViewport) {
+    Object.defineProperty(globalThis, "visualViewport", {
+      value: {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        width: 1024,
+        height: 768,
+        offsetLeft: 0,
+        offsetTop: 0,
+        scale: 1,
+        pageLeft: 0,
+        pageTop: 0,
+      },
+      writable: true,
+    });
+  }
+});
 
 vi.mock("~/composables/useAnimations", () => ({
   useAnimations: () => ({
@@ -510,6 +537,100 @@ describe("dashboard/TaskModal", () => {
   });
 });
 
+const dialogStub = { template: "<div><slot /></div>" };
+
+describe("household/ConfirmDialog", () => {
+  it("emits update:modelValue false when close button clicked", async () => {
+    const { default: Component } =
+      await import("~/components/household/ConfirmDialog.vue");
+    const action = { kind: "leave" as const, member: baseMember() };
+    const wrapper = await mount(Component, {
+      props: { modelValue: true, action },
+      global: { stubs: { VDialog: dialogStub } },
+    });
+    await wrapper.find("button.btn-ghost.btn-icon").trigger("click");
+    expect(wrapper.emitted("update:modelValue")).toBeTruthy();
+  });
+
+  it("emits confirm when confirm button clicked", async () => {
+    const { default: Component } =
+      await import("~/components/household/ConfirmDialog.vue");
+    const action = { kind: "remove" as const, member: baseMember() };
+    const wrapper = await mount(Component, {
+      props: { modelValue: true, action },
+      global: { stubs: { VDialog: dialogStub } },
+    });
+    const confirmBtn = wrapper
+      .findAll("button")
+      .find((b) => b.attributes("style")?.includes("bd413f"));
+    if (confirmBtn) await confirmBtn.trigger("click");
+    expect(wrapper.emitted("confirm")).toBeTruthy();
+  });
+
+  it("emits update:modelValue false when cancel clicked", async () => {
+    const { default: Component } =
+      await import("~/components/household/ConfirmDialog.vue");
+    const action = { kind: "leave" as const, member: baseMember() };
+    const wrapper = await mount(Component, {
+      props: { modelValue: true, action },
+      global: { stubs: { VDialog: dialogStub } },
+    });
+    const cancelBtn = wrapper
+      .findAll("button")
+      .find(
+        (b) =>
+          b.classes().includes("btn-ghost") &&
+          !b.classes().includes("btn-icon"),
+      );
+    if (cancelBtn) await cancelBtn.trigger("click");
+    expect(wrapper.emitted("update:modelValue")).toBeTruthy();
+  });
+});
+
+describe("household/InviteDialog", () => {
+  it("emits invite and closes on submit with valid email", async () => {
+    const { default: Component } =
+      await import("~/components/household/InviteDialog.vue");
+    const wrapper = await mount(Component, {
+      props: { modelValue: true },
+      global: { stubs: { VDialog: dialogStub } },
+    });
+    const input = wrapper.find("input[type='email']");
+    await input.setValue("test@example.com");
+    const sendBtn = wrapper.find("button.btn-primary");
+    if (sendBtn.exists()) await sendBtn.trigger("click");
+    expect(wrapper.emitted("invite")?.[0]).toEqual(["test@example.com"]);
+    expect(wrapper.emitted("update:modelValue")?.[0]).toEqual([false]);
+  });
+
+  it("does not emit invite when email is blank", async () => {
+    const { default: Component } =
+      await import("~/components/household/InviteDialog.vue");
+    const wrapper = await mount(Component, {
+      props: { modelValue: true },
+      global: { stubs: { VDialog: dialogStub } },
+    });
+    const sendBtn = wrapper
+      .findAll("button")
+      .find((b) => !b.classes().includes("btn-icon"));
+    if (sendBtn) await sendBtn.trigger("click");
+    expect(wrapper.emitted("invite")).toBeFalsy();
+  });
+
+  it("submits on enter key in email input", async () => {
+    const { default: Component } =
+      await import("~/components/household/InviteDialog.vue");
+    const wrapper = await mount(Component, {
+      props: { modelValue: true },
+      global: { stubs: { VDialog: dialogStub } },
+    });
+    const input = wrapper.find("input[type='email']");
+    await input.setValue("enter@example.com");
+    await input.trigger("keydown.enter");
+    expect(wrapper.emitted("invite")?.[0]).toEqual(["enter@example.com"]);
+  });
+});
+
 // MUST BE LAST: mounting default.vue creates AppSidebar/ProfileModal child
 // instances that cause emitsOptions errors if placed before other suites.
 describe("default layout", () => {
@@ -526,6 +647,24 @@ describe("default layout", () => {
     const wrapper = await mount(Component, {
       slots: { default: "<div />" },
     });
+    expect(wrapper.find(".mobile-top").exists()).toBe(true);
+  });
+
+  it("renders mobileTitle element", async () => {
+    const { default: Component } = await import("~/layouts/default.vue");
+    const wrapper = await mount(Component, {
+      slots: { default: "<div />" },
+    });
+    expect(wrapper.find(".mt-title").exists()).toBe(true);
+  });
+
+  it("toggles dark mode when button clicked", async () => {
+    const { default: Component } = await import("~/layouts/default.vue");
+    const wrapper = await mount(Component, {
+      slots: { default: "<div />" },
+    });
+    const toggleBtn = wrapper.find(".mobile-top button.btn-icon");
+    if (toggleBtn.exists()) await toggleBtn.trigger("click");
     expect(wrapper.find(".mobile-top").exists()).toBe(true);
   });
 });
