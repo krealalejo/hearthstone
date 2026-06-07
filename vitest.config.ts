@@ -16,7 +16,6 @@ export default defineVitestConfig({
         "app/composables/useAnimations.ts",
         "app/composables/useBootstrap.ts",
         "app/composables/useConfetti.ts",
-        "server/api/auth/google/**",
         "server/plugins/**",
         "server/models/**",
         "**/*.d.ts",
