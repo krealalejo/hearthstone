@@ -11,6 +11,10 @@ export default defineNuxtConfig({
     googleClientId: "", // overridden by NUXT_GOOGLE_CLIENT_ID in .env
     googleClientSecret: "", // overridden by NUXT_GOOGLE_CLIENT_SECRET in .env
     googleRedirectUri: "", // overridden by NUXT_GOOGLE_REDIRECT_URI in .env
+    resendApiKey: "", // overridden by NUXT_RESEND_API_KEY in .env
+    public: {
+      baseUrl: "http://localhost:3000", // overridden by NUXT_PUBLIC_BASE_URL in .env
+    },
   },
 
   devtools: { enabled: true },
