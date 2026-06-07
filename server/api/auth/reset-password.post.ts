@@ -9,8 +9,8 @@ const schema = z.object({
   password: z
     .string()
     .min(8, "At least 8 characters")
-    .regex(/[A-Z]/, "At least 1 uppercase letter")
-    .regex(/[0-9]/, "At least 1 number")
+    .regex(/[A-Z]/, { message: "At least 1 uppercase letter" })
+    .regex(/\d/, { message: "At least 1 number" })
     .regex(/[^A-Za-z0-9]/, "At least 1 symbol"),
 });
 
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   if (!result.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: result.error.issues[0]!.message,
+      statusMessage: result.error.issues[0]?.message,
     });
   }
 

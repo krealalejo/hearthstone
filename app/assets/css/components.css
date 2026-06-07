@@ -1015,7 +1015,7 @@
   letter-spacing: 0.03em;
   text-transform: uppercase;
   background: #e2824729;
-  color: #9d4616;
+  color: #4a1a03;
   padding: 1px 6px;
   border-radius: 5px;
 }
@@ -1344,7 +1344,7 @@
   padding: 2px 7px;
   border-radius: 5px;
   background: #e0b77133;
-  color: #815b1f;
+  color: #5c3d0a;
 }
 [data-theme="dark"] .pending-tag {
   color: #e2bf76;

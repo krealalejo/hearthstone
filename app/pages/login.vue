@@ -203,10 +203,9 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="forgotOpen" class="modal-backdrop" @click.self="closeForgot">
-          <div
+          <dialog
             class="modal-card"
-            role="dialog"
-            aria-modal="true"
+            open
             :aria-labelledby="forgotDone ? 'forgot-title-done' : 'forgot-title'"
           >
             <div v-if="forgotDone" class="modal-done">
@@ -282,7 +281,7 @@
                 <v-icon style="font-size: 17px">mdi-arrow-right</v-icon>
               </button>
             </template>
-          </div>
+          </dialog>
         </div>
       </Transition>
     </Teleport>
@@ -361,13 +360,13 @@ const passwordSchema = z
   .string()
   .min(8, "At least 8 characters")
   .regex(/[A-Z]/, "At least 1 uppercase letter")
-  .regex(/[0-9]/, "At least 1 number")
+  .regex(/\d/, "At least 1 number")
   .regex(/[^A-Za-z0-9]/, "At least 1 symbol");
 
 const pwChecks = computed(() => ({
   length: password.value.length >= 8,
   upper: /[A-Z]/.test(password.value),
-  number: /[0-9]/.test(password.value),
+  number: /\d/.test(password.value),
   symbol: /[^A-Za-z0-9]/.test(password.value),
 }));
 
@@ -616,6 +615,8 @@ input.field-error {
 }
 
 .modal-card {
+  border: none;
+  margin: 0;
   background: var(--surface);
   border-radius: 16px;
   padding: 28px 28px 24px;

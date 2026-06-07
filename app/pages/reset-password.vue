@@ -129,13 +129,13 @@ const passwordSchema = z
   .string()
   .min(8, "At least 8 characters")
   .regex(/[A-Z]/, "At least 1 uppercase letter")
-  .regex(/[0-9]/, "At least 1 number")
+  .regex(/\d/, "At least 1 number")
   .regex(/[^A-Za-z0-9]/, "At least 1 symbol");
 
 const pwChecks = computed(() => ({
   length: password.value.length >= 8,
   upper: /[A-Z]/.test(password.value),
-  number: /[0-9]/.test(password.value),
+  number: /\d/.test(password.value),
   symbol: /[^A-Za-z0-9]/.test(password.value),
 }));
 

@@ -40,6 +40,20 @@ function animateCheckToggle(el: Element | null, checked: boolean) {
   });
 }
 
+function animateLocaleIn(
+  el: Element,
+  resolve: () => void,
+  onMid: () => void | Promise<void>,
+) {
+  Promise.resolve(onMid()).then(() => {
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: 6 },
+      { opacity: 1, y: 0, duration: 0.22, ease: EASE, onComplete: resolve },
+    );
+  });
+}
+
 function animateLocaleChange(
   el: Element | null,
   onMid: () => void | Promise<void>,
@@ -52,19 +66,7 @@ function animateLocaleChange(
       duration: 0.16,
       ease: EASE,
       onComplete() {
-        Promise.resolve(onMid()).then(() => {
-          gsap.fromTo(
-            el,
-            { opacity: 0, y: 6 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.22,
-              ease: EASE,
-              onComplete: () => resolve(),
-            },
-          );
-        });
+        animateLocaleIn(el, resolve, onMid);
       },
     });
   });

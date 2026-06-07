@@ -7,6 +7,6 @@ export function serializeLean<T extends WithId>(
 ): (Omit<T, "_id"> & { id: string })[] {
   return docs.map(({ _id, ...rest }) => ({
     ...rest,
-    id: typeof _id === "string" ? _id : (_id as Types.ObjectId).toHexString(),
+    id: typeof _id === "string" ? _id : _id.toHexString(),
   }));
 }

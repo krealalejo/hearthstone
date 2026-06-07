@@ -7,6 +7,14 @@ const isDark = ref(false);
 const DARK_BG = "#14110e";
 const LIGHT_BG = "#f9f6f1";
 
+function scheduleThemeSwapRemoval() {
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() =>
+      document.documentElement.classList.remove("theme-swap"),
+    ),
+  );
+}
+
 export function useColorMode() {
   const vuetifyTheme = useTheme();
 
@@ -62,11 +70,7 @@ export function useColorMode() {
       onComplete() {
         document.documentElement.classList.add("theme-swap");
         apply(next);
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() =>
-            document.documentElement.classList.remove("theme-swap"),
-          ),
-        );
+        scheduleThemeSwapRemoval();
         gsap.to(overlay, {
           opacity: 0,
           duration: 0.28,

@@ -429,78 +429,84 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
-    async saveInv(data: Partial<InventoryItem> & { name: string }) {
-      if (!data.id) {
-        try {
-          const created = await $fetch<InventoryItem>("/api/inventory", {
-            method: "POST",
-            body: data,
-          });
-          this.inventory.push(created);
-        } catch (err) {
-          this._toast({
-            kind: "info",
-            title: "Failed to create item",
-            body: "Please try again",
-          });
-          if ((err as { statusCode?: number })?.statusCode === 401) {
-            await this._handle401();
-          }
-        }
-        return;
+    async _createInv(data: Partial<InventoryItem> & { name: string }) {
+      try {
+        const created = await $fetch<InventoryItem>("/api/inventory", {
+          method: "POST",
+          body: data,
+        });
+        this.inventory.push(created);
+      } catch (err) {
+        this._toast({
+          kind: "info",
+          title: "Failed to create item",
+          body: "Please try again",
+        });
+        if ((err as { statusCode?: number })?.statusCode === 401)
+          await this._handle401();
       }
+    },
+
+    _optimisticInvUpdate(
+      data: Partial<InventoryItem> & { name: string },
+      idx: number,
+    ): string | null {
+      this.inventory[idx] = {
+        ...this.inventory[idx]!,
+        ...data,
+      } as InventoryItem;
+      const item = this.inventory[idx]!;
+      const needsRestock =
+        item.qty <= item.min &&
+        !this.shopping.some((sh) => sh.invId === item.id);
+      if (!needsRestock) return null;
+      const tempId = "temp_" + Date.now().toString(36);
+      const shopQty = Math.max(1, item.optimal - item.qty);
+      this.shopping.unshift({
+        id: tempId,
+        name: item.name,
+        source: "auto",
+        invId: item.id,
+        qty: shopQty,
+        price: item.price,
+        checked: false,
+      });
+      this.flashShopId = tempId;
+      this._toast({
+        kind: "restock",
+        title: "Added to shopping list",
+        body: `${item.name} is at or below its minimum`,
+        link: "shopping",
+      });
+      return tempId;
+    },
+
+    async _persistAutoRestock(item: InventoryItem, tempId: string) {
+      const shopQty = Math.max(1, item.optimal - item.qty);
+      const created = await $fetch<ShoppingItem>("/api/shopping", {
+        method: "POST",
+        body: {
+          name: item.name,
+          source: "auto",
+          invId: item.id,
+          qty: shopQty,
+          price: item.price,
+        },
+      });
+      const si = this.shopping.findIndex((sh) => sh.id === tempId);
+      if (si !== -1) this.shopping[si] = created;
+      if (this.flashShopId === tempId) this.flashShopId = created.id;
+    },
+
+    async saveInv(data: Partial<InventoryItem> & { name: string }) {
+      if (!data.id) return this._createInv(data);
       const idx = this.inventory.findIndex((i) => i.id === data.id);
       const previous = idx === -1 ? null : { ...this.inventory[idx] };
-      let tempId: string | null = null;
-      if (idx !== -1) {
-        this.inventory[idx] = {
-          ...this.inventory[idx]!,
-          ...data,
-        } as InventoryItem;
-        const item = this.inventory[idx]!;
-        if (
-          item.qty <= item.min &&
-          !this.shopping.some((sh) => sh.invId === item.id)
-        ) {
-          tempId = "temp_" + Date.now().toString(36);
-          const shopQty = Math.max(1, item.optimal - item.qty);
-          this.shopping.unshift({
-            id: tempId,
-            name: item.name,
-            source: "auto",
-            invId: item.id,
-            qty: shopQty,
-            price: item.price,
-            checked: false,
-          });
-          this.flashShopId = tempId;
-          this._toast({
-            kind: "restock",
-            title: "Added to shopping list",
-            body: `${item.name} is at or below its minimum`,
-            link: "shopping",
-          });
-        }
-      }
+      const tempId = idx !== -1 ? this._optimisticInvUpdate(data, idx) : null;
       try {
         await $fetch("/api/inventory", { method: "PATCH", body: data });
-        if (tempId) {
-          const item = this.inventory[idx]!;
-          const shopQty = Math.max(1, item.optimal - item.qty);
-          const created = await $fetch<ShoppingItem>("/api/shopping", {
-            method: "POST",
-            body: {
-              name: item.name,
-              source: "auto",
-              invId: item.id,
-              qty: shopQty,
-              price: item.price,
-            },
-          });
-          const si = this.shopping.findIndex((sh) => sh.id === tempId);
-          if (si !== -1) this.shopping[si] = created;
-          if (this.flashShopId === tempId) this.flashShopId = created.id;
-        }
+        if (tempId)
+          await this._persistAutoRestock(this.inventory[idx]!, tempId);
       } catch (err) {
         if (idx !== -1 && previous)
           this.inventory[idx] = previous as InventoryItem;
