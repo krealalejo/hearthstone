@@ -207,14 +207,14 @@
             class="modal-card"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="forgot-title"
+            :aria-labelledby="forgotDone ? 'forgot-title-done' : 'forgot-title'"
           >
             <div v-if="forgotDone" class="modal-done">
               <v-icon
                 style="font-size: 36px; color: #2d6a4f; margin-bottom: 10px"
                 >mdi-email-check-outline</v-icon
               >
-              <h2 id="forgot-title">Check your inbox</h2>
+              <h2 id="forgot-title-done">Check your inbox</h2>
               <p>
                 If that email is registered, you'll receive a reset link
                 shortly.
