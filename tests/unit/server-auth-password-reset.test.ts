@@ -62,9 +62,9 @@ vi.mock("#server/models/PasswordResetToken", () => ({
 
 const mockResendSend = vi.fn();
 vi.mock("resend", () => ({
-  Resend: vi.fn().mockImplementation(() => ({
-    emails: { send: mockResendSend },
-  })),
+  Resend: vi.fn().mockImplementation(function () {
+    return { emails: { send: mockResendSend } };
+  }),
 }));
 
 vi.mock("bcryptjs", () => ({
