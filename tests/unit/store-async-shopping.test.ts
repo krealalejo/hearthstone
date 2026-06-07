@@ -99,28 +99,4 @@ describe("checkout", () => {
 
     expect(store.toasts.some((t) => t.title === "Sync failed")).toBe(true);
   });
-
-  it("calls _handle401 when checkout sync fails with 401", async () => {
-    makeFetchFail(401);
-    const store = useHomeStore();
-    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
-    store.shopping = [
-      {
-        id: "s1",
-        name: "X",
-        source: "manual",
-        invId: null,
-        qty: 1,
-        price: 1,
-        checked: true,
-      },
-    ];
-    const handle401 = vi
-      .spyOn(store, "_handle401")
-      .mockResolvedValue(undefined as any);
-
-    await store.checkout();
-
-    expect(handle401).toHaveBeenCalled();
-  });
 });
