@@ -72,7 +72,14 @@ vi.mock("bcryptjs", () => ({
 }));
 
 function mockEvent() {
-  return { context: {} };
+  return {
+    context: {},
+    path: "/api/auth/forgot-password",
+    node: {
+      req: { headers: { host: "localhost:3000" }, socket: {} },
+      res: {},
+    },
+  };
 }
 
 beforeEach(() => {

@@ -13,7 +13,7 @@ export default defineNuxtConfig({
     googleRedirectUri: "", // overridden by NUXT_GOOGLE_REDIRECT_URI in .env
     resendApiKey: "", // overridden by NUXT_RESEND_API_KEY in .env
     public: {
-      baseUrl: "http://localhost:3000", // overridden by NUXT_PUBLIC_BASE_URL in .env
+      baseUrl: "", // NUXT_PUBLIC_BASE_URL in .env; empty falls back to the request origin
     },
   },
 

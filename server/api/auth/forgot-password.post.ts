@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { getRequestURL } from "h3";
 import { Resend } from "resend";
 import { User } from "#server/models/User";
 import { PasswordResetToken } from "#server/models/PasswordResetToken";
@@ -25,7 +26,7 @@ export default defineEventHandler(async (event) => {
     });
 
     const config = useRuntimeConfig(event);
-    const baseUrl = config.public.baseUrl || "http://localhost:3000";
+    const baseUrl = config.public.baseUrl || getRequestURL(event).origin;
     const resetUrl = `${baseUrl}/reset-password?token=${token}`;
 
     const resend = new Resend(config.resendApiKey);
