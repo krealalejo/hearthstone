@@ -99,6 +99,12 @@ export default defineNuxtConfig({
 
   css: ["~/assets/css/tokens.css", "~/assets/css/components.css"],
 
+  postcss: {
+    plugins: {
+      cssnano: false,
+    },
+  },
+
   app: {
     head: {
       title: "Hearthstone — Home Dashboard",
