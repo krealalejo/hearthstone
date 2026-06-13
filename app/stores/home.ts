@@ -652,11 +652,27 @@ export const useHomeStore = defineStore("home", {
 
     applyAccentColor() {
       if (!import.meta.client) return;
+      const root = document.documentElement.style;
       const color = this.me.accentColor;
       if (color) {
-        document.documentElement.style.setProperty("--accent", color);
+        root.setProperty("--accent", color);
+        root.setProperty(
+          "--accent-soft",
+          `color-mix(in srgb, ${color} 18%, var(--surface))`,
+        );
+        root.setProperty(
+          "--accent-soft-2",
+          `color-mix(in srgb, ${color} 30%, var(--surface))`,
+        );
+        root.setProperty(
+          "--accent-ink",
+          `color-mix(in srgb, ${color} 65%, var(--ink))`,
+        );
       } else {
-        document.documentElement.style.removeProperty("--accent");
+        root.removeProperty("--accent");
+        root.removeProperty("--accent-soft");
+        root.removeProperty("--accent-soft-2");
+        root.removeProperty("--accent-ink");
       }
     },
 
