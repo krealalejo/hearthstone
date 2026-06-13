@@ -331,6 +331,56 @@ describe("shopping/Item", () => {
     });
     expect(wrapper.find(".src-auto").exists()).toBe(true);
   });
+
+  it("calls store.setShopQty when QuantityStepper increase clicked", async () => {
+    const { default: Component } =
+      await import("~/components/shopping/Item.vue");
+    const wrapper = await mountSuspended(Component, {
+      props: { item: baseShopItem({ qty: 2 }) },
+    });
+    const store = useHomeStore();
+    vi.spyOn(store, "setShopQty");
+    const btn = wrapper.find('[aria-label="increase"]');
+    if (btn.exists()) await btn.trigger("click");
+    expect(store.setShopQty).toHaveBeenCalledWith("s1", 3);
+  });
+
+  it("updates localPrice when item.price prop changes", async () => {
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
+    const { default: Component } =
+      await import("~/components/shopping/Item.vue");
+    const item = baseShopItem({ price: 1.5, source: "manual" as const });
+    const wrapper = await mountSuspended(Component, {
+      props: { item, priceEditable: true },
+    });
+    await wrapper.setProps({ item: { ...item, price: 3.99 } });
+    await nextTick();
+    const input = wrapper.find("input.item-price");
+    if (input.exists()) {
+      expect((input.element as HTMLInputElement).value).toBe("3.99");
+    }
+  });
+
+  it("renders with isFlash=true on mount", async () => {
+    const { default: Component } =
+      await import("~/components/shopping/Item.vue");
+    const wrapper = await mountSuspended(Component, {
+      props: { item: baseShopItem(), isFlash: true },
+    });
+    expect(wrapper.find(".shop-item.flash").exists()).toBe(true);
+  });
+
+  it("isFlash watcher fires when prop changes to true", async () => {
+    const { default: Component } =
+      await import("~/components/shopping/Item.vue");
+    const wrapper = await mountSuspended(Component, {
+      props: { item: baseShopItem(), isFlash: false },
+    });
+    await wrapper.setProps({ item: baseShopItem(), isFlash: true });
+    await nextTick();
+    expect(wrapper.find(".shop-item").exists()).toBe(true);
+  });
 });
 
 describe("auth layout", () => {

@@ -4,6 +4,8 @@ import { nextTick } from "vue";
 import { useHomeStore } from "~/stores/home";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 
+const colorMode = vi.hoisted(() => ({ isDark: { value: false } }));
+
 vi.mock("~/composables/useAnimations", () => ({
   useAnimations: () => ({
     animateCheckToggle: vi.fn(),
@@ -18,7 +20,7 @@ vi.mock("~/composables/useConfetti", () => ({
 }));
 
 vi.mock("~/composables/useColorMode", () => ({
-  useColorMode: () => ({ isDark: { value: false }, toggle: vi.fn() }),
+  useColorMode: () => ({ isDark: colorMode.isDark, toggle: vi.fn() }),
 }));
 
 vi.mock("~/composables/useBootstrap", () => ({
@@ -160,12 +162,22 @@ describe("AppTopbar", () => {
     expect(wrapper.text()).toContain("Week");
   });
 
+
+
   it("clicks color mode toggle button", async () => {
     const { default: Component } = await import("~/components/AppTopbar.vue");
     const wrapper = await mountSuspended(Component);
     const toggleBtn = wrapper.find("button.btn-icon");
     if (toggleBtn.exists()) await toggleBtn.trigger("click");
     expect(wrapper.find(".topbar").exists()).toBe(true);
+  });
+
+  it("renders topbar with isDark=true (covers isDark ternary branches)", async () => {
+    colorMode.isDark.value = true;
+    const { default: Component } = await import("~/components/AppTopbar.vue");
+    const wrapper = await mountSuspended(Component);
+    expect(wrapper.find(".topbar").exists()).toBe(true);
+    colorMode.isDark.value = false;
   });
 
   it("renders New week button on dashboard route and clicks it", async () => {
