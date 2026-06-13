@@ -11,14 +11,16 @@
       >
       {{ $t("topbar.week") }} {{ store.weekNo }} · 2026
     </div>
-    <button
-      v-if="route.name === 'dashboard' && isLocalhost"
-      class="btn btn-ghost btn-sm"
-      @click="store.resetWeek()"
-    >
-      <v-icon style="font-size: 15px">mdi-refresh</v-icon>
-      {{ $t("topbar.newWeek") }}
-    </button>
+    <ClientOnly>
+      <button
+        v-if="route.name === 'dashboard' && isLocalhost"
+        class="btn btn-ghost btn-sm"
+        @click="store.resetWeek()"
+      >
+        <v-icon style="font-size: 15px">mdi-refresh</v-icon>
+        {{ $t("topbar.newWeek") }}
+      </button>
+    </ClientOnly>
     <button
       class="btn btn-ghost btn-icon"
       :title="isDark ? 'Light mode' : 'Dark mode'"

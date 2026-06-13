@@ -127,14 +127,14 @@ export const useHomeStore = defineStore("home", {
     },
 
     async login(email: string, password: string) {
-      await $fetch("/api/login/login", {
+      await $fetch("/api/auth/login", {
         method: "POST",
         body: { email, password },
       });
     },
 
     async logout() {
-      await $fetch("/api/login/logout", { method: "POST" }).catch(() => null);
+      await $fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
       if (import.meta.client) {
         globalThis.location.assign("/login");
       } else {
