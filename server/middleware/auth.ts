@@ -2,7 +2,7 @@ import { defineEventHandler, getCookie, createError, getRequestURL } from "h3";
 import { verifyToken } from "#server/utils/jwt";
 
 export default defineEventHandler(async (event) => {
-  const path = event.path ?? getRequestURL(event).pathname;
+  const path = getRequestURL(event).pathname;
   const PUBLIC_ROUTES = [
     "/api/auth/register",
     "/api/auth/login",
