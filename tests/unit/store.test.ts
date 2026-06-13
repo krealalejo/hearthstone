@@ -1,12 +1,16 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { useHomeStore } from "~/stores/home";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
+vi.stubGlobal("navigateTo", vi.fn());
+vi.stubGlobal("$fetch", vi.fn());
+
 describe("home store — API-backed (no seed / no localStorage)", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    vi.resetAllMocks();
   });
 
   // ── Initial state ──
@@ -75,6 +79,41 @@ describe("home store — API-backed (no seed / no localStorage)", () => {
     expect(store.currentUser).toBe("Alex");
     expect(store.currentUserId).toBe("u1");
     expect(store.authed).toBe(true);
+  });
+
+  it("login calls /api/auth/login POST", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (vi.mocked($fetch) as any).mockResolvedValue({});
+    const store = useHomeStore();
+
+    await store.login("user@test.com", "pw123");
+
+    expect($fetch).toHaveBeenCalledWith("/api/auth/login", expect.objectContaining({ method: "POST" }));
+  });
+
+  it("logout calls /api/auth/logout and navigates", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (vi.mocked($fetch) as any).mockResolvedValue({});
+    const store = useHomeStore();
+
+    await store.logout();
+
+    expect($fetch).toHaveBeenCalledWith("/api/auth/logout", expect.objectContaining({ method: "POST" }));
+  });
+
+  it("logout still completes when $fetch throws", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (vi.mocked($fetch) as any).mockRejectedValue(new Error("network error"));
+    const store = useHomeStore();
+
+    await expect(store.logout()).resolves.toBeUndefined();
+  });
+
+  it("weekKey getter returns sunday-start key when weekStartDay is sunday", () => {
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠", weekStartDay: "sunday" };
+    const key = store.weekKey;
+    expect(key).toMatch(/^S-\d{4}-\d{2}-\d{2}$/);
   });
 
   // ── Source-level checks (DATA-03) ──

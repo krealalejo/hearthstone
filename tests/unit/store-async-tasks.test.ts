@@ -131,6 +131,19 @@ describe("toggleTask", () => {
 
     expect(store.toasts[0]!.celebrate).toBe(true);
   });
+
+  it("marks task done when member not found (no xp update)", async () => {
+    makeFetch({});
+    const store = useHomeStore();
+    store.tasks = [baseTask({ xp: 10 })];
+    store.members = [];
+    store.currentUserId = "u1";
+
+    await store.toggleTask("t1");
+
+    expect(store.tasks[0]!.done).toBe(true);
+    expect(store.toasts[0]!.kind).toBe("xp");
+  });
 });
 
 describe("claimTask", () => {
@@ -162,6 +175,15 @@ describe("claimTask", () => {
     store.tasks = [];
     await store.claimTask("nonexistent");
     expect($fetch).not.toHaveBeenCalled();
+  });
+
+  it("calls _handle401 on 401 error", async () => {
+    makeFetchFail(401);
+    const store = useHomeStore();
+    store.tasks = [baseTask()];
+    store.currentUserId = "u1";
+
+    await expect(store.claimTask("t1")).resolves.toBeUndefined();
   });
 });
 
@@ -207,6 +229,33 @@ describe("saveTask", () => {
     expect(store.tasks).toHaveLength(0);
     expect(store.toasts[0]!.title).toBe("Failed to create task");
   });
+
+  it("calls _handle401 on 401 error (create)", async () => {
+    makeFetchFail(401);
+    const store = useHomeStore();
+
+    await expect(store.saveTask({ title: "New" })).resolves.toBeUndefined();
+  });
+
+  it("calls _handle401 on 401 error (update)", async () => {
+    makeFetchFail(401);
+    const store = useHomeStore();
+    store.tasks = [baseTask()];
+
+    await expect(
+      store.saveTask({ id: "t1", title: "Updated" })
+    ).resolves.toBeUndefined();
+  });
+
+  it("does not revert when task idx not found during update failure", async () => {
+    makeFetchFail(500);
+    const store = useHomeStore();
+    store.tasks = [];
+
+    await store.saveTask({ id: "nonexistent", title: "Ghost" });
+
+    expect(store.toasts[0]!.title).toBe("Update failed");
+  });
 });
 
 describe("deleteTask", () => {
@@ -229,6 +278,14 @@ describe("deleteTask", () => {
 
     expect(store.tasks).toHaveLength(1);
     expect(store.toasts[0]!.title).toBe("Delete failed");
+  });
+
+  it("calls _handle401 on 401 error", async () => {
+    makeFetchFail(401);
+    const store = useHomeStore();
+    store.tasks = [baseTask()];
+
+    await expect(store.deleteTask("t1")).resolves.toBeUndefined();
   });
 });
 
@@ -274,5 +331,21 @@ describe("checkAutoReset", () => {
     await store.checkAutoReset();
 
     expect($fetch).not.toHaveBeenCalled();
+  });
+
+  it("calls resetWeek when lastResetWeek is stale", async () => {
+    makeFetch({});
+    const store = useHomeStore();
+    store.household = {
+      id: "hh1",
+      name: "Home",
+      emoji: "🏠",
+      lastResetWeek: "M-1990-01-01",
+    };
+    vi.spyOn(store, "resetWeek").mockResolvedValue(undefined as never);
+
+    await store.checkAutoReset();
+
+    expect(store.resetWeek).toHaveBeenCalled();
   });
 });
