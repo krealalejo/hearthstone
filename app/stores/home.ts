@@ -506,7 +506,7 @@ export const useHomeStore = defineStore("home", {
       try {
         await $fetch("/api/inventory", { method: "PATCH", body: data });
         if (tempId)
-          await this._persistAutoRestock(this.inventory[idx], tempId);
+          await this._persistAutoRestock(this.inventory[idx]!, tempId);
       } catch (err) {
         if (idx !== -1 && previous)
           this.inventory[idx] = previous as InventoryItem;
