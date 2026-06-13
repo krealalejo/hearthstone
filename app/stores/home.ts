@@ -502,11 +502,11 @@ export const useHomeStore = defineStore("home", {
       if (!data.id) return this._createInv(data);
       const idx = this.inventory.findIndex((i) => i.id === data.id);
       const previous = idx === -1 ? null : { ...this.inventory[idx] };
-      const tempId = idx !== -1 ? this._optimisticInvUpdate(data, idx) : null;
+      const tempId = idx === -1 ? null : this._optimisticInvUpdate(data, idx);
       try {
         await $fetch("/api/inventory", { method: "PATCH", body: data });
         if (tempId)
-          await this._persistAutoRestock(this.inventory[idx]!, tempId);
+          await this._persistAutoRestock(this.inventory[idx], tempId);
       } catch (err) {
         if (idx !== -1 && previous)
           this.inventory[idx] = previous as InventoryItem;
