@@ -203,10 +203,11 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="forgotOpen" class="modal-backdrop" @click.self="closeForgot">
-          <dialog
+          <div
             class="modal-card"
-            open
+            role="dialog"
             :aria-labelledby="forgotDone ? 'forgot-title-done' : 'forgot-title'"
+            aria-modal="true"
           >
             <div v-if="forgotDone" class="modal-done">
               <v-icon
@@ -281,7 +282,7 @@
                 <v-icon style="font-size: 17px">mdi-arrow-right</v-icon>
               </button>
             </template>
-          </dialog>
+          </div>
         </div>
       </Transition>
     </Teleport>
@@ -320,32 +321,34 @@ function onLeave(el: Element, done: () => void) {
   const h = el as HTMLElement;
   h.style.position = "absolute";
   h.style.top = "0";
+  h.style.left = "0";
   h.style.width = "100%";
+  h.style.zIndex = "1";
   gsap.to(el, {
     opacity: 0,
-    x: switchDir.value * -32,
-    duration: 0.22,
-    ease: "expo.in",
+    duration: 0.18,
+    ease: "power2.in",
     onComplete: done,
   });
 }
 
 function onEnter(el: Element, done: () => void) {
   const wrap = (el as HTMLElement).parentElement!;
-  gsap.set(el, { opacity: 0, x: switchDir.value * 32 });
+  gsap.set(el, { opacity: 0 });
   requestAnimationFrame(() => {
-    const toH = (el as HTMLElement).scrollHeight;
-    gsap.to(wrap, { height: toH, duration: 0.32, ease: "expo.out" });
-    gsap.to(el, {
-      opacity: 1,
-      x: 0,
-      duration: 0.32,
-      delay: 0.06,
-      ease: "expo.out",
-      onComplete: () => {
-        wrap.style.height = "auto";
-        done();
-      },
+    requestAnimationFrame(() => {
+      const newH = (el as HTMLElement).scrollHeight;
+      gsap.to(wrap, { height: newH, duration: 0.28, ease: "power2.out" });
+      gsap.to(el, {
+        opacity: 1,
+        duration: 0.24,
+        delay: 0.14,
+        ease: "power2.out",
+        onComplete: () => {
+          wrap.style.height = "auto";
+          done();
+        },
+      });
     });
   });
 }
