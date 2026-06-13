@@ -12,7 +12,7 @@
       {{ $t("topbar.week") }} {{ store.weekNo }} · 2026
     </div>
     <button
-      v-if="route.name === 'dashboard'"
+      v-if="route.name === 'dashboard' && isLocalhost"
       class="btn btn-ghost btn-sm"
       @click="store.resetWeek()"
     >
@@ -40,6 +40,7 @@ import { useColorMode } from "~/composables/useColorMode";
 const store = useHomeStore();
 const route = useRoute();
 const { isDark, toggle } = useColorMode();
+const isLocalhost = import.meta.client && window.location.hostname === "localhost";
 const { t } = useI18n();
 
 const TITLES = computed(() => ({
