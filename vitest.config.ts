@@ -4,6 +4,7 @@ export default defineVitestConfig({
   test: {
     environment: "nuxt",
     globals: true,
+    setupFiles: ["./tests/setup.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
@@ -12,6 +13,7 @@ export default defineVitestConfig({
         "app/plugins/**",
         "app/middleware/**",
         "app/pages/**",
+        "app/app.vue",
         "app/composables/useColorMode.ts",
         "app/composables/useAnimations.ts",
         "app/composables/useBootstrap.ts",
