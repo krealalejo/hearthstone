@@ -5,6 +5,9 @@ export default defineVitestConfig({
     environment: "nuxt",
     globals: true,
     setupFiles: ["./tests/setup.ts"],
+    onConsoleLog(log) {
+      if (log.includes("<Suspense> is an experimental feature")) return false;
+    },
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
