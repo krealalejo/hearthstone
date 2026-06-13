@@ -197,6 +197,10 @@
             {{ mode === "login" ? "Create an account" : "Log in" }}
           </button>
         </div>
+
+        <div class="auth-legal">
+          <NuxtLink to="/privacy">Privacy Policy</NuxtLink>
+        </div>
       </div>
     </div>
 
@@ -589,6 +593,23 @@ input.field-error {
   background: #d4edda;
   color: #1a5c2a;
   opacity: 1;
+}
+
+.auth-legal {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 12px;
+}
+
+.auth-legal a {
+  color: var(--ink);
+  opacity: 0.4;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.auth-legal a:hover {
+  opacity: 0.75;
 }
 
 .forgot-link {
