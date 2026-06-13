@@ -12,18 +12,18 @@ const passwordSchema = z
   });
 
 export const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(1, "Password is required"),
 });
 
 export const registerSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email({ message: "Invalid email address" }),
   password: passwordSchema,
 });
 
 export const memberInviteSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.string().email({ message: "Invalid email address" }),
   role: z.enum(["admin", "member"]).optional().default("member"),
 });
 
