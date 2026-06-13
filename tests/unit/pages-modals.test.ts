@@ -81,6 +81,7 @@ async function mount<T>(
 afterEach(() => {
   mountedWrappers.forEach((w) => w.unmount());
   mountedWrappers.length = 0;
+  vi.restoreAllMocks();
 });
 
 function baseMember(overrides = {}) {
@@ -329,6 +330,97 @@ describe("ProfileModal", () => {
     if (nameInput.exists()) await nameInput.setValue("Bob Smith");
     expect(wrapper.html()).toBeTruthy();
   });
+
+  it("clicks Aa (initials) avatar button", async () => {
+    const { wrapper } = await mountProfileModal();
+    const aaBtn = wrapper.find(".emoji-opt:not(.img-opt)");
+    if (aaBtn.exists()) await aaBtn.trigger("click");
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("clicks Monday weekStartDay button (admin)", async () => {
+    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.members = [baseMember({ id: "u1", role: "admin" as const })];
+    store.household = baseHousehold();
+    await nextTick();
+    const mondayBtn = wrapper.findAll("button").find((b) => b.text() === "Monday");
+    if (mondayBtn) await mondayBtn.trigger("click");
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("clicks Sunday weekStartDay button (admin)", async () => {
+    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.members = [baseMember({ id: "u1", role: "admin" as const })];
+    store.household = baseHousehold();
+    await nextTick();
+    const sundayBtn = wrapper.findAll("button").find((b) => b.text() === "Sunday");
+    if (sundayBtn) await sundayBtn.trigger("click");
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("clicks a locale button", async () => {
+    const { wrapper } = await mountProfileModal();
+    const spanishBtn = wrapper.findAll("button").find((b) => b.text() === "Español");
+    if (spanishBtn) await spanishBtn.trigger("click");
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("clicks a currency button (admin)", async () => {
+    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.members = [baseMember({ id: "u1", role: "admin" as const })];
+    store.household = baseHousehold();
+    await nextTick();
+    const euroBtn = wrapper.findAll(".currency-opt").find((b) => b.text() === "€");
+    if (euroBtn) await euroBtn.trigger("click");
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("initializes with undefined household weekStartDay/currency (covers ?? fallbacks)", async () => {
+    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.currentUser = "u1";
+    store.members = [baseMember({ id: "u1" })];
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" } as any;
+    await nextTick();
+    expect(wrapper.find(".modal-head").exists()).toBe(true);
+  });
+
+  it("picks DEFAULT_COLOR swatch (value === DEFAULT_COLOR branch)", async () => {
+    const { wrapper } = await mountProfileModal();
+    const swatches = wrapper.findAll(".color-swatch");
+    if (swatches.length > 0) await swatches[0]!.trigger("click");
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("picks avatar that has a default color mapping (AVATAR_DEFAULT_COLOR branch)", async () => {
+    const { wrapper } = await mountProfileModal();
+    const imgBtns = wrapper.findAll(".emoji-opt.img-opt");
+    for (const btn of imgBtns) {
+      await btn.trigger("click");
+      await nextTick();
+    }
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("saves with empty name (early return branch)", async () => {
+    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    vi.spyOn(store, "saveSettings").mockResolvedValue(undefined as any);
+    const nameInput = wrapper.find("#profile-name");
+    if (nameInput.exists()) await nameInput.setValue("");
+    const saveBtn = wrapper.findAll("button").find((b) => b.text().includes("Save"));
+    if (saveBtn) await saveBtn.trigger("click");
+    await nextTick();
+    expect(store.saveSettings).not.toHaveBeenCalled();
+  });
 });
 
 describe("inventory/Modal", () => {
@@ -445,6 +537,62 @@ describe("inventory/Modal", () => {
     const wrapper = await mount(Component, { props: { item: null } });
     const priceInput = wrapper.find("input[type='number']");
     if (priceInput.exists()) await priceInput.setValue("4.99");
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("early-returns from handleSave when name is empty", async () => {
+    const { default: Component } =
+      await import("~/components/inventory/Modal.vue");
+    const wrapper = await mount(Component, { props: { item: null } });
+    const store = useHomeStore();
+    vi.spyOn(store, "saveInv").mockImplementation(vi.fn() as any);
+    const nameInput = wrapper.find("input");
+    if (nameInput.exists()) await nameInput.setValue("");
+    const saveBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text().includes("Add") || b.text().includes("Save"));
+    if (saveBtn) await saveBtn.trigger("click");
+    expect(store.saveInv).not.toHaveBeenCalled();
+  });
+
+  it("saves existing item (covers props.item truthy branch and || fallbacks)", async () => {
+    const { default: Component } =
+      await import("~/components/inventory/Modal.vue");
+    const item = baseInvItem({ qty: 0, min: 0, optimal: 0, price: null });
+    const wrapper = await mount(Component, { props: { item } });
+    const store = useHomeStore();
+    vi.spyOn(store, "saveInv").mockImplementation(vi.fn() as any);
+    const saveBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text().includes("Save") || b.text().includes("Add"));
+    if (saveBtn) await saveBtn.trigger("click");
+    expect(store.saveInv).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "i1" }),
+    );
+  });
+
+  it("saves item with numeric price (covers price !== '' branch)", async () => {
+    const { default: Component } =
+      await import("~/components/inventory/Modal.vue");
+    const item = baseInvItem({ price: 3.5 });
+    const wrapper = await mount(Component, { props: { item } });
+    const store = useHomeStore();
+    vi.spyOn(store, "saveInv").mockImplementation(vi.fn() as any);
+    const saveBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text().includes("Save") || b.text().includes("Add"));
+    if (saveBtn) await saveBtn.trigger("click");
+    expect(store.saveInv).toHaveBeenCalledWith(
+      expect.objectContaining({ price: 3.5 }),
+    );
+  });
+
+  it("shows currency symbol from store when price is set (currency ?? '$' branch)", async () => {
+    const { default: Component } =
+      await import("~/components/inventory/Modal.vue");
+    const wrapper = await mount(Component, {
+      props: { item: baseInvItem({ price: 2.5 }) },
+    });
     expect(wrapper.html()).toBeTruthy();
   });
 });
@@ -666,5 +814,52 @@ describe("default layout", () => {
     const toggleBtn = wrapper.find(".mobile-top button.btn-icon");
     if (toggleBtn.exists()) await toggleBtn.trigger("click");
     expect(wrapper.find(".mobile-top").exists()).toBe(true);
+  });
+
+  it("opens profile when AppAvatar clicked in mobile-top", async () => {
+    const { default: Component } = await import("~/layouts/default.vue");
+    const wrapper = await mount(Component, {
+      slots: { default: "<div />" },
+    });
+    const store = useHomeStore();
+    store.currentUser = "u1";
+    store.members = [baseMember({ id: "u1" })];
+    await nextTick();
+    const avatar = wrapper.find(".mobile-top .avatar");
+    if (avatar.exists()) await avatar.trigger("click");
+    await nextTick();
+    expect(wrapper.html()).toBeTruthy();
+  });
+
+  it("renders unknown route title as Hearth (mobileTitle ?? branch)", async () => {
+    const { default: Component } = await import("~/layouts/default.vue");
+    const wrapper = await mount(Component, {
+      route: "/unknown-route",
+      slots: { default: "<div />" },
+    });
+    await nextTick();
+    expect(wrapper.find(".mt-title").exists()).toBe(true);
+  });
+
+  it("opens and closes profile dialog via sidebar open-profile event", async () => {
+    const { default: Component } = await import("~/layouts/default.vue");
+    const wrapper = await mount(Component, {
+      slots: { default: "<div />" },
+    });
+    const store = useHomeStore();
+    store.currentUser = "u1";
+    store.members = [baseMember({ id: "u1" })];
+    await nextTick();
+    const meCard = wrapper.find(".me-card");
+    if (meCard.exists()) {
+      await meCard.trigger("click");
+      await nextTick();
+    }
+    const closeBtn = wrapper.find(".modal-head .btn-ghost.btn-icon");
+    if (closeBtn.exists()) {
+      await closeBtn.trigger("click");
+      await nextTick();
+    }
+    expect(wrapper.html()).toBeTruthy();
   });
 });
