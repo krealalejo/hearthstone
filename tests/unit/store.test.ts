@@ -3,9 +3,11 @@ import { setActivePinia, createPinia } from "pinia";
 import { useHomeStore } from "~/stores/home";
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
+
+mockNuxtImport("$fetch", () => vi.fn());
 
 vi.stubGlobal("navigateTo", vi.fn());
-vi.stubGlobal("$fetch", vi.fn());
 
 describe("home store — API-backed (no seed / no localStorage)", () => {
   beforeEach(() => {
