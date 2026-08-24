@@ -62,8 +62,3 @@ GSAP is registered as a client-only plugin (`app/plugins/gsap.client.ts`) and wr
 ### Code style
 
 **No comments.** Never write `//` or `<!-- -->` comments in code. Names and structure must be self-explanatory. The only exception: a non-obvious WHY (hidden constraint, subtle invariant, specific bug workaround) that would genuinely surprise a reader — one short line max.
-
-### Git hooks (lefthook)
-
-- **pre-push**: runs `typecheck` + `test` in parallel — both must pass
-- **commit-msg**: enforces Conventional Commits format (`type(scope): subject`, max 72 chars)

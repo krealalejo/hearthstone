@@ -42,7 +42,6 @@
     "@vitest/coverage-v8": "^4.1.10",
     "@vue/test-utils": "^2.4.6",
     "happy-dom": "^20.11.1",
-    "lefthook": "^2.1.10",
     "typescript": "^7.0.2",
     "vite": "^8.1.5",
     "vitest": "^4.1.10"
