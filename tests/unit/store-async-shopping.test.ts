@@ -1,9 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { useHomeStore } from "~/stores/home";
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
+
+mockNuxtImport("$fetch", () => vi.fn());
 
 vi.stubGlobal("navigateTo", vi.fn());
-vi.stubGlobal("$fetch", vi.fn());
 
 function makeFetchFail(statusCode = 500) {
   const err = Object.assign(new Error("fetch failed"), { statusCode });
