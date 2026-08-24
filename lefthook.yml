@@ -1,8 +1,10 @@
 pre-push:
   parallel: true
   commands:
-    typecheck:
-      run: pnpm typecheck
+    # typecheck:
+    #   run: pnpm typecheck
+    # Disabled: vue-tsc has no TypeScript 7 support yet (vuejs/language-tools#5381).
+    # Re-enable once vue-tsc ships a compatible release.
     test:
       run: pnpm test
 
