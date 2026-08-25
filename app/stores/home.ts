@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { money } from "~/utils/home";
+import { api, statusOf } from "~/utils/api";
 import type {
   Member,
   Room,
@@ -26,6 +27,31 @@ function toastId(): string {
   const arr = new Uint32Array(1);
   crypto.getRandomValues(arr);
   return "toast_" + Date.now().toString(36) + "_" + (arr[0] ?? 0).toString(36);
+}
+
+function tempId(): string {
+  const arr = new Uint32Array(2);
+  crypto.getRandomValues(arr);
+  return (
+    "temp_" +
+    Date.now().toString(36) +
+    "_" +
+    (arr[0] ?? 0).toString(36) +
+    (arr[1] ?? 0).toString(36)
+  );
+}
+
+function isTempId(id: string): boolean {
+  return id.startsWith("temp_") || id.startsWith("inv_");
+}
+
+const pendingShopCreates = new Map<string, Promise<string>>();
+
+async function resolveShopId(id: string): Promise<string | null> {
+  if (!isTempId(id)) return id;
+  const creation = pendingShopCreates.get(id);
+  if (!creation) return null;
+  return creation.catch(() => null);
 }
 
 export function useMoney() {
