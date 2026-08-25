@@ -23,7 +23,8 @@
     </ClientOnly>
     <button
       class="btn btn-ghost btn-icon"
-      :title="isDark ? 'Light mode' : 'Dark mode'"
+      :aria-label="isDark ? $t('a11y.lightMode') : $t('a11y.darkMode')"
+      :title="isDark ? $t('a11y.lightMode') : $t('a11y.darkMode')"
       @click="toggle($event.currentTarget as Element)"
     >
       <v-icon style="font-size: 18px">{{

@@ -2,13 +2,13 @@
   <div class="stepper">
     <button
       :disabled="local <= min"
-      aria-label="decrease"
+      :aria-label="t('a11y.decrease')"
       @click="step(-1)"
     >
       <v-icon style="font-size: 16px">mdi-minus</v-icon>
     </button>
     <span class="val">{{ local }}</span>
-    <button aria-label="increase" @click="step(1)">
+    <button :aria-label="t('a11y.increase')" @click="step(1)">
       <v-icon style="font-size: 16px">mdi-plus</v-icon>
     </button>
   </div>
@@ -16,6 +16,8 @@
 
 <script setup lang="ts">
 import { ref, watch, onBeforeUnmount } from "vue";
+
+const { t } = useI18n();
 
 const props = withDefaults(
   defineProps<{ value: number; min?: number; delay?: number }>(),
