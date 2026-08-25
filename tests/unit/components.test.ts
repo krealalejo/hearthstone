@@ -4,7 +4,6 @@ import ProgressBar from "~/components/ProgressBar.vue";
 import ProgressRing from "~/components/ProgressRing.vue";
 import QuantityStepper from "~/components/QuantityStepper.vue";
 
-// ── ProgressBar ───────────────────────────────────────────────────────────────
 
 describe("ProgressBar", () => {
   it("renders bar with correct width percent", async () => {
@@ -51,7 +50,6 @@ describe("ProgressBar", () => {
   });
 });
 
-// ── ProgressRing ──────────────────────────────────────────────────────────────
 
 describe("ProgressRing", () => {
   it("renders svg with correct pct text", async () => {
@@ -76,7 +74,6 @@ describe("ProgressRing", () => {
   });
 });
 
-// ── QuantityStepper ───────────────────────────────────────────────────────────
 
 describe("QuantityStepper", () => {
   it("renders the current value", async () => {
@@ -88,17 +85,58 @@ describe("QuantityStepper", () => {
 
   it("emits change with value-1 on minus button click", async () => {
     const wrapper = await mountSuspended(QuantityStepper, {
-      props: { value: 3 },
+      props: { value: 3, delay: 0 },
     });
-    await wrapper.find("[aria-label='decrease']").trigger("click");
+    await wrapper.find("[aria-label='Decrease quantity']").trigger("click");
+    await new Promise((r) => setTimeout(r, 0));
     expect(wrapper.emitted("change")).toEqual([[2]]);
+  });
+
+  it("shows the new value immediately, before the change is emitted", async () => {
+    const wrapper = await mountSuspended(QuantityStepper, {
+      props: { value: 3, delay: 50 },
+    });
+    await wrapper.find("[aria-label='Increase quantity']").trigger("click");
+    expect(wrapper.text()).toContain("4");
+    expect(wrapper.emitted("change")).toBeUndefined();
+  });
+
+  it("collapses a burst of taps into a single change", async () => {
+    const wrapper = await mountSuspended(QuantityStepper, {
+      props: { value: 3, delay: 10 },
+    });
+    const plus = wrapper.find("[aria-label='Increase quantity']");
+    await plus.trigger("click");
+    await plus.trigger("click");
+    await plus.trigger("click");
+    await new Promise((r) => setTimeout(r, 30));
+    expect(wrapper.emitted("change")).toEqual([[6]]);
+  });
+
+  it("flushes a pending change on unmount", async () => {
+    const wrapper = await mountSuspended(QuantityStepper, {
+      props: { value: 3, delay: 5000 },
+    });
+    await wrapper.find("[aria-label='Increase quantity']").trigger("click");
+    wrapper.unmount();
+    expect(wrapper.emitted("change")).toEqual([[4]]);
+  });
+
+  it("ignores prop updates while a change is pending", async () => {
+    const wrapper = await mountSuspended(QuantityStepper, {
+      props: { value: 3, delay: 50 },
+    });
+    await wrapper.find("[aria-label='Increase quantity']").trigger("click");
+    await wrapper.setProps({ value: 3 });
+    expect(wrapper.text()).toContain("4");
   });
 
   it("emits change with value+1 on plus button click", async () => {
     const wrapper = await mountSuspended(QuantityStepper, {
-      props: { value: 3 },
+      props: { value: 3, delay: 0 },
     });
-    await wrapper.find("[aria-label='increase']").trigger("click");
+    await wrapper.find("[aria-label='Increase quantity']").trigger("click");
+    await new Promise((r) => setTimeout(r, 0));
     expect(wrapper.emitted("change")).toEqual([[4]]);
   });
 
@@ -106,7 +144,7 @@ describe("QuantityStepper", () => {
     const wrapper = await mountSuspended(QuantityStepper, {
       props: { value: 0, min: 0 },
     });
-    const minus = wrapper.find("[aria-label='decrease']");
+    const minus = wrapper.find("[aria-label='Decrease quantity']");
     expect(minus.attributes("disabled")).toBeDefined();
   });
 });

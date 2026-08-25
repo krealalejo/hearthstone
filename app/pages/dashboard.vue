@@ -61,7 +61,8 @@
 
     <div class="dash-grid">
       <div ref="taskListEl">
-        <div v-if="!byRoom.length" class="empty">
+        <AppSkeleton v-if="!store.bootstrapped" variant="card" :count="3" />
+        <div v-else-if="!byRoom.length" class="empty">
           <v-icon class="empty-icon">mdi-broom</v-icon>
           <h3>{{ $t("dashboard.emptyTitle") }}</h3>
           <p>{{ $t("dashboard.emptyBody") }}</p>
@@ -138,7 +139,7 @@ const hhXp = computed(() => store.members.reduce((s, m) => s + m.weekXp, 0));
 
 const visibleTasks = computed(() => {
   return store.tasks.filter((tk) => {
-    if (filter.value === "mine") return tk.assignee === store.currentUser;
+    if (filter.value === "mine") return tk.assignee === store.currentUserId;
     if (filter.value === "open") return !tk.assignee && !tk.done;
     return true;
   });

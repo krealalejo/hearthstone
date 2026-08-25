@@ -2,7 +2,7 @@
   <div class="auth-layout">
     <button
       class="btn btn-ghost btn-icon theme-toggle"
-      :title="isDark ? 'Light mode' : 'Dark mode'"
+      :title="isDark ? $t('a11y.lightMode') : $t('a11y.darkMode')"
       @click="toggle($event.currentTarget as Element)"
     >
       <v-icon style="font-size: 18px">{{
@@ -18,28 +18,25 @@
         /></span>
         <div>
           <div class="brand-name">Hearthstone</div>
-          <div class="brand-sub">calm home, shared</div>
+          <div class="brand-sub">{{ $t("login.brandSub") }}</div>
         </div>
       </div>
       <div class="auth-quote">
-        <h2>A calmer home,<br />kept together.</h2>
-        <p>
-          Shared chores, smart inventory, and a shopping list that fills itself
-          when you run low.
-        </p>
+        <h2 style="white-space: pre-line">{{ $t("login.headline") }}</h2>
+        <p>{{ $t("login.tagline") }}</p>
       </div>
       <div class="auth-feats">
         <div class="auth-feat">
           <span class="feat-ic"><v-icon>mdi-broom</v-icon></span>
-          Room-by-room tasks with weekly points
+          {{ $t("login.feat1") }}
         </div>
         <div class="auth-feat">
           <span class="feat-ic"><v-icon>mdi-auto-fix</v-icon></span>
-          Inventory that auto-builds your shopping list
+          {{ $t("login.feat2") }}
         </div>
         <div class="auth-feat">
           <span class="feat-ic"><v-icon>mdi-account-group</v-icon></span>
-          One household, everyone in sync
+          {{ $t("login.feat3") }}
         </div>
       </div>
     </div>
@@ -52,14 +49,14 @@
             style="flex: 1; justify-content: center"
             @click="switchMode('login')"
           >
-            Log in
+            {{ $t("login.tabLogin") }}
           </button>
           <button
             :class="{ on: mode === 'signup' }"
             style="flex: 1; justify-content: center"
             @click="switchMode('signup')"
           >
-            Sign up
+            {{ $t("login.tabSignup") }}
           </button>
         </div>
 
@@ -72,22 +69,26 @@
           >
             <div :key="mode" class="auth-fields">
               <h1>
-                {{ mode === "login" ? "Welcome back" : "Create your account" }}
+                {{
+                  mode === "login"
+                    ? $t("login.welcomeBack")
+                    : $t("login.createAccount")
+                }}
               </h1>
               <p class="lead">
                 {{
                   mode === "login"
-                    ? "Log in to your household dashboard."
-                    : "Start a household or join one with an invite."
+                    ? $t("login.loginLead")
+                    : $t("login.signupLead")
                 }}
               </p>
 
               <div v-if="mode === 'signup'" class="field">
-                <label for="auth-name">Full name</label>
+                <label for="auth-name">{{ $t("login.fieldName") }}</label>
                 <input
                   id="auth-name"
                   v-model="name"
-                  placeholder="Jordan Lee"
+                  :placeholder="$t('login.namePlaceholder')"
                   :class="{ 'field-error': errors.name }"
                   @blur="touchField('name')"
                   @input="revalidateIfTouched('name')"
@@ -99,7 +100,7 @@
                 </Transition>
               </div>
               <div class="field">
-                <label for="auth-email">Email</label>
+                <label for="auth-email">{{ $t("login.fieldEmail") }}</label>
                 <input
                   id="auth-email"
                   v-model="email"
@@ -115,7 +116,7 @@
                 </Transition>
               </div>
               <div class="field">
-                <label for="auth-password">Password</label>
+                <label for="auth-password">{{ $t("login.fieldPassword") }}</label>
                 <input
                   id="auth-password"
                   v-model="password"
@@ -131,10 +132,10 @@
                   }}</span>
                 </Transition>
                 <div v-if="mode === 'signup'" class="pw-hints">
-                  <span :class="{ met: pwChecks.length }">8+ characters</span>
-                  <span :class="{ met: pwChecks.upper }">1 uppercase</span>
-                  <span :class="{ met: pwChecks.number }">1 number</span>
-                  <span :class="{ met: pwChecks.symbol }">1 symbol</span>
+                  <span :class="{ met: pwChecks.length }">{{ $t("login.pw8chars") }}</span>
+                  <span :class="{ met: pwChecks.upper }">{{ $t("login.pwUpper") }}</span>
+                  <span :class="{ met: pwChecks.number }">{{ $t("login.pwNumber") }}</span>
+                  <span :class="{ met: pwChecks.symbol }">{{ $t("login.pwSymbol") }}</span>
                 </div>
               </div>
 
@@ -157,7 +158,7 @@
                 style="width: 100%; height: 46px; margin-top: 8px"
                 @click="handleAuth"
               >
-                {{ mode === "login" ? "Log in" : "Create account" }}
+                {{ mode === "login" ? $t("login.btnLogin") : $t("login.btnCreate") }}
                 <v-icon style="font-size: 17px">mdi-arrow-right</v-icon>
               </button>
 
@@ -166,11 +167,11 @@
                 style="text-align: center; margin-top: 10px"
               >
                 <button class="forgot-link" @click="forgotOpen = true">
-                  Forgot password?
+                  {{ $t("login.forgotLink") }}
                 </button>
               </div>
 
-              <div class="auth-divider"><span>or</span></div>
+              <div class="auth-divider"><span>{{ $t("login.or") }}</span></div>
 
               <a
                 href="/api/auth/google"
@@ -185,21 +186,25 @@
                 "
               >
                 <v-icon style="font-size: 18px">mdi-google</v-icon>
-                Continue with Google
+                {{ $t("login.google") }}
               </a>
             </div>
           </Transition>
         </div>
 
         <div class="auth-switch">
-          {{ mode === "login" ? "New here? " : "Already have an account? " }}
+          {{ mode === "login" ? $t("login.switchNew") : $t("login.switchHave") }}
           <button @click="switchMode(mode === 'login' ? 'signup' : 'login')">
-            {{ mode === "login" ? "Create an account" : "Log in" }}
+            {{
+              mode === "login"
+                ? $t("login.switchToSignup")
+                : $t("login.switchToLogin")
+            }}
           </button>
         </div>
 
         <div class="auth-legal">
-          <NuxtLink to="/privacy">Privacy Policy</NuxtLink>
+          <NuxtLink to="/privacy">{{ $t("login.privacy") }}</NuxtLink>
         </div>
       </div>
     </div>
@@ -218,23 +223,24 @@
                 style="font-size: 36px; color: #2d6a4f; margin-bottom: 10px"
                 >mdi-email-check-outline</v-icon
               >
-              <h2 id="forgot-title-done">Check your inbox</h2>
-              <p>
-                If that email is registered, you'll receive a reset link
-                shortly.
-              </p>
+              <h2 id="forgot-title-done">{{ $t("login.forgotDoneTitle") }}</h2>
+              <p>{{ $t("login.forgotDoneBody") }}</p>
               <button
                 class="btn btn-primary"
                 style="width: 100%; height: 42px; margin-top: 16px"
                 @click="closeForgot"
               >
-                Done
+                {{ $t("login.forgotDone") }}
               </button>
             </div>
             <template v-else>
               <div class="modal-header">
-                <h2 id="forgot-title">Reset password</h2>
-                <button class="btn btn-ghost btn-icon" @click="closeForgot">
+                <h2 id="forgot-title">{{ $t("login.forgotTitle") }}</h2>
+                <button
+                  class="btn btn-ghost btn-icon"
+                  :aria-label="$t('a11y.close')"
+                  @click="closeForgot"
+                >
                   <v-icon style="font-size: 18px">mdi-close</v-icon>
                 </button>
               </div>
@@ -246,10 +252,10 @@
                   margin-bottom: 20px;
                 "
               >
-                Enter your email and we'll send a reset link.
+                {{ $t("login.forgotBody") }}
               </p>
               <div class="field">
-                <label for="forgot-email">Email</label>
+                <label for="forgot-email">{{ $t("login.fieldEmail") }}</label>
                 <input
                   id="forgot-email"
                   v-model="forgotEmail"
@@ -282,7 +288,9 @@
                 :disabled="forgotLoading"
                 @click="sendForgot"
               >
-                {{ forgotLoading ? "Sending…" : "Send reset link" }}
+                {{
+                  forgotLoading ? $t("login.forgotSending") : $t("login.forgotSend")
+                }}
                 <v-icon style="font-size: 17px">mdi-arrow-right</v-icon>
               </button>
             </template>
@@ -303,6 +311,7 @@ import { gsap } from "gsap";
 definePageMeta({ layout: "auth" });
 
 const { animateIn } = useAnimations();
+const { t } = useI18n();
 const { isDark, toggle } = useColorMode();
 
 const mode = ref<"login" | "signup">("login");
@@ -365,10 +374,10 @@ const errors = ref<Record<string, string>>({});
 
 const passwordSchema = z
   .string()
-  .min(8, "At least 8 characters")
-  .regex(/[A-Z]/, "At least 1 uppercase letter")
-  .regex(/\d/, "At least 1 number")
-  .regex(/[^A-Za-z0-9]/, "At least 1 symbol");
+  .min(8, t("login.errPw8"))
+  .regex(/[A-Z]/, t("login.errPwUpper"))
+  .regex(/\d/, t("login.errPwNumber"))
+  .regex(/[^A-Za-z0-9]/, t("login.errPwSymbol"));
 
 const pwChecks = computed(() => ({
   length: password.value.length >= 8,
@@ -381,12 +390,12 @@ function validateFields(): boolean {
   const errs: Record<string, string> = {};
 
   if (mode.value === "signup") {
-    if (!name.value.trim()) errs.name = "Name is required";
+    if (!name.value.trim()) errs.name = t("login.errName");
   }
 
   const emailResult = z
     .string()
-    .email("Invalid email address")
+    .email(t("login.errEmail"))
     .safeParse(email.value);
   if (!emailResult.success) errs.email = emailResult.error.issues[0]!.message;
 
@@ -394,7 +403,7 @@ function validateFields(): boolean {
     const pwResult = passwordSchema.safeParse(password.value);
     if (!pwResult.success) errs.password = pwResult.error.issues[0]!.message;
   } else if (!password.value) {
-    errs.password = "Password is required";
+    errs.password = t("login.errPasswordRequired");
   }
 
   errors.value = errs;
@@ -443,7 +452,7 @@ async function handleAuth() {
   } catch (err: unknown) {
     authError.value =
       (err as { statusMessage?: string })?.statusMessage ??
-      "Authentication failed";
+      t("login.authFailed");
   }
 }
 
@@ -467,7 +476,7 @@ async function sendForgot() {
   forgotApiError.value = "";
   const r = z
     .string()
-    .email("Invalid email address")
+    .email(t("login.errEmail"))
     .safeParse(forgotEmail.value);
   if (!r.success) {
     forgotEmailError.value = r.error.issues[0]!.message;
@@ -481,7 +490,7 @@ async function sendForgot() {
     });
     forgotDone.value = true;
   } catch {
-    forgotApiError.value = "Something went wrong. Please try again.";
+    forgotApiError.value = t("login.forgotError");
   } finally {
     forgotLoading.value = false;
   }

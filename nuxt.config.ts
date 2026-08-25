@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4,
@@ -6,14 +5,14 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-06-01",
 
   runtimeConfig: {
-    mongoUri: "", // overridden by NUXT_MONGO_URI in .env
-    jwtSecret: "", // overridden by NUXT_JWT_SECRET in .env
-    googleClientId: "", // overridden by NUXT_GOOGLE_CLIENT_ID in .env
-    googleClientSecret: "", // overridden by NUXT_GOOGLE_CLIENT_SECRET in .env
-    googleRedirectUri: "", // overridden by NUXT_GOOGLE_REDIRECT_URI in .env
-    resendApiKey: "", // overridden by NUXT_RESEND_API_KEY in .env
+    mongoUri: "",
+    jwtSecret: "",
+    googleClientId: "",
+    googleClientSecret: "",
+    googleRedirectUri: "",
+    resendApiKey: "",
     public: {
-      baseUrl: "", // NUXT_PUBLIC_BASE_URL in .env; empty falls back to the request origin
+      baseUrl: "",
     },
   },
 
@@ -39,7 +38,7 @@ export default defineNuxtConfig({
 
   vuetify: {
     moduleOptions: {
-      importComposables: true,
+      importComposables: false,
     },
     vuetifyOptions: {
       theme: {

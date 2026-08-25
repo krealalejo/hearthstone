@@ -10,3 +10,4 @@ coverage
 android/.idea
 android/app/release
 ANDROID-RELEASE.md
+.codegraph

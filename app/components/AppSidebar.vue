@@ -72,7 +72,14 @@
     </template>
 
     <div class="sidebar-foot">
-      <div class="me-card" @click="emit('open-profile')">
+      <div
+        class="me-card"
+        role="button"
+        tabindex="0"
+        :aria-label="$t('a11y.openProfile')"
+        @click="emit('open-profile')"
+        @keydown.enter="emit('open-profile')"
+      >
         <AppAvatar :member="store.me" size="md" />
         <div style="flex: 1; min-width: 0">
           <div class="me-name">{{ store.me.name }}</div>

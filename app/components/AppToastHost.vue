@@ -1,5 +1,5 @@
 <template>
-  <div class="toast-wrap">
+  <div class="toast-wrap" role="status" aria-live="polite">
     <TransitionGroup name="toast">
       <div
         v-for="t in store.toasts"

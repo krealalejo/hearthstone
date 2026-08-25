@@ -305,7 +305,7 @@ describe("setInvQty — race condition branches", () => {
     store.shopping = [];
 
     const pending = store.setInvQty("i1", 1);
-    await Promise.resolve();
+    await vi.waitFor(() => expect($fetch).toHaveBeenCalledTimes(2));
     store.shopping = [];
     store.flashShopId = "something-else";
     resolvePost({ id: "s_new", name: "Milk", source: "auto", invId: "i1", qty: 5, price: 2.5, checked: false });

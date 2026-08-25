@@ -2,7 +2,7 @@
   <div class="auth-layout">
     <button
       class="btn btn-ghost btn-icon theme-toggle"
-      :title="isDark ? 'Light mode' : 'Dark mode'"
+      :title="isDark ? $t('a11y.lightMode') : $t('a11y.darkMode')"
       @click="toggle($event.currentTarget as Element)"
     >
       <v-icon style="font-size: 18px">{{
@@ -30,8 +30,8 @@
           <v-icon style="font-size: 40px; color: #2d6a4f; margin-bottom: 12px"
             >mdi-check-circle-outline</v-icon
           >
-          <h1>Password updated</h1>
-          <p class="lead">You can now log in with your new password.</p>
+          <h1>{{ t("reset.doneTitle") }}</h1>
+          <p class="lead">{{ t("reset.doneBody") }}</p>
           <NuxtLink
             to="/login"
             class="btn btn-primary"
@@ -44,17 +44,17 @@
               margin-top: 16px;
             "
           >
-            Go to login
+            {{ t("reset.goToLogin") }}
             <v-icon style="font-size: 17px">mdi-arrow-right</v-icon>
           </NuxtLink>
         </div>
 
         <template v-else>
-          <h1>Set new password</h1>
-          <p class="lead">Enter a new password for your account.</p>
+          <h1>{{ t("reset.title") }}</h1>
+          <p class="lead">{{ t("reset.lead") }}</p>
 
           <div class="field" style="margin-top: 20px">
-            <label for="rp-password">New password</label>
+            <label for="rp-password">{{ t("reset.fieldPassword") }}</label>
             <input
               id="rp-password"
               v-model="password"
@@ -72,10 +72,10 @@
               }}</span>
             </Transition>
             <div class="pw-hints">
-              <span :class="{ met: pwChecks.length }">8+ characters</span>
-              <span :class="{ met: pwChecks.upper }">1 uppercase</span>
-              <span :class="{ met: pwChecks.number }">1 number</span>
-              <span :class="{ met: pwChecks.symbol }">1 symbol</span>
+              <span :class="{ met: pwChecks.length }">{{ t("login.pw8chars") }}</span>
+              <span :class="{ met: pwChecks.upper }">{{ t("login.pwUpper") }}</span>
+              <span :class="{ met: pwChecks.number }">{{ t("login.pwNumber") }}</span>
+              <span :class="{ met: pwChecks.symbol }">{{ t("login.pwSymbol") }}</span>
             </div>
           </div>
 
@@ -99,7 +99,7 @@
             :disabled="loading"
             @click="submit"
           >
-            {{ loading ? "Saving…" : "Set password" }}
+            {{ loading ? t("reset.saving") : t("reset.submit") }}
             <v-icon style="font-size: 17px">mdi-arrow-right</v-icon>
           </button>
         </template>
@@ -112,6 +112,8 @@
 import { ref, computed } from "vue";
 import { z } from "zod";
 import { useColorMode } from "~/composables/useColorMode";
+
+const { t } = useI18n();
 
 definePageMeta({ layout: "auth" });
 
@@ -127,10 +129,10 @@ const errors = ref<Record<string, string>>({});
 
 const passwordSchema = z
   .string()
-  .min(8, "At least 8 characters")
-  .regex(/[A-Z]/, "At least 1 uppercase letter")
-  .regex(/\d/, "At least 1 number")
-  .regex(/[^A-Za-z0-9]/, "At least 1 symbol");
+  .min(8, t("login.errPw8"))
+  .regex(/[A-Z]/, t("login.errPwUpper"))
+  .regex(/\d/, t("login.errPwNumber"))
+  .regex(/[^A-Za-z0-9]/, t("login.errPwSymbol"));
 
 const pwChecks = computed(() => ({
   length: password.value.length >= 8,
@@ -151,7 +153,7 @@ async function submit() {
 
   const token = route.query.token as string;
   if (!token) {
-    apiError.value = "Reset link is invalid";
+    apiError.value = t("reset.invalidLink");
     return;
   }
 
@@ -166,7 +168,7 @@ async function submit() {
   } catch (err: unknown) {
     apiError.value =
       (err as { statusMessage?: string })?.statusMessage ??
-      "Something went wrong";
+      t("reset.genericError");
   } finally {
     loading.value = false;
   }

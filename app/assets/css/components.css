@@ -530,6 +530,68 @@
   border-radius: 2px;
 }
 
+/* Skeletons */
+.skeleton {
+  display: grid;
+  gap: 10px;
+}
+.skeleton-grid {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+.sk-block {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+}
+.skeleton-card .sk-block {
+  padding: 20px;
+}
+.sk-line {
+  display: block;
+  height: 10px;
+  border-radius: 99px;
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 0%,
+    var(--hairline) 50%,
+    var(--surface-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: sk-shimmer 1.4s var(--ease) infinite;
+}
+.sk-a {
+  width: 42%;
+}
+.sk-b {
+  width: 78%;
+}
+.sk-c {
+  width: 60%;
+}
+.sk-block:nth-child(2) .sk-line {
+  animation-delay: 0.12s;
+}
+.sk-block:nth-child(3) .sk-line {
+  animation-delay: 0.24s;
+}
+@keyframes sk-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sk-line {
+    animation: none;
+    background: var(--surface-2);
+  }
+}
+
 /* Empty states */
 .empty {
   text-align: center;

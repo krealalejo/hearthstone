@@ -8,7 +8,8 @@
       <span class="line" />
     </div>
 
-    <div v-if="!weekGroups.length" class="empty">
+    <AppSkeleton v-if="!store.bootstrapped" variant="card" :count="3" />
+    <div v-else-if="!weekGroups.length" class="empty">
       <v-icon class="empty-icon">mdi-calendar-blank-outline</v-icon>
       <h3>{{ $t("history.weekNoHistory") }}</h3>
       <p>{{ $t("history.weekNoHistoryBody") }}</p>

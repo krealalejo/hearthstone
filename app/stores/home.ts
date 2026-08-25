@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
 import { money } from "~/utils/home";
+import { api, statusOf } from "~/utils/api";
+import { t, tc } from "~/utils/i18n";
 import type {
   Member,
   Room,
@@ -28,6 +30,31 @@ function toastId(): string {
   return "toast_" + Date.now().toString(36) + "_" + (arr[0] ?? 0).toString(36);
 }
 
+function tempId(): string {
+  const arr = new Uint32Array(2);
+  crypto.getRandomValues(arr);
+  return (
+    "temp_" +
+    Date.now().toString(36) +
+    "_" +
+    (arr[0] ?? 0).toString(36) +
+    (arr[1] ?? 0).toString(36)
+  );
+}
+
+function isTempId(id: string): boolean {
+  return id.startsWith("temp_") || id.startsWith("inv_");
+}
+
+const pendingShopCreates = new Map<string, Promise<string>>();
+
+async function resolveShopId(id: string): Promise<string | null> {
+  if (!isTempId(id)) return id;
+  const creation = pendingShopCreates.get(id);
+  if (!creation) return null;
+  return creation.catch(() => null);
+}
+
 export function useMoney() {
   const store = useHomeStore();
   return {
@@ -39,6 +66,7 @@ export function useMoney() {
 export const useHomeStore = defineStore("home", {
   state: () => ({
     authed: false,
+    bootstrapped: false,
     household: { id: "", name: "", emoji: "" } as Household,
     currentUser: "",
     currentUserId: "",
@@ -127,14 +155,14 @@ export const useHomeStore = defineStore("home", {
     },
 
     async login(email: string, password: string) {
-      await $fetch("/api/auth/login", {
+      await api("/api/auth/login", {
         method: "POST",
         body: { email, password },
       });
     },
 
     async logout() {
-      await $fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+      await api("/api/auth/logout", { method: "POST" }).catch(() => null);
       if (import.meta.client) {
         globalThis.location.assign("/login");
       } else {
@@ -144,6 +172,11 @@ export const useHomeStore = defineStore("home", {
 
     async _handle401() {
       await navigateTo("/login");
+    },
+
+    async _fail(err: unknown, title: string, body = t("toast.reverted")) {
+      this._toast({ kind: "info", title, body });
+      if (statusOf(err) === 401) await this._handle401();
     },
 
     dismissToast(id: string) {
@@ -184,6 +217,10 @@ export const useHomeStore = defineStore("home", {
       this.authed = true;
     },
 
+    setBootstrapped(value: boolean) {
+      this.bootstrapped = value;
+    },
+
     async toggleTask(id: string) {
       const tk = this.tasks.find((t) => t.id === id);
       if (!tk) return;
@@ -204,20 +241,23 @@ export const useHomeStore = defineStore("home", {
       if (willDo) {
         this._toast({
           kind: "xp",
-          title: `+${tk.xp} XP`,
-          body: `${member?.name.split(" ")[0] ?? "You"} finished "${tk.title}"`,
+          title: t("toast.xp", { xp: tk.xp }),
+          body: t("toast.taskFinished", {
+            name: member?.name.split(" ")[0] ?? t("toast.you"),
+            title: tk.title,
+          }),
           celebrate: tk.xp >= 30,
         });
       }
       tk.done = willDo;
       tk.doneBy = willDo ? who : null;
       try {
-        await $fetch("/api/tasks", {
+        await api("/api/tasks", {
           method: "PATCH",
           body: { id, done: tk.done, doneBy: tk.doneBy },
         });
         if (member) {
-          await $fetch("/api/members", {
+          await api("/api/members", {
             method: "PATCH",
             body: { id: who, weekXp: member.weekXp, totalXp: member.totalXp },
           });
@@ -231,10 +271,10 @@ export const useHomeStore = defineStore("home", {
         }
         this._toast({
           kind: "info",
-          title: "Update failed",
-          body: "Changes reverted",
+          title: t("toast.updateFailed"),
+          body: t("toast.reverted"),
         });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
+        if (statusOf(err) === 401) {
           await this._handle401();
         }
       }
@@ -246,7 +286,7 @@ export const useHomeStore = defineStore("home", {
       const previousAssignee = tk.assignee;
       tk.assignee = this.currentUserId;
       try {
-        await $fetch("/api/tasks", {
+        await api("/api/tasks", {
           method: "PATCH",
           body: { id, assignee: this.currentUserId },
         });
@@ -254,10 +294,10 @@ export const useHomeStore = defineStore("home", {
         tk.assignee = previousAssignee;
         this._toast({
           kind: "info",
-          title: "Update failed",
-          body: "Changes reverted",
+          title: t("toast.updateFailed"),
+          body: t("toast.reverted"),
         });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
+        if (statusOf(err) === 401) {
           await this._handle401();
         }
       }
@@ -266,7 +306,7 @@ export const useHomeStore = defineStore("home", {
     async saveTask(data: Partial<Task> & { title: string }) {
       if (!data.id) {
         try {
-          const created = await $fetch<Task>("/api/tasks", {
+          const created = await api<Task>("/api/tasks", {
             method: "POST",
             body: data,
           });
@@ -274,10 +314,10 @@ export const useHomeStore = defineStore("home", {
         } catch (err) {
           this._toast({
             kind: "info",
-            title: "Failed to create task",
-            body: "Please try again",
+            title: t("toast.createTaskFailed"),
+            body: t("toast.tryAgain"),
           });
-          if ((err as { statusCode?: number })?.statusCode === 401) {
+          if (statusOf(err) === 401) {
             await this._handle401();
           }
         }
@@ -288,15 +328,15 @@ export const useHomeStore = defineStore("home", {
       if (idx !== -1)
         this.tasks[idx] = { ...this.tasks[idx]!, ...data } as Task;
       try {
-        await $fetch("/api/tasks", { method: "PATCH", body: data });
+        await api("/api/tasks", { method: "PATCH", body: data });
       } catch (err) {
         if (idx !== -1 && previous) this.tasks[idx] = previous as Task;
         this._toast({
           kind: "info",
-          title: "Update failed",
-          body: "Changes reverted",
+          title: t("toast.updateFailed"),
+          body: t("toast.reverted"),
         });
-        if ((err as { statusCode?: number })?.statusCode === 401)
+        if (statusOf(err) === 401)
           await this._handle401();
       }
     },
@@ -305,7 +345,7 @@ export const useHomeStore = defineStore("home", {
       const previousTasks = [...this.tasks];
       this.tasks = this.tasks.filter((t) => t.id !== id);
       try {
-        await $fetch("/api/tasks", {
+        await api("/api/tasks", {
           method: "DELETE",
           body: { id },
         });
@@ -313,10 +353,10 @@ export const useHomeStore = defineStore("home", {
         this.tasks = previousTasks;
         this._toast({
           kind: "info",
-          title: "Delete failed",
-          body: "Changes reverted",
+          title: t("toast.deleteFailed"),
+          body: t("toast.reverted"),
         });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
+        if (statusOf(err) === 401) {
           await this._handle401();
         }
       }
@@ -336,14 +376,14 @@ export const useHomeStore = defineStore("home", {
       this.household.lastResetWeek = key;
       this._toast({
         kind: "info",
-        title: `Week ${this.weekNo} started`,
-        body: "Recurring tasks reset · leaderboard cleared",
+        title: t("toast.weekStarted", { week: this.weekNo }),
+        body: t("toast.weekResetBody"),
       });
       await Promise.allSettled([
         ...toDelete.map((tk) =>
-          $fetch("/api/tasks", { method: "DELETE", body: { id: tk.id } }),
+          api("/api/tasks", { method: "DELETE", body: { id: tk.id } }),
         ),
-        $fetch("/api/household", {
+        api("/api/household", {
           method: "PATCH",
           body: { lastResetWeek: key },
         }),
@@ -354,7 +394,7 @@ export const useHomeStore = defineStore("home", {
       const current = this.weekKey;
       if (!this.household.lastResetWeek) {
         this.household.lastResetWeek = current;
-        await $fetch("/api/household", {
+        await api("/api/household", {
           method: "PATCH",
           body: { lastResetWeek: current },
         });
@@ -371,14 +411,14 @@ export const useHomeStore = defineStore("home", {
       if (!item) return;
       const previousQty = item.qty;
       item.qty = qty;
-      let tempId: string | null = null;
+      let restockTempId: string | null = null;
       if (qty <= item.min) {
         const exists = this.shopping.some((sh) => sh.invId === id);
         if (!exists) {
-          tempId = "temp_" + Date.now().toString(36);
+          restockTempId = tempId();
           const shopQty = Math.max(1, item.optimal - qty);
           this.shopping.unshift({
-            id: tempId,
+            id: restockTempId,
             name: item.name,
             source: "auto",
             invId: id,
@@ -386,44 +426,37 @@ export const useHomeStore = defineStore("home", {
             price: item.price,
             checked: false,
           });
-          this.flashShopId = tempId;
+          this.flashShopId = restockTempId;
           this._toast({
             kind: "restock",
-            title: "Added to shopping list",
-            body: `${item.name} dropped to ${qty} (min ${item.min})`,
+            title: t("toast.restockAdded"),
+            body: t("toast.restockDropped", {
+              name: item.name,
+              qty,
+              min: item.min,
+            }),
             link: "shopping",
           });
         }
       }
       try {
-        await $fetch("/api/inventory", { method: "PATCH", body: { id, qty } });
-        if (tempId) {
-          const shopQty = Math.max(1, item.optimal - qty);
-          const created = await $fetch<ShoppingItem>("/api/shopping", {
-            method: "POST",
-            body: {
-              name: item.name,
-              source: "auto",
-              invId: id,
-              qty: shopQty,
-              price: item.price,
-            },
-          });
-          const idx = this.shopping.findIndex((sh) => sh.id === tempId);
-          if (idx !== -1) this.shopping[idx] = created;
-          if (this.flashShopId === tempId) this.flashShopId = created.id;
+        await api("/api/inventory", { method: "PATCH", body: { id, qty } });
+        if (restockTempId) {
+          await this._persistAutoRestock(item, restockTempId);
         }
       } catch (err) {
         item.qty = previousQty;
-        if (tempId) {
-          this.shopping = this.shopping.filter((sh) => sh.id !== tempId);
+        if (restockTempId) {
+          this.shopping = this.shopping.filter(
+            (sh) => sh.id !== restockTempId,
+          );
         }
         this._toast({
           kind: "info",
-          title: "Update failed",
-          body: "Changes reverted",
+          title: t("toast.updateFailed"),
+          body: t("toast.reverted"),
         });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
+        if (statusOf(err) === 401) {
           await this._handle401();
         }
       }
@@ -431,7 +464,7 @@ export const useHomeStore = defineStore("home", {
 
     async _createInv(data: Partial<InventoryItem> & { name: string }) {
       try {
-        const created = await $fetch<InventoryItem>("/api/inventory", {
+        const created = await api<InventoryItem>("/api/inventory", {
           method: "POST",
           body: data,
         });
@@ -439,10 +472,10 @@ export const useHomeStore = defineStore("home", {
       } catch (err) {
         this._toast({
           kind: "info",
-          title: "Failed to create item",
-          body: "Please try again",
+          title: t("toast.createItemFailed"),
+          body: t("toast.tryAgain"),
         });
-        if ((err as { statusCode?: number })?.statusCode === 401)
+        if (statusOf(err) === 401)
           await this._handle401();
       }
     },
@@ -460,10 +493,10 @@ export const useHomeStore = defineStore("home", {
         item.qty <= item.min &&
         !this.shopping.some((sh) => sh.invId === item.id);
       if (!needsRestock) return null;
-      const tempId = "temp_" + Date.now().toString(36);
+      const temp = tempId();
       const shopQty = Math.max(1, item.optimal - item.qty);
       this.shopping.unshift({
-        id: tempId,
+        id: temp,
         name: item.name,
         source: "auto",
         invId: item.id,
@@ -471,102 +504,192 @@ export const useHomeStore = defineStore("home", {
         price: item.price,
         checked: false,
       });
-      this.flashShopId = tempId;
+      this.flashShopId = temp;
       this._toast({
         kind: "restock",
-        title: "Added to shopping list",
-        body: `${item.name} is at or below its minimum`,
+        title: t("toast.restockAdded"),
+        body: t("toast.restockBelowMin", { name: item.name }),
         link: "shopping",
       });
-      return tempId;
+      return temp;
     },
 
-    async _persistAutoRestock(item: InventoryItem, tempId: string) {
-      const shopQty = Math.max(1, item.optimal - item.qty);
-      const created = await $fetch<ShoppingItem>("/api/shopping", {
+    async _persistAutoRestock(item: InventoryItem, temp: string) {
+      const shopItem = this.shopping.find((sh) => sh.id === temp);
+      const creation = api<ShoppingItem>("/api/shopping", {
         method: "POST",
         body: {
           name: item.name,
           source: "auto",
           invId: item.id,
-          qty: shopQty,
+          qty: Math.max(1, item.optimal - item.qty),
           price: item.price,
         },
+      }).then((created) => {
+        if (shopItem) shopItem.id = created.id;
+        if (this.flashShopId === temp) this.flashShopId = created.id;
+        return created.id;
       });
-      const si = this.shopping.findIndex((sh) => sh.id === tempId);
-      if (si !== -1) this.shopping[si] = created;
-      if (this.flashShopId === tempId) this.flashShopId = created.id;
+      pendingShopCreates.set(temp, creation);
+      try {
+        await creation;
+      } finally {
+        pendingShopCreates.delete(temp);
+      }
     },
 
     async saveInv(data: Partial<InventoryItem> & { name: string }) {
       if (!data.id) return this._createInv(data);
       const idx = this.inventory.findIndex((i) => i.id === data.id);
       const previous = idx === -1 ? null : { ...this.inventory[idx] };
-      const tempId = idx === -1 ? null : this._optimisticInvUpdate(data, idx);
+      const temp = idx === -1 ? null : this._optimisticInvUpdate(data, idx);
       try {
-        await $fetch("/api/inventory", { method: "PATCH", body: data });
-        if (tempId)
-          await this._persistAutoRestock(this.inventory[idx]!, tempId);
+        await api("/api/inventory", { method: "PATCH", body: data });
+        if (temp) await this._persistAutoRestock(this.inventory[idx]!, temp);
       } catch (err) {
         if (idx !== -1 && previous)
           this.inventory[idx] = previous as InventoryItem;
-        if (tempId)
-          this.shopping = this.shopping.filter((sh) => sh.id !== tempId);
+        if (temp) this.shopping = this.shopping.filter((sh) => sh.id !== temp);
         this._toast({
           kind: "info",
-          title: "Update failed",
-          body: "Changes reverted",
+          title: t("toast.updateFailed"),
+          body: t("toast.reverted"),
         });
-        if ((err as { statusCode?: number })?.statusCode === 401)
+        if (statusOf(err) === 401)
           await this._handle401();
       }
     },
 
-    deleteInv(id: string) {
+    async deleteInv(id: string) {
+      const previousInventory = [...this.inventory];
+      const previousShopping = [...this.shopping];
+      const linked = this.shopping.filter((sh) => sh.invId === id);
       this.inventory = this.inventory.filter((i) => i.id !== id);
       this.shopping = this.shopping.filter((sh) => sh.invId !== id);
+      try {
+        await api("/api/inventory", { method: "DELETE", body: { id } });
+        await Promise.all(linked.map((sh) => this._deleteShopItem(sh.id)));
+      } catch (err) {
+        this.inventory = previousInventory;
+        this.shopping = previousShopping;
+        await this._fail(err, t("toast.deleteFailed"));
+      }
     },
 
-    toggleShop(id: string) {
+    async _deleteShopItem(id: string) {
+      const realId = await resolveShopId(id);
+      if (!realId) return;
+      await api("/api/shopping", { method: "DELETE", body: { id: realId } });
+    },
+
+    async _patchShopItem(id: string, updates: Partial<ShoppingItem>) {
+      const realId = await resolveShopId(id);
+      if (!realId) return;
+      await api("/api/shopping", {
+        method: "PATCH",
+        body: { id: realId, ...updates },
+      });
+    },
+
+    async toggleShop(id: string) {
       const item = this.shopping.find((sh) => sh.id === id);
-      if (item) item.checked = !item.checked;
+      if (!item) return;
+      const previous = item.checked;
+      item.checked = !previous;
+      try {
+        await this._patchShopItem(id, { checked: item.checked });
+      } catch (err) {
+        item.checked = previous;
+        await this._fail(err, t("toast.updateFailed"));
+      }
     },
 
-    addManualShop(name: string) {
-      if (!name.trim()) return;
-      const tempId = "temp_" + Date.now().toString(36);
+    async addManualShop(name: string) {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      const temp = tempId();
       this.shopping.push({
-        id: tempId,
-        name: name.trim(),
+        id: temp,
+        name: trimmed,
         source: "manual",
         invId: null,
         qty: 1,
         price: null,
         checked: false,
       });
-      this.flashShopId = tempId;
+      const item = this.shopping[this.shopping.length - 1]!;
+      this.flashShopId = temp;
+      const creation = api<ShoppingItem>("/api/shopping", {
+        method: "POST",
+        body: { name: trimmed, source: "manual", qty: 1 },
+      }).then((created) => {
+        item.id = created.id;
+        if (this.flashShopId === temp) this.flashShopId = created.id;
+        return created.id;
+      });
+      pendingShopCreates.set(temp, creation);
+      try {
+        await creation;
+      } catch (err) {
+        this.shopping = this.shopping.filter((sh) => sh !== item);
+        if (this.flashShopId === temp) this.flashShopId = null;
+        await this._fail(err, t("toast.addItemFailed"), t("toast.tryAgain"));
+      } finally {
+        pendingShopCreates.delete(temp);
+      }
     },
 
-    setShopQty(id: string, qty: number) {
+    async setShopQty(id: string, qty: number) {
       const item = this.shopping.find((sh) => sh.id === id);
-      if (item) item.qty = Math.max(1, qty);
+      if (!item) return;
+      const previous = item.qty;
+      const next = Math.max(1, qty);
+      if (next === previous) return;
+      item.qty = next;
+      try {
+        await this._patchShopItem(id, { qty: item.qty });
+      } catch (err) {
+        item.qty = previous;
+        await this._fail(err, t("toast.updateFailed"));
+      }
     },
 
-    setShopPrice(id: string, price: number | null) {
+    async setShopPrice(id: string, price: number | null) {
       const item = this.shopping.find((sh) => sh.id === id);
-      if (item) item.price = price;
+      if (!item) return;
+      const previous = item.price;
+      if (price === previous) return;
+      item.price = price;
+      try {
+        await this._patchShopItem(id, { price: item.price });
+      } catch (err) {
+        item.price = previous;
+        await this._fail(err, t("toast.updateFailed"));
+      }
     },
 
-    removeShop(id: string) {
-      this.shopping = this.shopping.filter((sh) => sh.id !== id);
+    async removeShop(id: string) {
+      const index = this.shopping.findIndex((sh) => sh.id === id);
+      if (index === -1) return;
+      const [removed] = this.shopping.splice(index, 1);
+      try {
+        await this._deleteShopItem(id);
+      } catch (err) {
+        this.shopping.splice(index, 0, removed!);
+        await this._fail(err, t("toast.deleteFailed"));
+      }
     },
 
     async checkout() {
       const checked = this.shopping.filter((sh) => sh.checked);
       if (!checked.length) return;
+      const restockedItems: InventoryItem[] = [];
       this.inventory.forEach((i) => {
         const hit = checked.find((sh) => sh.invId === i.id);
-        if (hit) i.qty = i.optimal;
+        if (hit) {
+          i.qty = i.optimal;
+          restockedItems.push(i);
+        }
       });
       const total = checked.reduce(
         (sum, sh) => sum + (sh.price ?? 0) * sh.qty,
@@ -585,75 +708,112 @@ export const useHomeStore = defineStore("home", {
       this.shopping = this.shopping.filter((sh) => !sh.checked);
       this._toast({
         kind: "check",
-        title: "Purchase logged",
-        body: `${checked.length} item${checked.length > 1 ? "s" : ""}${restocked ? " · " + restocked + " restocked" : ""} · ${money(total, this.household.currency)}`,
+        title: t("toast.purchaseLogged"),
+        body:
+          tc("toast.purchaseItems", checked.length, { n: checked.length }) +
+          (restocked
+            ? " · " + tc("toast.purchaseRestocked", restocked, { n: restocked })
+            : "") +
+          " · " +
+          money(total, this.household.currency),
         link: "history",
       });
       try {
-        const created = await $fetch<HistoryEntry>("/api/history", {
+        const created = await api<HistoryEntry>("/api/history", {
           method: "POST",
           body: historyEntry,
         });
         this.history.unshift(created);
-        for (const sh of checked) {
-          await $fetch("/api/shopping", {
-            method: "DELETE",
-            body: { id: sh.id },
-          });
-        }
+        await Promise.all([
+          ...restockedItems.map((i) =>
+            api("/api/inventory", {
+              method: "PATCH",
+              body: { id: i.id, qty: i.qty },
+            }),
+          ),
+          ...checked.map((sh) => this._deleteShopItem(sh.id)),
+        ]);
       } catch (err) {
         this._toast({
           kind: "info",
-          title: "Sync failed",
-          body: "Purchase recorded locally",
+          title: t("toast.syncFailed"),
+          body: t("toast.recordedLocally"),
         });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
+        if (statusOf(err) === 401) {
           await this._handle401();
         }
       }
     },
 
-    invite(email: string) {
-      if (!email.trim()) return;
+    async invite(email: string) {
+      const trimmed = email.trim();
+      if (!trimmed) return;
       this.members.push({
-        id: "inv_" + Date.now().toString(36),
+        id: tempId(),
         name: "",
-        email: email.trim(),
+        email: trimmed,
         role: "member",
         status: "pending",
         weekXp: 0,
         totalXp: 0,
       });
-      this._toast({
-        kind: "info",
-        title: "Invitation sent",
-        body: `Pending invite to ${email.trim()}`,
-      });
+      const pending = this.members[this.members.length - 1]!;
+      try {
+        const created = await api<{ id: string }>("/api/members", {
+          method: "POST",
+          body: { email: trimmed },
+        });
+        pending.id = created.id;
+        this._toast({
+          kind: "info",
+          title: t("toast.inviteSent"),
+          body: t("toast.invitePending", { email: trimmed }),
+        });
+      } catch (err) {
+        this.members = this.members.filter((m) => m !== pending);
+        await this._fail(err, t("toast.inviteFailed"), t("toast.tryAgain"));
+      }
+    },
+
+    async _removeMemberById(id: string, failTitle: string) {
+      const index = this.members.findIndex((m) => m.id === id);
+      if (index === -1) return;
+      const [removed] = this.members.splice(index, 1);
+      if (isTempId(id)) return;
+      try {
+        await api("/api/members", { method: "DELETE", body: { id } });
+      } catch (err) {
+        this.members.splice(index, 0, removed!);
+        await this._fail(err, failTitle);
+      }
     },
 
     revoke(id: string) {
-      this.members = this.members.filter((m) => m.id !== id);
+      return this._removeMemberById(id, t("toast.revokeFailed"));
     },
 
     removeMember(id: string) {
-      this.members = this.members.filter((m) => m.id !== id);
+      return this._removeMemberById(id, t("toast.removeFailed"));
     },
 
     async renameHousehold(name: string) {
       const prev = this.household.name;
       this.household.name = name;
       try {
-        await $fetch("/api/household", { method: "PATCH", body: { name } });
+        await api("/api/household", { method: "PATCH", body: { name } });
       } catch {
         this.household.name = prev;
-        this._toast({ kind: "info", title: "Failed to rename household" });
+        this._toast({ kind: "info", title: t("toast.renameFailed") });
       }
     },
 
     applyAccentColor() {
+      this.setAccentColor(this.me.accentColor ?? null);
+    },
+
+    setAccentColor(color: string | null) {
       if (!import.meta.client) return;
       const root = document.documentElement.style;
-      const color = this.me.accentColor;
       if (color) {
         root.setProperty("--accent", color);
         root.setProperty(
@@ -707,7 +867,7 @@ export const useHomeStore = defineStore("home", {
       if (data.currency) this.household.currency = data.currency;
       this.applyAccentColor();
       try {
-        await $fetch("/api/members", {
+        await api("/api/members", {
           method: "PATCH",
           body: {
             id: this.currentUserId,
@@ -726,12 +886,12 @@ export const useHomeStore = defineStore("home", {
           householdPatch.currency = data.currency;
         }
         if (Object.keys(householdPatch).length) {
-          await $fetch("/api/household", {
+          await api("/api/household", {
             method: "PATCH",
             body: householdPatch,
           });
         }
-        this._toast({ kind: "info", title: "Settings saved" });
+        this._toast({ kind: "info", title: t("toast.settingsSaved") });
       } catch (err) {
         member.name = prev.name;
         member.accentColor = prev.accentColor;
@@ -744,10 +904,10 @@ export const useHomeStore = defineStore("home", {
         this.applyAccentColor();
         this._toast({
           kind: "info",
-          title: "Save failed",
-          body: "Changes reverted",
+          title: t("toast.saveFailed"),
+          body: t("toast.reverted"),
         });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
+        if (statusOf(err) === 401) {
           await this._handle401();
         }
       }

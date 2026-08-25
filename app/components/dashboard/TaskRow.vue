@@ -12,7 +12,7 @@
       <div class="task-title">{{ task.title }}</div>
       <div v-if="task.desc || task.recurring" class="task-desc">
         <span v-if="task.recurring"
-          ><v-icon style="font-size: 11px">mdi-sync</v-icon> weekly</span
+          ><v-icon style="font-size: 11px">mdi-sync</v-icon> {{ t("task.weekly") }}</span
         >
         <span v-if="task.recurring && task.desc"> · </span>
         {{ task.desc }}
@@ -27,7 +27,7 @@
         <AppAvatar :member="assignee" size="sm" />
       </div>
       <button v-else class="claim-btn" @click="store.claimTask(task.id)">
-        Claim
+        {{ t("task.claim") }}
       </button>
     </div>
   </div>
@@ -44,6 +44,7 @@ const props = defineProps<{ task: Task }>();
 const emit = defineEmits<{ edit: [] }>();
 
 const store = useHomeStore();
+const { t } = useI18n();
 const { animateCheckToggle } = useAnimations();
 const { fire } = useConfetti();
 

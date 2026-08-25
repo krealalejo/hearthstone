@@ -15,7 +15,6 @@ describe("home store — API-backed (no seed / no localStorage)", () => {
     vi.resetAllMocks();
   });
 
-  // ── Initial state ──
 
   it("tasks initializes as empty array", () => {
     const store = useHomeStore();
@@ -37,7 +36,6 @@ describe("home store — API-backed (no seed / no localStorage)", () => {
     expect(store.authed).toBe(false);
   });
 
-  // ── Hydration setters ──
 
   it("setTasks sets store.tasks", () => {
     const store = useHomeStore();
@@ -118,7 +116,6 @@ describe("home store — API-backed (no seed / no localStorage)", () => {
     expect(key).toMatch(/^S-\d{4}-\d{2}-\d{2}$/);
   });
 
-  // ── Source-level checks (DATA-03) ──
 
   it("home.ts source does not contain 'seed('", () => {
     const src = readFileSync(

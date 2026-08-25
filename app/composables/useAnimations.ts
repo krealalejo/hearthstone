@@ -2,23 +2,30 @@ import { gsap } from "gsap";
 
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
 
+function prefersReducedMotion(): boolean {
+  return (
+    import.meta.client &&
+    globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true
+  );
+}
+
 function animateIn(el: Element | null, opts?: gsap.TweenVars) {
-  if (!el) return;
+  if (!el || prefersReducedMotion()) return;
   gsap.from(el, { opacity: 0, y: 8, duration: 0.22, ease: EASE, ...opts });
 }
 
 function animateModalIn(el: Element | null) {
-  if (!el) return;
+  if (!el || prefersReducedMotion()) return;
   gsap.from(el, { opacity: 0, y: 12, scale: 0.97, duration: 0.26, ease: EASE });
 }
 
 function animateToastIn(el: Element | null) {
-  if (!el) return;
+  if (!el || prefersReducedMotion()) return;
   gsap.from(el, { opacity: 0, y: 16, scale: 0.94, duration: 0.4, ease: EASE });
 }
 
 function animateShopItemIn(el: Element | null) {
-  if (!el) return;
+  if (!el || prefersReducedMotion()) return;
   gsap.from(el, {
     opacity: 0,
     y: -14,
@@ -32,7 +39,7 @@ function animateShopItemIn(el: Element | null) {
 }
 
 function animateCheckToggle(el: Element | null, checked: boolean) {
-  if (!el) return;
+  if (!el || prefersReducedMotion()) return;
   gsap.to(el, {
     keyframes: { scale: checked ? [1.25, 1] : [0.85, 1] },
     duration: 0.2,
@@ -58,7 +65,7 @@ function animateLocaleChange(
   el: Element | null,
   onMid: () => void | Promise<void>,
 ) {
-  if (!el) return Promise.resolve(onMid());
+  if (!el || prefersReducedMotion()) return Promise.resolve(onMid());
   return new Promise<void>((resolve) => {
     gsap.to(el, {
       opacity: 0,
@@ -73,6 +80,7 @@ function animateLocaleChange(
 }
 
 function animateStagger(els: NodeListOf<Element> | Element[]) {
+  if (prefersReducedMotion()) return;
   gsap.from(Array.from(els), {
     opacity: 0,
     y: 12,

@@ -75,7 +75,8 @@
       <span class="count">{{ store.activeMembers.length }}</span
       ><span class="line" />
     </div>
-    <div class="card" style="margin-bottom: 22px">
+    <AppSkeleton v-if="!store.bootstrapped" :count="3" />
+    <div v-else class="card" style="margin-bottom: 22px">
       <div v-for="m in store.activeMembers" :key="m.id" class="member-row">
         <AppAvatar :member="m" size="lg" />
         <div class="member-meta">
@@ -84,7 +85,7 @@
             <span v-if="m.role === 'admin'" class="role-tag">{{
               $t("household.admin")
             }}</span>
-            <span v-if="m.id === store.currentUser" class="you-tag">{{
+            <span v-if="m.id === store.currentUserId" class="you-tag">{{
               $t("household.you")
             }}</span>
           </div>
@@ -97,7 +98,7 @@
           </div>
         </div>
         <v-btn
-          v-if="isAdmin && m.id !== store.currentUser && m.role !== 'admin'"
+          v-if="isAdmin && m.id !== store.currentUserId && m.role !== 'admin'"
           icon
           variant="text"
           size="small"
@@ -106,7 +107,7 @@
           <v-icon>mdi-dots-vertical</v-icon>
         </v-btn>
         <v-btn
-          v-else-if="m.id === store.currentUser && !isAdmin"
+          v-else-if="m.id === store.currentUserId && !isAdmin"
           variant="text"
           size="small"
           @click="confirmAction = { kind: 'leave', member: m }"

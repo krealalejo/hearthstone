@@ -1,10 +1,17 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { useHomeStore } from "~/stores/home";
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
+
+mockNuxtImport("$fetch", () => vi.fn());
+
+vi.stubGlobal("navigateTo", vi.fn());
 
 describe("home store", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    vi.mocked($fetch).mockReset();
+    vi.mocked($fetch).mockResolvedValue({ id: "srv_1" } as never);
   });
 
   it("starts unauthenticated", () => {
@@ -21,7 +28,6 @@ describe("home store", () => {
   it("logout clears authed", async () => {
     const store = useHomeStore();
     store.setCurrentUser({ id: "u1", name: "Alex", role: "admin" });
-    // logout calls $fetch — stub by resetting state directly via the action
     store.authed = false;
     expect(store.authed).toBe(false);
   });
@@ -123,19 +129,19 @@ describe("home store", () => {
     });
   });
 
-  it("addManualShop adds item to shopping list", () => {
+  it("addManualShop adds item to shopping list", async () => {
     const store = useHomeStore();
     const before = store.shopping.length;
-    store.addManualShop("Test item");
+    await store.addManualShop("Test item");
     expect(store.shopping.length).toBe(before + 1);
     expect(store.shopping.at(-1)?.name).toBe("Test item");
     expect(store.shopping.at(-1)?.source).toBe("manual");
   });
 
-  it("invite adds pending member", () => {
+  it("invite adds pending member", async () => {
     const store = useHomeStore();
     const before = store.members.length;
-    store.invite("new@example.com");
+    await store.invite("new@example.com");
     expect(store.members.length).toBe(before + 1);
     expect(store.members.at(-1)?.status).toBe("pending");
   });

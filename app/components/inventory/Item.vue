@@ -16,7 +16,7 @@
     <div class="inv-body" style="cursor: pointer" @click="emit('edit')">
       <div class="inv-name">
         {{ item.name }}
-        <span v-if="low" class="low-tag">Low</span>
+        <span v-if="low" class="low-tag">{{ t("badge.low") }}</span>
       </div>
       <div class="inv-meta">min {{ item.min }} · {{ money(item.price) }}</div>
       <div class="inv-thresh">
@@ -45,6 +45,7 @@ const { money } = useMoney();
 const props = defineProps<{ item: InventoryItem }>();
 const emit = defineEmits<{ edit: [] }>();
 const store = useHomeStore();
+const { t } = useI18n();
 
 const low = computed(() => props.item.qty <= props.item.min);
 const barMax = computed(() =>

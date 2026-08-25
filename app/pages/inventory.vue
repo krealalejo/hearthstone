@@ -33,7 +33,8 @@
       </v-btn>
     </div>
 
-    <div ref="invListEl">
+    <AppSkeleton v-if="!store.bootstrapped" variant="grid" :count="6" />
+    <div v-else ref="invListEl">
       <div v-for="c in activeCats" :key="c.id" style="margin-bottom: 26px">
         <div class="room-head" style="margin-bottom: 12px">
           <span class="room-ic"

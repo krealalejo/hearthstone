@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: "No refresh token" });
   }
 
-  const config = useRuntimeConfig(event); // pass event — required for env override
+  const config = useRuntimeConfig(event);
   const payload = await verifyToken(token, config.jwtSecret).catch(() => {
     throw createError({
       statusCode: 401,
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
     secure: isProd,
     sameSite: "lax",
     path: "/",
-    maxAge: 3600, // 1 hour — D-07
+    maxAge: 3600,
   });
 
   return { ok: true };

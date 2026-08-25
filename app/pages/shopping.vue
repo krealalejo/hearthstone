@@ -27,12 +27,13 @@
             hide-details
             @keydown.enter="addItem"
           />
-          <v-btn color="primary" @click="addItem">
+          <v-btn color="primary" :loading="adding" @click="addItem">
             <v-icon size="17" start>mdi-plus</v-icon>{{ $t("shopping.add") }}
           </v-btn>
         </div>
 
-        <div v-if="!store.shopping.length" class="empty">
+        <AppSkeleton v-if="!store.bootstrapped" :count="4" />
+        <div v-else-if="!store.shopping.length" class="empty">
           <v-icon class="empty-icon">mdi-cart-outline</v-icon>
           <h3>{{ $t("shopping.emptyTitle") }}</h3>
           <p>{{ $t("shopping.emptyBody") }}</p>
@@ -115,8 +116,9 @@
           color="primary"
           block
           style="height: 46px"
-          :disabled="!checkedItems.length"
-          @click="store.checkout()"
+          :disabled="!checkedItems.length || checkingOut"
+          :loading="checkingOut"
+          @click="finalize"
         >
           <v-icon size="17" start>mdi-check-bold</v-icon
           >{{ $t("shopping.finalize") }}
@@ -156,6 +158,14 @@ definePageMeta({ middleware: "auth" });
 const store = useHomeStore();
 
 const draft = ref("");
+const checkingOut = ref(false);
+const adding = ref(false);
+
+async function finalize() {
+  checkingOut.value = true;
+  await store.checkout();
+  checkingOut.value = false;
+}
 
 const autoItems = computed(() =>
   store.shopping.filter((i) => i.source === "auto"),
@@ -171,8 +181,12 @@ const restockCount = computed(
   () => checkedItems.value.filter((i) => i.invId).length,
 );
 
-function addItem() {
-  store.addManualShop(draft.value);
+async function addItem() {
+  if (adding.value) return;
+  const name = draft.value;
   draft.value = "";
+  adding.value = true;
+  await store.addManualShop(name);
+  adding.value = false;
 }
 </script>

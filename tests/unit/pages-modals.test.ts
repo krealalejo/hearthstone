@@ -1,7 +1,3 @@
-/**
- * IMPORTANT ordering rule: `default.vue` mounts AppSidebar/ProfileModal as
- * children. Keep `default layout` describe last so it doesn't pollute earlier suites.
- */
 import {
   describe,
   it,
@@ -39,6 +35,10 @@ vi.mock("~/composables/useAnimations", () => ({
   useAnimations: () => ({
     animateCheckToggle: vi.fn(),
     animateIn: vi.fn(),
+    animateModalIn: vi.fn(),
+    animateToastIn: vi.fn(),
+    animateShopItemIn: vi.fn(),
+    animateLocaleChange: vi.fn().mockResolvedValue(undefined),
     staggerIn: vi.fn(),
     animateAdd: vi.fn(),
     animateStagger: vi.fn(),
@@ -524,7 +524,7 @@ describe("inventory/Modal", () => {
     const { default: Component } =
       await import("~/components/inventory/Modal.vue");
     const wrapper = await mount(Component, { props: { item: null } });
-    const incBtns = wrapper.findAll("[aria-label='increase']");
+    const incBtns = wrapper.findAll("[aria-label='Increase quantity']");
     for (const btn of incBtns) {
       await btn.trigger("click");
     }
@@ -779,8 +779,6 @@ describe("household/InviteDialog", () => {
   });
 });
 
-// MUST BE LAST: mounting default.vue creates AppSidebar/ProfileModal child
-// instances that cause emitsOptions errors if placed before other suites.
 describe("default layout", () => {
   it("renders app shell with slot", async () => {
     const { default: Component } = await import("~/layouts/default.vue");

@@ -12,7 +12,8 @@
       <span class="line" />
     </div>
 
-    <div v-if="!store.history.length" class="empty">
+    <AppSkeleton v-if="!store.bootstrapped" variant="card" :count="3" />
+    <div v-else-if="!store.history.length" class="empty">
       <v-icon class="empty-icon">mdi-receipt</v-icon>
       <h3>{{ $t("history.noTitle") }}</h3>
       <p>{{ $t("history.noBody") }}</p>

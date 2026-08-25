@@ -1,10 +1,17 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { useHomeStore } from "~/stores/home";
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
+
+mockNuxtImport("$fetch", () => vi.fn());
+
+vi.stubGlobal("navigateTo", vi.fn());
 
 describe("home store — sync actions", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    vi.mocked($fetch).mockReset();
+    vi.mocked($fetch).mockResolvedValue({ id: "srv_1" } as never);
   });
 
   it("_toast pushes toast with generated id", () => {
@@ -97,7 +104,7 @@ describe("home store — sync actions", () => {
     expect(store.household.emoji).toBe("🏠");
   });
 
-  it("deleteInv removes inventory item and linked shopping items", () => {
+  it("deleteInv removes inventory item and linked shopping items", async () => {
     const store = useHomeStore();
     store.inventory = [
       {
@@ -141,14 +148,14 @@ describe("home store — sync actions", () => {
         checked: false,
       },
     ];
-    store.deleteInv("i1");
+    await store.deleteInv("i1");
     expect(store.inventory).toHaveLength(1);
     expect(store.inventory[0]!.id).toBe("i2");
     expect(store.shopping).toHaveLength(1);
     expect(store.shopping[0]!.id).toBe("s2");
   });
 
-  it("toggleShop flips checked", () => {
+  it("toggleShop flips checked", async () => {
     const store = useHomeStore();
     store.shopping = [
       {
@@ -161,22 +168,22 @@ describe("home store — sync actions", () => {
         checked: false,
       },
     ];
-    store.toggleShop("s1");
+    await store.toggleShop("s1");
     expect(store.shopping[0]!.checked).toBe(true);
-    store.toggleShop("s1");
+    await store.toggleShop("s1");
     expect(store.shopping[0]!.checked).toBe(false);
   });
 
-  it("toggleShop does nothing for unknown id", () => {
+  it("toggleShop does nothing for unknown id", async () => {
     const store = useHomeStore();
     store.shopping = [];
-    store.toggleShop("nonexistent");
+    await store.toggleShop("nonexistent");
     expect(store.shopping).toHaveLength(0);
   });
 
-  it("addManualShop adds item with trimmed name and sets flashShopId", () => {
+  it("addManualShop adds item with trimmed name and sets flashShopId", async () => {
     const store = useHomeStore();
-    store.addManualShop("  Eggs  ");
+    await store.addManualShop("  Eggs  ");
     expect(store.shopping).toHaveLength(1);
     expect(store.shopping[0]!.name).toBe("Eggs");
     expect(store.shopping[0]!.source).toBe("manual");
@@ -184,13 +191,13 @@ describe("home store — sync actions", () => {
     expect(store.flashShopId).toBe(store.shopping[0]!.id);
   });
 
-  it("addManualShop ignores empty string", () => {
+  it("addManualShop ignores empty string", async () => {
     const store = useHomeStore();
-    store.addManualShop("   ");
+    await store.addManualShop("   ");
     expect(store.shopping).toHaveLength(0);
   });
 
-  it("setShopQty updates qty, minimum 1", () => {
+  it("setShopQty updates qty, minimum 1", async () => {
     const store = useHomeStore();
     store.shopping = [
       {
@@ -203,15 +210,15 @@ describe("home store — sync actions", () => {
         checked: false,
       },
     ];
-    store.setShopQty("s1", 5);
+    await store.setShopQty("s1", 5);
     expect(store.shopping[0]!.qty).toBe(5);
-    store.setShopQty("s1", 0);
+    await store.setShopQty("s1", 0);
     expect(store.shopping[0]!.qty).toBe(1);
-    store.setShopQty("s1", -3);
+    await store.setShopQty("s1", -3);
     expect(store.shopping[0]!.qty).toBe(1);
   });
 
-  it("setShopPrice updates price", () => {
+  it("setShopPrice updates price", async () => {
     const store = useHomeStore();
     store.shopping = [
       {
@@ -224,13 +231,13 @@ describe("home store — sync actions", () => {
         checked: false,
       },
     ];
-    store.setShopPrice("s1", 4.99);
+    await store.setShopPrice("s1", 4.99);
     expect(store.shopping[0]!.price).toBe(4.99);
-    store.setShopPrice("s1", null);
+    await store.setShopPrice("s1", null);
     expect(store.shopping[0]!.price).toBeNull();
   });
 
-  it("removeShop removes item by id", () => {
+  it("removeShop removes item by id", async () => {
     const store = useHomeStore();
     store.shopping = [
       {
@@ -252,14 +259,14 @@ describe("home store — sync actions", () => {
         checked: false,
       },
     ];
-    store.removeShop("s1");
+    await store.removeShop("s1");
     expect(store.shopping).toHaveLength(1);
     expect(store.shopping[0]!.id).toBe("s2");
   });
 
-  it("invite adds pending member with given email and posts toast", () => {
+  it("invite adds pending member with given email and posts toast", async () => {
     const store = useHomeStore();
-    store.invite("bob@example.com");
+    await store.invite("bob@example.com");
     expect(store.members).toHaveLength(1);
     expect(store.members[0]!.email).toBe("bob@example.com");
     expect(store.members[0]!.status).toBe("pending");
@@ -267,13 +274,13 @@ describe("home store — sync actions", () => {
     expect(store.toasts[0]!.kind).toBe("info");
   });
 
-  it("invite ignores empty string", () => {
+  it("invite ignores empty string", async () => {
     const store = useHomeStore();
-    store.invite("   ");
+    await store.invite("   ");
     expect(store.members).toHaveLength(0);
   });
 
-  it("revoke removes member by id", () => {
+  it("revoke removes member by id", async () => {
     const store = useHomeStore();
     store.members = [
       {
@@ -295,12 +302,12 @@ describe("home store — sync actions", () => {
         totalXp: 0,
       },
     ];
-    store.revoke("m2");
+    await store.revoke("m2");
     expect(store.members).toHaveLength(1);
     expect(store.members[0]!.id).toBe("m1");
   });
 
-  it("removeMember removes member by id", () => {
+  it("removeMember removes member by id", async () => {
     const store = useHomeStore();
     store.members = [
       {
@@ -313,7 +320,7 @@ describe("home store — sync actions", () => {
         totalXp: 0,
       },
     ];
-    store.removeMember("m1");
+    await store.removeMember("m1");
     expect(store.members).toHaveLength(0);
   });
 });
