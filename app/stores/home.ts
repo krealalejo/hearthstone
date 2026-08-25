@@ -781,7 +781,7 @@ export const useHomeStore = defineStore("home", {
       const prev = this.household.name;
       this.household.name = name;
       try {
-        await $fetch("/api/household", { method: "PATCH", body: { name } });
+        await api("/api/household", { method: "PATCH", body: { name } });
       } catch {
         this.household.name = prev;
         this._toast({ kind: "info", title: "Failed to rename household" });
@@ -845,7 +845,7 @@ export const useHomeStore = defineStore("home", {
       if (data.currency) this.household.currency = data.currency;
       this.applyAccentColor();
       try {
-        await $fetch("/api/members", {
+        await api("/api/members", {
           method: "PATCH",
           body: {
             id: this.currentUserId,
@@ -864,7 +864,7 @@ export const useHomeStore = defineStore("home", {
           householdPatch.currency = data.currency;
         }
         if (Object.keys(householdPatch).length) {
-          await $fetch("/api/household", {
+          await api("/api/household", {
             method: "PATCH",
             body: householdPatch,
           });
@@ -885,7 +885,7 @@ export const useHomeStore = defineStore("home", {
           title: "Save failed",
           body: "Changes reverted",
         });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
+        if (statusOf(err) === 401) {
           await this._handle401();
         }
       }
