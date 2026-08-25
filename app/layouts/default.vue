@@ -11,7 +11,8 @@
         <span class="mt-spacer" />
         <button
           class="btn btn-ghost btn-icon"
-          :title="isDark ? 'Light mode' : 'Dark mode'"
+          :title="isDark ? $t('a11y.lightMode') : $t('a11y.darkMode')"
+          :aria-label="isDark ? $t('a11y.lightMode') : $t('a11y.darkMode')"
           @click="toggle($event.currentTarget as Element)"
         >
           <v-icon style="font-size: 18px">{{
@@ -21,8 +22,12 @@
         <AppAvatar
           :member="store.me"
           size="md"
+          role="button"
+          tabindex="0"
+          :aria-label="$t('a11y.openProfile')"
           style="cursor: pointer"
           @click="profileOpen = true"
+          @keydown.enter="profileOpen = true"
         />
       </div>
       <div class="page-content">
@@ -44,23 +49,23 @@ import { useBootstrap } from "~/composables/useBootstrap";
 import { useColorMode } from "~/composables/useColorMode";
 
 const { isDark, toggle } = useColorMode();
+const { t } = useI18n();
 const store = useHomeStore();
 const route = useRoute();
 const profileOpen = ref(false);
 
 useBootstrap();
 
-const VIEW_TITLES: Record<string, string> = {
-  dashboard: "Hearthstone",
-  inventory: "Inventory",
-  shopping: "Shopping",
-  "history-purchases": "History",
-  "history-weeks": "History",
-  household: "Household",
+const VIEW_TITLE_KEYS: Record<string, string> = {
+  inventory: "nav.inventory",
+  shopping: "nav.shopping",
+  "history-purchases": "nav.history",
+  "history-weeks": "nav.history",
+  household: "nav.household",
 };
 
 const mobileTitle = computed(() => {
-  const view = (route.name as string) ?? "dashboard";
-  return VIEW_TITLES[view] ?? "Hearth";
+  const key = VIEW_TITLE_KEYS[(route.name as string) ?? ""];
+  return key ? t(key) : "Hearthstone";
 });
 </script>
