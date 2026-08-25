@@ -670,9 +670,13 @@ export const useHomeStore = defineStore("home", {
     async checkout() {
       const checked = this.shopping.filter((sh) => sh.checked);
       if (!checked.length) return;
+      const restockedItems: InventoryItem[] = [];
       this.inventory.forEach((i) => {
         const hit = checked.find((sh) => sh.invId === i.id);
-        if (hit) i.qty = i.optimal;
+        if (hit) {
+          i.qty = i.optimal;
+          restockedItems.push(i);
+        }
       });
       const total = checked.reduce(
         (sum, sh) => sum + (sh.price ?? 0) * sh.qty,
@@ -696,24 +700,27 @@ export const useHomeStore = defineStore("home", {
         link: "history",
       });
       try {
-        const created = await $fetch<HistoryEntry>("/api/history", {
+        const created = await api<HistoryEntry>("/api/history", {
           method: "POST",
           body: historyEntry,
         });
         this.history.unshift(created);
-        for (const sh of checked) {
-          await $fetch("/api/shopping", {
-            method: "DELETE",
-            body: { id: sh.id },
-          });
-        }
+        await Promise.all([
+          ...restockedItems.map((i) =>
+            api("/api/inventory", {
+              method: "PATCH",
+              body: { id: i.id, qty: i.qty },
+            }),
+          ),
+          ...checked.map((sh) => this._deleteShopItem(sh.id)),
+        ]);
       } catch (err) {
         this._toast({
           kind: "info",
           title: "Sync failed",
           body: "Purchase recorded locally",
         });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
+        if (statusOf(err) === 401) {
           await this._handle401();
         }
       }
