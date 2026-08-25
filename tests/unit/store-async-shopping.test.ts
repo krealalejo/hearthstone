@@ -191,4 +191,83 @@ describe("checkout", () => {
     const toast = store.toasts.find((t) => t.kind === "check");
     expect(toast?.body).toContain("restocked");
   });
+
+  it("persists restocked inventory quantities", async () => {
+    const histEntry = { id: "h5", date: "2024-01-05", items: [], total: 5 };
+    (vi.mocked($fetch) as any)
+      .mockResolvedValueOnce(histEntry)
+      .mockResolvedValue({});
+    const store = useHomeStore();
+    store.inventory = [baseItem({ qty: 1, optimal: 6 })];
+    store.shopping = [
+      { id: "s1", name: "Milk", source: "auto", invId: "i1", qty: 1, price: 2.5, checked: true },
+    ];
+
+    await store.checkout();
+
+    expect(store.inventory[0]!.qty).toBe(6);
+    expect(vi.mocked($fetch)).toHaveBeenCalledWith("/api/inventory", {
+      method: "PATCH",
+      body: { id: "i1", qty: 6 },
+    });
+  });
+});
+
+describe("shopping persistence", () => {
+  it("addManualShop swaps the temp id for the persisted id", async () => {
+    (vi.mocked($fetch) as any).mockResolvedValue({
+      id: "s_real",
+      name: "Eggs",
+      source: "manual",
+      invId: null,
+      qty: 1,
+      price: null,
+      checked: false,
+    });
+    const store = useHomeStore();
+
+    await store.addManualShop("Eggs");
+
+    expect(store.shopping).toHaveLength(1);
+    expect(store.shopping[0]!.id).toBe("s_real");
+    expect(store.flashShopId).toBe("s_real");
+  });
+
+  it("addManualShop rolls the item back out when the POST fails", async () => {
+    makeFetchFail();
+    const store = useHomeStore();
+
+    await store.addManualShop("Eggs");
+
+    expect(store.shopping).toHaveLength(0);
+    expect(store.flashShopId).toBeNull();
+    expect(store.toasts[0]!.title).toBe("Failed to add item");
+  });
+
+  it("toggleShop reverts checked state when the PATCH fails", async () => {
+    makeFetchFail();
+    const store = useHomeStore();
+    store.shopping = [
+      { id: "s1", name: "X", source: "manual", invId: null, qty: 1, price: null, checked: false },
+    ];
+
+    await store.toggleShop("s1");
+
+    expect(store.shopping[0]!.checked).toBe(false);
+    expect(store.toasts[0]!.title).toBe("Update failed");
+  });
+
+  it("removeShop restores the item at its index when the DELETE fails", async () => {
+    makeFetchFail();
+    const store = useHomeStore();
+    store.shopping = [
+      { id: "s1", name: "X", source: "manual", invId: null, qty: 1, price: null, checked: false },
+      { id: "s2", name: "Y", source: "manual", invId: null, qty: 1, price: null, checked: false },
+    ];
+
+    await store.removeShop("s1");
+
+    expect(store.shopping.map((sh) => sh.id)).toEqual(["s1", "s2"]);
+    expect(store.toasts[0]!.title).toBe("Delete failed");
+  });
 });
