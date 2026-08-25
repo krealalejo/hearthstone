@@ -726,30 +726,55 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
-    invite(email: string) {
-      if (!email.trim()) return;
+    async invite(email: string) {
+      const trimmed = email.trim();
+      if (!trimmed) return;
       this.members.push({
-        id: "inv_" + Date.now().toString(36),
+        id: tempId(),
         name: "",
-        email: email.trim(),
+        email: trimmed,
         role: "member",
         status: "pending",
         weekXp: 0,
         totalXp: 0,
       });
-      this._toast({
-        kind: "info",
-        title: "Invitation sent",
-        body: `Pending invite to ${email.trim()}`,
-      });
+      const pending = this.members[this.members.length - 1]!;
+      try {
+        const created = await api<{ id: string }>("/api/members", {
+          method: "POST",
+          body: { email: trimmed },
+        });
+        pending.id = created.id;
+        this._toast({
+          kind: "info",
+          title: "Invitation sent",
+          body: `Pending invite to ${trimmed}`,
+        });
+      } catch (err) {
+        this.members = this.members.filter((m) => m !== pending);
+        await this._fail(err, "Invite failed", "Please try again");
+      }
+    },
+
+    async _removeMemberById(id: string, failTitle: string) {
+      const index = this.members.findIndex((m) => m.id === id);
+      if (index === -1) return;
+      const [removed] = this.members.splice(index, 1);
+      if (isTempId(id)) return;
+      try {
+        await api("/api/members", { method: "DELETE", body: { id } });
+      } catch (err) {
+        this.members.splice(index, 0, removed!);
+        await this._fail(err, failTitle);
+      }
     },
 
     revoke(id: string) {
-      this.members = this.members.filter((m) => m.id !== id);
+      return this._removeMemberById(id, "Revoke failed");
     },
 
     removeMember(id: string) {
-      this.members = this.members.filter((m) => m.id !== id);
+      return this._removeMemberById(id, "Remove failed");
     },
 
     async renameHousehold(name: string) {
