@@ -54,10 +54,18 @@ vi.mock("#server/models/User", () => ({
 }));
 
 const mockPendingInviteCreate = vi.fn();
+const mockPendingInviteFind = vi.fn(() => ({
+  lean: () => Promise.resolve([]),
+}));
+const mockPendingInviteDeleteOne = vi.fn(() =>
+  Promise.resolve({ deletedCount: 0 }),
+);
 
 vi.mock("#server/models/PendingInvite", () => ({
   PendingInvite: {
     create: mockPendingInviteCreate,
+    find: mockPendingInviteFind,
+    deleteOne: mockPendingInviteDeleteOne,
   },
 }));
 
@@ -155,6 +163,34 @@ describe("members.get", () => {
     const { default: handler } = await import("#server/api/members.get");
     const result = await (handler as Function)(mockEvent());
     expect(Array.isArray(result)).toBe(true);
+  });
+
+  it("includes pending invites as pending members", async () => {
+    const mockUserFind = vi.fn().mockReturnValue({
+      lean: () => Promise.resolve([]),
+    });
+    vi.mocked(await import("#server/models/User")).User.find =
+      mockUserFind as never;
+    mockPendingInviteFind.mockReturnValueOnce({
+      lean: () =>
+        Promise.resolve([
+          {
+            _id: { toHexString: () => "pi1" },
+            email: "bob@example.com",
+            role: "member",
+          },
+        ]),
+    });
+    const { default: handler } = await import("#server/api/members.get");
+    const result = (await (handler as Function)(mockEvent())) as Array<
+      Record<string, unknown>
+    >;
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      id: "pi1",
+      email: "bob@example.com",
+      status: "pending",
+    });
   });
 });
 
@@ -274,6 +310,15 @@ describe("members.delete", () => {
   it("deletes member and returns ok", async () => {
     mockReadBody.mockResolvedValue({ id: "u2" });
     mockUserDeleteOne.mockResolvedValue({ deletedCount: 1 });
+    const { default: handler } = await import("#server/api/members.delete");
+    const result = await (handler as Function)(mockEvent({ userId: "u1" }));
+    expect(result).toEqual({ ok: true });
+  });
+
+  it("deletes a pending invite when no user matches", async () => {
+    mockReadBody.mockResolvedValue({ id: "pi1" });
+    mockUserDeleteOne.mockResolvedValue({ deletedCount: 0 });
+    mockPendingInviteDeleteOne.mockResolvedValueOnce({ deletedCount: 1 });
     const { default: handler } = await import("#server/api/members.delete");
     const result = await (handler as Function)(mockEvent({ userId: "u1" }));
     expect(result).toEqual({ ok: true });
