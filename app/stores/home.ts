@@ -65,6 +65,7 @@ export function useMoney() {
 export const useHomeStore = defineStore("home", {
   state: () => ({
     authed: false,
+    bootstrapped: false,
     household: { id: "", name: "", emoji: "" } as Household,
     currentUser: "",
     currentUserId: "",
@@ -213,6 +214,10 @@ export const useHomeStore = defineStore("home", {
       this.currentUser = user.name;
       this.currentUserId = user.id;
       this.authed = true;
+    },
+
+    setBootstrapped(value: boolean) {
+      this.bootstrapped = value;
     },
 
     async toggleTask(id: string) {
