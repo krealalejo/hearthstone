@@ -1,4 +1,5 @@
 import { User } from "#server/models/User";
+import { PendingInvite } from "#server/models/PendingInvite";
 
 export default defineEventHandler(async (event) => {
   const { householdId, role: callerRole, userId } = event.context.user;
@@ -15,7 +16,10 @@ export default defineEventHandler(async (event) => {
     });
 
   const result = await User.deleteOne({ _id: id, householdId });
-  if (!result.deletedCount)
-    throw createError({ statusCode: 404, statusMessage: "Member not found" });
-  return { ok: true };
+  if (result.deletedCount) return { ok: true };
+
+  const invite = await PendingInvite.deleteOne({ _id: id, householdId });
+  if (invite.deletedCount) return { ok: true };
+
+  throw createError({ statusCode: 404, statusMessage: "Member not found" });
 });
