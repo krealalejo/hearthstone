@@ -7,7 +7,7 @@
     <button
       class="check"
       :class="{ done: item.checked }"
-      aria-label="toggle"
+      :aria-label="t('a11y.toggleItem')"
       @click="store.toggleShop(item.id)"
     >
       <v-icon v-if="item.checked" style="font-size: 15px"
@@ -43,7 +43,7 @@
     <button
       class="btn btn-ghost btn-icon btn-sm"
       style="border: 0"
-      aria-label="remove"
+      :aria-label="t('a11y.removeItem')"
       @click="store.removeShop(item.id)"
     >
       <v-icon>mdi-close</v-icon>
@@ -66,6 +66,7 @@ const props = defineProps<{
 const store = useHomeStore();
 const { money } = useMoney();
 const { animateShopItemIn } = useAnimations();
+const { t } = useI18n();
 const el = ref<HTMLElement | null>(null);
 
 const editable = computed(
@@ -78,7 +79,7 @@ const badgeIcon = computed(() =>
   props.item.source === "auto" ? "mdi-auto-fix" : "mdi-pencil",
 );
 const badgeLabel = computed(() =>
-  props.item.source === "auto" ? "Auto" : "One-off",
+  props.item.source === "auto" ? t("badge.auto") : t("badge.oneOff"),
 );
 const currency = computed(() => store.household.currency ?? "$");
 
