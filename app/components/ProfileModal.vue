@@ -1,11 +1,12 @@
 <template>
   <div>
     <div class="modal-head" style="position: relative">
-      <h2>Profile & settings</h2>
+      <h2>{{ t("profile.title") }}</h2>
       <div style="position: absolute; top: 0; right: 0">
         <button
           class="btn btn-ghost btn-icon btn-sm"
           style="border: 0"
+          :aria-label="t('a11y.close')"
           @click="emit('close')"
         >
           <v-icon>mdi-close</v-icon>
@@ -18,12 +19,12 @@
         <AppAvatar :member="preview" size="xl" />
         <div style="flex: 1; min-width: 0">
           <div class="field">
-            <label for="profile-name">Name</label>
+            <label for="profile-name">{{ t("profile.fieldName") }}</label>
             <input
               id="profile-name"
               v-model="form.name"
               type="text"
-              placeholder="Your name"
+              :placeholder="t('profile.namePlaceholder')"
             />
           </div>
           <div style="color: var(--ink-3); font-size: 12.5px; margin-top: 6px">
@@ -35,15 +36,19 @@
       <div class="level-card" style="margin: 0">
         <div class="lv-top">
           <span class="lv-name">{{ lvl.name }}</span>
-          <span class="lv-num"
-            >Level {{ lvl.level }} · {{ lvl.into }}/{{ lvl.per }} XP</span
-          >
+          <span class="lv-num">{{
+            t("profile.level", {
+              level: lvl.level,
+              into: lvl.into,
+              per: lvl.per,
+            })
+          }}</span>
         </div>
         <ProgressBar :value="lvl.into" :max="lvl.per" />
       </div>
 
       <div>
-        <div class="settings-label">Color</div>
+        <div class="settings-label">{{ t("profile.fieldColor") }}</div>
         <div class="color-row">
           <button
             v-for="c in COLORS"
@@ -58,12 +63,12 @@
       </div>
 
       <div>
-        <div class="settings-label">Avatar</div>
+        <div class="settings-label">{{ t("profile.fieldAvatar") }}</div>
         <div class="emoji-row">
           <button
             class="emoji-opt"
             :class="{ on: !form.avatarImage }"
-            title="Use initials"
+            :title="t('profile.useInitials')"
             @click="pickInitials($event)"
           >
             Aa
@@ -83,25 +88,25 @@
       </div>
 
       <div v-if="store.me.role === 'admin'">
-        <div class="settings-label">Week starts on</div>
+        <div class="settings-label">{{ t("profile.fieldWeekStart") }}</div>
         <div class="seg">
           <button
             :class="{ on: form.weekStartDay === 'monday' }"
             @click="selectWeekStart('monday', $event)"
           >
-            Monday
+            {{ t("profile.monday") }}
           </button>
           <button
             :class="{ on: form.weekStartDay === 'sunday' }"
             @click="selectWeekStart('sunday', $event)"
           >
-            Sunday
+            {{ t("profile.sunday") }}
           </button>
         </div>
       </div>
 
       <div>
-        <div class="settings-label">Language</div>
+        <div class="settings-label">{{ t("profile.fieldLanguage") }}</div>
         <div class="seg">
           <button
             v-for="loc in LOCALES"
@@ -115,7 +120,7 @@
       </div>
 
       <div v-if="store.me.role === 'admin'">
-        <div class="settings-label">Currency</div>
+        <div class="settings-label">{{ t("profile.fieldCurrency") }}</div>
         <div class="currency-row">
           <button
             v-for="c in CURRENCIES"
@@ -133,17 +138,18 @@
 
     <div class="modal-foot" style="justify-content: space-between">
       <button class="btn btn-ghost" @click="handleLogout">
-        <v-icon style="font-size: 15px">mdi-logout</v-icon>Log out
+        <v-icon style="font-size: 15px">mdi-logout</v-icon
+        >{{ t("profile.logout") }}
       </button>
       <button class="btn btn-primary" :disabled="saving" @click="handleSave">
-        {{ saving ? "Saving…" : "Save" }}
+        {{ saving ? t("profile.saving") : t("profile.save") }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, onBeforeUnmount, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useHomeStore } from "~/stores/home";
 import { levelInfo } from "~/utils/home";
@@ -151,7 +157,7 @@ import { useAnimations } from "~/composables/useAnimations";
 import type { Member } from "~/stores/home";
 
 const emit = defineEmits<{ close: [] }>();
-const { locale, setLocale } = useI18n();
+const { t, locale, setLocale } = useI18n();
 const { animateLocaleChange, animateCheckToggle } = useAnimations();
 const store = useHomeStore();
 const bodyEl = ref<HTMLElement | null>(null);
@@ -222,6 +228,17 @@ const form = reactive({
 
 const activeColor = computed(() => form.accentColor || DEFAULT_COLOR);
 
+const saved = ref(false);
+
+watch(
+  () => form.accentColor,
+  (color) => store.setAccentColor(color || null),
+);
+
+onBeforeUnmount(() => {
+  if (!saved.value) store.applyAccentColor();
+});
+
 function pickColor(value: string, event: MouseEvent) {
   form.accentColor = value === DEFAULT_COLOR ? "" : value;
   animateCheckToggle(event.currentTarget as Element, true);
@@ -290,6 +307,7 @@ async function handleSave() {
     locale: form.locale,
   });
   saving.value = false;
+  saved.value = true;
   emit("close");
 }
 
