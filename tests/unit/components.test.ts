@@ -87,7 +87,7 @@ describe("QuantityStepper", () => {
     const wrapper = await mountSuspended(QuantityStepper, {
       props: { value: 3, delay: 0 },
     });
-    await wrapper.find("[aria-label='decrease']").trigger("click");
+    await wrapper.find("[aria-label='Decrease quantity']").trigger("click");
     await new Promise((r) => setTimeout(r, 0));
     expect(wrapper.emitted("change")).toEqual([[2]]);
   });
@@ -96,7 +96,7 @@ describe("QuantityStepper", () => {
     const wrapper = await mountSuspended(QuantityStepper, {
       props: { value: 3, delay: 50 },
     });
-    await wrapper.find("[aria-label='increase']").trigger("click");
+    await wrapper.find("[aria-label='Increase quantity']").trigger("click");
     expect(wrapper.text()).toContain("4");
     expect(wrapper.emitted("change")).toBeUndefined();
   });
@@ -105,7 +105,7 @@ describe("QuantityStepper", () => {
     const wrapper = await mountSuspended(QuantityStepper, {
       props: { value: 3, delay: 10 },
     });
-    const plus = wrapper.find("[aria-label='increase']");
+    const plus = wrapper.find("[aria-label='Increase quantity']");
     await plus.trigger("click");
     await plus.trigger("click");
     await plus.trigger("click");
@@ -117,7 +117,7 @@ describe("QuantityStepper", () => {
     const wrapper = await mountSuspended(QuantityStepper, {
       props: { value: 3, delay: 5000 },
     });
-    await wrapper.find("[aria-label='increase']").trigger("click");
+    await wrapper.find("[aria-label='Increase quantity']").trigger("click");
     wrapper.unmount();
     expect(wrapper.emitted("change")).toEqual([[4]]);
   });
@@ -126,7 +126,7 @@ describe("QuantityStepper", () => {
     const wrapper = await mountSuspended(QuantityStepper, {
       props: { value: 3, delay: 50 },
     });
-    await wrapper.find("[aria-label='increase']").trigger("click");
+    await wrapper.find("[aria-label='Increase quantity']").trigger("click");
     await wrapper.setProps({ value: 3 });
     expect(wrapper.text()).toContain("4");
   });
@@ -135,7 +135,7 @@ describe("QuantityStepper", () => {
     const wrapper = await mountSuspended(QuantityStepper, {
       props: { value: 3, delay: 0 },
     });
-    await wrapper.find("[aria-label='increase']").trigger("click");
+    await wrapper.find("[aria-label='Increase quantity']").trigger("click");
     await new Promise((r) => setTimeout(r, 0));
     expect(wrapper.emitted("change")).toEqual([[4]]);
   });
@@ -144,7 +144,7 @@ describe("QuantityStepper", () => {
     const wrapper = await mountSuspended(QuantityStepper, {
       props: { value: 0, min: 0 },
     });
-    const minus = wrapper.find("[aria-label='decrease']");
+    const minus = wrapper.find("[aria-label='Decrease quantity']");
     expect(minus.attributes("disabled")).toBeDefined();
   });
 });

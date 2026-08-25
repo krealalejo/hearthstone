@@ -524,7 +524,7 @@ describe("inventory/Modal", () => {
     const { default: Component } =
       await import("~/components/inventory/Modal.vue");
     const wrapper = await mount(Component, { props: { item: null } });
-    const incBtns = wrapper.findAll("[aria-label='increase']");
+    const incBtns = wrapper.findAll("[aria-label='Increase quantity']");
     for (const btn of incBtns) {
       await btn.trigger("click");
     }

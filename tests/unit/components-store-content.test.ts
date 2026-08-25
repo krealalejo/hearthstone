@@ -282,7 +282,7 @@ describe("shopping/Item", () => {
     });
     const store = useHomeStore();
     vi.spyOn(store, "removeShop");
-    await wrapper.find("[aria-label='remove']").trigger("click");
+    await wrapper.find("[aria-label='Remove item']").trigger("click");
     expect(store.removeShop).toHaveBeenCalledWith("s1");
   });
 
@@ -340,7 +340,7 @@ describe("shopping/Item", () => {
     });
     const store = useHomeStore();
     vi.spyOn(store, "setShopQty");
-    const btn = wrapper.find('[aria-label="increase"]');
+    const btn = wrapper.find('[aria-label="Increase quantity"]');
     if (btn.exists()) await btn.trigger("click");
     await vi.waitFor(() =>
       expect(store.setShopQty).toHaveBeenCalledWith("s1", 3),
