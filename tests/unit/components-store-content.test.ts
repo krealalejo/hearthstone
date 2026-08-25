@@ -342,7 +342,9 @@ describe("shopping/Item", () => {
     vi.spyOn(store, "setShopQty");
     const btn = wrapper.find('[aria-label="increase"]');
     if (btn.exists()) await btn.trigger("click");
-    expect(store.setShopQty).toHaveBeenCalledWith("s1", 3);
+    await vi.waitFor(() =>
+      expect(store.setShopQty).toHaveBeenCalledWith("s1", 3),
+    );
   });
 
   it("updates localPrice when item.price prop changes", async () => {

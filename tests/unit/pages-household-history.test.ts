@@ -135,8 +135,21 @@ describe("pages/household", () => {
     store.household = baseHousehold();
     store.members = [baseMember({ name: "Alice Smith" })];
     store.currentUser = "u1";
+    store.bootstrapped = true;
     await nextTick();
     expect(wrapper.text()).toContain("Alice Smith");
+  });
+
+  it("shows a skeleton until bootstrap finishes", async () => {
+    const { default: Component } = await import("~/pages/household.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.household = baseHousehold();
+    store.members = [baseMember({ name: "Alice Smith" })];
+    store.bootstrapped = false;
+    await nextTick();
+    expect(wrapper.find(".skeleton").exists()).toBe(true);
+    expect(wrapper.text()).not.toContain("Alice Smith");
   });
 
   it("isAdmin is true when member role is admin", async () => {
