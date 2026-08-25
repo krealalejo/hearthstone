@@ -547,9 +547,35 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
-    deleteInv(id: string) {
+    async deleteInv(id: string) {
+      const previousInventory = [...this.inventory];
+      const previousShopping = [...this.shopping];
+      const linked = this.shopping.filter((sh) => sh.invId === id);
       this.inventory = this.inventory.filter((i) => i.id !== id);
       this.shopping = this.shopping.filter((sh) => sh.invId !== id);
+      try {
+        await api("/api/inventory", { method: "DELETE", body: { id } });
+        await Promise.all(linked.map((sh) => this._deleteShopItem(sh.id)));
+      } catch (err) {
+        this.inventory = previousInventory;
+        this.shopping = previousShopping;
+        await this._fail(err, "Delete failed");
+      }
+    },
+
+    async _deleteShopItem(id: string) {
+      const realId = await resolveShopId(id);
+      if (!realId) return;
+      await api("/api/shopping", { method: "DELETE", body: { id: realId } });
+    },
+
+    async _patchShopItem(id: string, updates: Partial<ShoppingItem>) {
+      const realId = await resolveShopId(id);
+      if (!realId) return;
+      await api("/api/shopping", {
+        method: "PATCH",
+        body: { id: realId, ...updates },
+      });
     },
 
     toggleShop(id: string) {
