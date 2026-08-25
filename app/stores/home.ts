@@ -153,14 +153,14 @@ export const useHomeStore = defineStore("home", {
     },
 
     async login(email: string, password: string) {
-      await $fetch("/api/auth/login", {
+      await api("/api/auth/login", {
         method: "POST",
         body: { email, password },
       });
     },
 
     async logout() {
-      await $fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+      await api("/api/auth/logout", { method: "POST" }).catch(() => null);
       if (import.meta.client) {
         globalThis.location.assign("/login");
       } else {
@@ -170,6 +170,11 @@ export const useHomeStore = defineStore("home", {
 
     async _handle401() {
       await navigateTo("/login");
+    },
+
+    async _fail(err: unknown, title: string, body = "Changes reverted") {
+      this._toast({ kind: "info", title, body });
+      if (statusOf(err) === 401) await this._handle401();
     },
 
     dismissToast(id: string) {
