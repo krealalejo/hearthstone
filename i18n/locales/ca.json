@@ -164,7 +164,11 @@
     "fieldLanguage": "Idioma",
     "save": "Desar",
     "saving": "Desant…",
-    "logout": "Tancar sessió"
+    "logout": "Tancar sessió",
+    "fieldName": "Nom",
+    "namePlaceholder": "El teu nom",
+    "useInitials": "Utilitza les inicials",
+    "level": "Nivell {level} · {into}/{per} XP"
   },
   "leaderboard": {
     "thisWeek": "Aquesta setmana",
@@ -199,10 +203,93 @@
     "pwUpper": "1 majúscula",
     "pwNumber": "1 número",
     "pwSymbol": "1 símbol",
-    "authFailed": "Error d'autenticació"
+    "authFailed": "Error d'autenticació",
+    "or": "o",
+    "google": "Continua amb Google",
+    "forgotLink": "Has oblidat la contrasenya?",
+    "forgotTitle": "Restableix la contrasenya",
+    "forgotBody": "Introdueix el teu correu i t'enviarem un enllaç per restablir-la.",
+    "forgotSend": "Envia l'enllaç",
+    "forgotSending": "Enviant…",
+    "forgotDoneTitle": "Revisa la safata d'entrada",
+    "forgotDoneBody": "Si aquest correu està registrat, rebràs un enllaç aviat.",
+    "forgotDone": "Fet",
+    "forgotError": "Alguna cosa ha anat malament. Torna-ho a provar.",
+    "privacy": "Política de privacitat",
+    "errName": "El nom és obligatori",
+    "errEmail": "Adreça electrònica no vàlida",
+    "errPasswordRequired": "La contrasenya és obligatòria",
+    "errPw8": "Com a mínim 8 caràcters",
+    "errPwUpper": "Com a mínim 1 majúscula",
+    "errPwNumber": "Com a mínim 1 número",
+    "errPwSymbol": "Com a mínim 1 símbol"
   },
   "common": {
     "optional": "opcional",
     "cancel": "Cancel·lar"
+  },
+  "toast": {
+    "updateFailed": "Error en actualitzar",
+    "deleteFailed": "Error en eliminar",
+    "saveFailed": "Error en desar",
+    "reverted": "Canvis revertits",
+    "tryAgain": "Torna-ho a provar",
+    "createTaskFailed": "No s'ha pogut crear la tasca",
+    "createItemFailed": "No s'ha pogut crear l'article",
+    "addItemFailed": "No s'ha pogut afegir l'article",
+    "inviteFailed": "Error en convidar",
+    "revokeFailed": "Error en revocar",
+    "removeFailed": "Error en eliminar",
+    "renameFailed": "No s'ha pogut reanomenar la llar",
+    "syncFailed": "Error de sincronització",
+    "recordedLocally": "Compra registrada localment",
+    "settingsSaved": "Configuració desada",
+    "inviteSent": "Invitació enviada",
+    "invitePending": "Invitació pendent per a {email}",
+    "xp": "+{xp} XP",
+    "taskFinished": "{name} ha completat «{title}»",
+    "you": "Tu",
+    "weekStarted": "Setmana {week} iniciada",
+    "weekResetBody": "Tasques recurrents reiniciades · classificació esborrada",
+    "restockAdded": "Afegit a la llista de la compra",
+    "restockDropped": "{name} ha baixat a {qty} (mín. {min})",
+    "restockBelowMin": "{name} és al mínim o per sota",
+    "purchaseLogged": "Compra registrada",
+    "purchaseItems": "{n} article | {n} articles",
+    "purchaseRestocked": "{n} reabastit | {n} reabastits"
+  },
+  "badge": {
+    "auto": "Auto",
+    "oneOff": "Puntual",
+    "low": "Baix"
+  },
+  "a11y": {
+    "toggleItem": "Marca l'article",
+    "removeItem": "Treu l'article",
+    "decrease": "Redueix la quantitat",
+    "increase": "Augmenta la quantitat",
+    "openProfile": "Obre el perfil i la configuració",
+    "lightMode": "Canvia al mode clar",
+    "darkMode": "Canvia al mode fosc",
+    "close": "Tanca",
+    "editHouseholdName": "Edita el nom de la llar",
+    "memberActions": "Accions del membre",
+    "themeToggle": "Canvia el tema de color"
+  },
+  "task": {
+    "claim": "Reclama",
+    "weekly": "setmanal"
+  },
+  "reset": {
+    "doneTitle": "Contrasenya actualitzada",
+    "doneBody": "Ja pots iniciar sessió amb la contrasenya nova.",
+    "goToLogin": "Ves a l'inici de sessió",
+    "title": "Contrasenya nova",
+    "lead": "Introdueix una contrasenya nova per al teu compte.",
+    "fieldPassword": "Contrasenya nova",
+    "submit": "Desa la contrasenya",
+    "saving": "Desant…",
+    "invalidLink": "L'enllaç de restabliment no és vàlid",
+    "genericError": "Alguna cosa ha anat malament"
   }
 }

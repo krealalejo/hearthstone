@@ -164,7 +164,11 @@
     "fieldLanguage": "Idioma",
     "save": "Guardar",
     "saving": "Guardando…",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "fieldName": "Nombre",
+    "namePlaceholder": "Tu nombre",
+    "useInitials": "Usar iniciales",
+    "level": "Nivel {level} · {into}/{per} XP"
   },
   "leaderboard": {
     "thisWeek": "Esta semana",
@@ -199,10 +203,93 @@
     "pwUpper": "1 mayúscula",
     "pwNumber": "1 número",
     "pwSymbol": "1 símbolo",
-    "authFailed": "Error de autenticación"
+    "authFailed": "Error de autenticación",
+    "or": "o",
+    "google": "Continuar con Google",
+    "forgotLink": "¿Olvidaste tu contraseña?",
+    "forgotTitle": "Restablecer contraseña",
+    "forgotBody": "Introduce tu correo y te enviaremos un enlace para restablecerla.",
+    "forgotSend": "Enviar enlace",
+    "forgotSending": "Enviando…",
+    "forgotDoneTitle": "Revisa tu bandeja",
+    "forgotDoneBody": "Si ese correo está registrado, recibirás un enlace en breve.",
+    "forgotDone": "Hecho",
+    "forgotError": "Algo salió mal. Inténtalo de nuevo.",
+    "privacy": "Política de privacidad",
+    "errName": "El nombre es obligatorio",
+    "errEmail": "Correo electrónico no válido",
+    "errPasswordRequired": "La contraseña es obligatoria",
+    "errPw8": "Al menos 8 caracteres",
+    "errPwUpper": "Al menos 1 mayúscula",
+    "errPwNumber": "Al menos 1 número",
+    "errPwSymbol": "Al menos 1 símbolo"
   },
   "common": {
     "optional": "opcional",
     "cancel": "Cancelar"
+  },
+  "toast": {
+    "updateFailed": "Error al actualizar",
+    "deleteFailed": "Error al eliminar",
+    "saveFailed": "Error al guardar",
+    "reverted": "Cambios revertidos",
+    "tryAgain": "Inténtalo de nuevo",
+    "createTaskFailed": "No se pudo crear la tarea",
+    "createItemFailed": "No se pudo crear el artículo",
+    "addItemFailed": "No se pudo añadir el artículo",
+    "inviteFailed": "Error al invitar",
+    "revokeFailed": "Error al revocar",
+    "removeFailed": "Error al eliminar",
+    "renameFailed": "No se pudo renombrar el hogar",
+    "syncFailed": "Error de sincronización",
+    "recordedLocally": "Compra registrada localmente",
+    "settingsSaved": "Ajustes guardados",
+    "inviteSent": "Invitación enviada",
+    "invitePending": "Invitación pendiente para {email}",
+    "xp": "+{xp} XP",
+    "taskFinished": "{name} ha completado «{title}»",
+    "you": "Tú",
+    "weekStarted": "Semana {week} iniciada",
+    "weekResetBody": "Tareas recurrentes reiniciadas · clasificación borrada",
+    "restockAdded": "Añadido a la lista de la compra",
+    "restockDropped": "{name} bajó a {qty} (mín. {min})",
+    "restockBelowMin": "{name} está en su mínimo o por debajo",
+    "purchaseLogged": "Compra registrada",
+    "purchaseItems": "{n} artículo | {n} artículos",
+    "purchaseRestocked": "{n} reabastecido | {n} reabastecidos"
+  },
+  "badge": {
+    "auto": "Auto",
+    "oneOff": "Puntual",
+    "low": "Bajo"
+  },
+  "a11y": {
+    "toggleItem": "Marcar artículo",
+    "removeItem": "Quitar artículo",
+    "decrease": "Reducir cantidad",
+    "increase": "Aumentar cantidad",
+    "openProfile": "Abrir perfil y ajustes",
+    "lightMode": "Cambiar a modo claro",
+    "darkMode": "Cambiar a modo oscuro",
+    "close": "Cerrar",
+    "editHouseholdName": "Editar nombre del hogar",
+    "memberActions": "Acciones del miembro",
+    "themeToggle": "Cambiar el tema de color"
+  },
+  "task": {
+    "claim": "Reclamar",
+    "weekly": "semanal"
+  },
+  "reset": {
+    "doneTitle": "Contraseña actualizada",
+    "doneBody": "Ya puedes iniciar sesión con tu nueva contraseña.",
+    "goToLogin": "Ir al inicio de sesión",
+    "title": "Nueva contraseña",
+    "lead": "Introduce una contraseña nueva para tu cuenta.",
+    "fieldPassword": "Nueva contraseña",
+    "submit": "Guardar contraseña",
+    "saving": "Guardando…",
+    "invalidLink": "El enlace de restablecimiento no es válido",
+    "genericError": "Algo salió mal"
   }
 }
