@@ -4,7 +4,6 @@ import ProgressBar from "~/components/ProgressBar.vue";
 import ProgressRing from "~/components/ProgressRing.vue";
 import QuantityStepper from "~/components/QuantityStepper.vue";
 
-// ── ProgressBar ───────────────────────────────────────────────────────────────
 
 describe("ProgressBar", () => {
   it("renders bar with correct width percent", async () => {
@@ -51,7 +50,6 @@ describe("ProgressBar", () => {
   });
 });
 
-// ── ProgressRing ──────────────────────────────────────────────────────────────
 
 describe("ProgressRing", () => {
   it("renders svg with correct pct text", async () => {
@@ -76,7 +74,6 @@ describe("ProgressRing", () => {
   });
 });
 
-// ── QuantityStepper ───────────────────────────────────────────────────────────
 
 describe("QuantityStepper", () => {
   it("renders the current value", async () => {

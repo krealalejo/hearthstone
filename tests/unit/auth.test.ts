@@ -46,7 +46,6 @@ describe("jwt utils", () => {
 
   it("tokens are signed with alg HS256", async () => {
     const token = await signAccessToken({ sub: "user1" }, TEST_SECRET);
-    // JWT header is the first segment, base64url-decoded
     const headerB64 = token.split(".")[0]!;
     const header = JSON.parse(
       Buffer.from(headerB64, "base64url").toString("utf-8"),

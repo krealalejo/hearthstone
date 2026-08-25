@@ -3,7 +3,6 @@ import { signAccessToken } from "#server/utils/jwt";
 
 const TEST_SECRET = "test-secret-for-unit-tests-32chars-ok";
 
-// Mock H3 utilities used by auth middleware
 vi.mock("h3", async (importOriginal) => {
   const actual = await importOriginal<typeof import("h3")>();
   return {
@@ -18,7 +17,6 @@ vi.mock("h3", async (importOriginal) => {
   };
 });
 
-// Mock useRuntimeConfig for Nitro
 vi.mock("#imports", async () => ({
   useRuntimeConfig: vi.fn(() => ({ jwtSecret: TEST_SECRET })),
 }));
@@ -89,7 +87,6 @@ describe("auth middleware", () => {
     vi.mocked(getRequestURL).mockReturnValue({
       pathname: "/api/tasks",
     } as URL);
-    // Return a malformed/invalid token
     vi.mocked(getCookie).mockReturnValue("invalid.token.value");
 
     await expect(authMiddleware(mockEvent as never)).rejects.toThrow();
