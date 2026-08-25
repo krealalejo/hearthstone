@@ -52,7 +52,7 @@
             :class="{ on: activeColor === c.value }"
             :style="{ background: c.value }"
             :title="c.label"
-            @click="pickColor(c.value)"
+            @click="pickColor(c.value, $event)"
           />
         </div>
       </div>
@@ -64,7 +64,7 @@
             class="emoji-opt"
             :class="{ on: !form.avatarImage }"
             title="Use initials"
-            @click="form.avatarImage = ''"
+            @click="pickInitials($event)"
           >
             Aa
           </button>
@@ -75,7 +75,7 @@
             :class="{ on: form.avatarImage === img.filename }"
             :style="avatarBtnStyle(img.filename)"
             :title="img.label"
-            @click="pickAvatar(img.filename)"
+            @click="pickAvatar(img.filename, $event)"
           >
             <img :src="`/avatars/${img.filename}`" :alt="img.label" />
           </button>
@@ -87,13 +87,13 @@
         <div class="seg">
           <button
             :class="{ on: form.weekStartDay === 'monday' }"
-            @click="form.weekStartDay = 'monday'"
+            @click="selectWeekStart('monday', $event)"
           >
             Monday
           </button>
           <button
             :class="{ on: form.weekStartDay === 'sunday' }"
-            @click="form.weekStartDay = 'sunday'"
+            @click="selectWeekStart('sunday', $event)"
           >
             Sunday
           </button>
@@ -107,7 +107,7 @@
             v-for="loc in LOCALES"
             :key="loc.code"
             :class="{ on: form.locale === loc.code }"
-            @click="form.locale = loc.code as 'en' | 'es' | 'ca'"
+            @click="selectLocale(loc.code as 'en' | 'es' | 'ca', $event)"
           >
             {{ loc.name }}
           </button>
@@ -123,7 +123,7 @@
             class="currency-opt"
             :class="{ on: form.currency === c.symbol }"
             :title="c.label"
-            @click="form.currency = c.symbol"
+            @click="selectCurrency(c.symbol, $event)"
           >
             {{ c.symbol }}
           </button>
@@ -152,7 +152,7 @@ import type { Member } from "~/stores/home";
 
 const emit = defineEmits<{ close: [] }>();
 const { locale, setLocale } = useI18n();
-const { animateLocaleChange } = useAnimations();
+const { animateLocaleChange, animateCheckToggle } = useAnimations();
 const store = useHomeStore();
 const bodyEl = ref<HTMLElement | null>(null);
 
@@ -222,16 +222,35 @@ const form = reactive({
 
 const activeColor = computed(() => form.accentColor || DEFAULT_COLOR);
 
-function pickColor(value: string) {
+function pickColor(value: string, event: MouseEvent) {
   form.accentColor = value === DEFAULT_COLOR ? "" : value;
+  animateCheckToggle(event.currentTarget as Element, true);
 }
 
-function pickAvatar(filename: string) {
+function pickInitials(event: MouseEvent) {
+  form.avatarImage = "";
+  animateCheckToggle(event.currentTarget as Element, true);
+}
+
+function pickAvatar(filename: string, event: MouseEvent) {
   form.avatarImage = filename;
   form.avatarEmoji = "";
   if (AVATAR_DEFAULT_COLOR[filename]) {
     form.accentColor = AVATAR_DEFAULT_COLOR[filename];
   }
+  animateCheckToggle(event.currentTarget as Element, true);
+}
+
+function selectWeekStart(day: "monday" | "sunday", event: MouseEvent) {
+  if (day === form.weekStartDay) return;
+  form.weekStartDay = day;
+  animateCheckToggle(event.currentTarget as Element, true);
+}
+
+function selectCurrency(symbol: string, event: MouseEvent) {
+  if (symbol === form.currency) return;
+  form.currency = symbol;
+  animateCheckToggle(event.currentTarget as Element, true);
 }
 
 function avatarBtnStyle(filename: string): Record<string, string> {
@@ -249,12 +268,18 @@ const preview = computed<Member>(() => ({
   avatarImage: form.avatarImage || undefined,
 }));
 
+async function selectLocale(code: "en" | "es" | "ca", event: MouseEvent) {
+  if (code === form.locale) return;
+  form.locale = code;
+  animateCheckToggle(event.currentTarget as Element, true);
+  if (code !== locale.value) {
+    await animateLocaleChange(bodyEl.value, () => setLocale(code));
+  }
+}
+
 async function handleSave() {
   if (!form.name.trim()) return;
   saving.value = true;
-  if (form.locale !== locale.value) {
-    await animateLocaleChange(bodyEl.value, () => setLocale(form.locale));
-  }
   await store.saveSettings({
     name: form.name.trim(),
     accentColor: form.accentColor,
