@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { money } from "~/utils/home";
 import { api, statusOf } from "~/utils/api";
+import { t, tc } from "~/utils/i18n";
 import type {
   Member,
   Room,
@@ -173,7 +174,7 @@ export const useHomeStore = defineStore("home", {
       await navigateTo("/login");
     },
 
-    async _fail(err: unknown, title: string, body = "Changes reverted") {
+    async _fail(err: unknown, title: string, body = t("toast.reverted")) {
       this._toast({ kind: "info", title, body });
       if (statusOf(err) === 401) await this._handle401();
     },
@@ -240,8 +241,11 @@ export const useHomeStore = defineStore("home", {
       if (willDo) {
         this._toast({
           kind: "xp",
-          title: `+${tk.xp} XP`,
-          body: `${member?.name.split(" ")[0] ?? "You"} finished "${tk.title}"`,
+          title: t("toast.xp", { xp: tk.xp }),
+          body: t("toast.taskFinished", {
+            name: member?.name.split(" ")[0] ?? t("toast.you"),
+            title: tk.title,
+          }),
           celebrate: tk.xp >= 30,
         });
       }
@@ -267,8 +271,8 @@ export const useHomeStore = defineStore("home", {
         }
         this._toast({
           kind: "info",
-          title: "Update failed",
-          body: "Changes reverted",
+          title: t("toast.updateFailed"),
+          body: t("toast.reverted"),
         });
         if (statusOf(err) === 401) {
           await this._handle401();
@@ -290,8 +294,8 @@ export const useHomeStore = defineStore("home", {
         tk.assignee = previousAssignee;
         this._toast({
           kind: "info",
-          title: "Update failed",
-          body: "Changes reverted",
+          title: t("toast.updateFailed"),
+          body: t("toast.reverted"),
         });
         if (statusOf(err) === 401) {
           await this._handle401();
@@ -310,8 +314,8 @@ export const useHomeStore = defineStore("home", {
         } catch (err) {
           this._toast({
             kind: "info",
-            title: "Failed to create task",
-            body: "Please try again",
+            title: t("toast.createTaskFailed"),
+            body: t("toast.tryAgain"),
           });
           if (statusOf(err) === 401) {
             await this._handle401();
@@ -329,8 +333,8 @@ export const useHomeStore = defineStore("home", {
         if (idx !== -1 && previous) this.tasks[idx] = previous as Task;
         this._toast({
           kind: "info",
-          title: "Update failed",
-          body: "Changes reverted",
+          title: t("toast.updateFailed"),
+          body: t("toast.reverted"),
         });
         if (statusOf(err) === 401)
           await this._handle401();
@@ -349,8 +353,8 @@ export const useHomeStore = defineStore("home", {
         this.tasks = previousTasks;
         this._toast({
           kind: "info",
-          title: "Delete failed",
-          body: "Changes reverted",
+          title: t("toast.deleteFailed"),
+          body: t("toast.reverted"),
         });
         if (statusOf(err) === 401) {
           await this._handle401();
@@ -372,8 +376,8 @@ export const useHomeStore = defineStore("home", {
       this.household.lastResetWeek = key;
       this._toast({
         kind: "info",
-        title: `Week ${this.weekNo} started`,
-        body: "Recurring tasks reset · leaderboard cleared",
+        title: t("toast.weekStarted", { week: this.weekNo }),
+        body: t("toast.weekResetBody"),
       });
       await Promise.allSettled([
         ...toDelete.map((tk) =>
@@ -425,8 +429,12 @@ export const useHomeStore = defineStore("home", {
           this.flashShopId = restockTempId;
           this._toast({
             kind: "restock",
-            title: "Added to shopping list",
-            body: `${item.name} dropped to ${qty} (min ${item.min})`,
+            title: t("toast.restockAdded"),
+            body: t("toast.restockDropped", {
+              name: item.name,
+              qty,
+              min: item.min,
+            }),
             link: "shopping",
           });
         }
@@ -445,8 +453,8 @@ export const useHomeStore = defineStore("home", {
         }
         this._toast({
           kind: "info",
-          title: "Update failed",
-          body: "Changes reverted",
+          title: t("toast.updateFailed"),
+          body: t("toast.reverted"),
         });
         if (statusOf(err) === 401) {
           await this._handle401();
@@ -464,8 +472,8 @@ export const useHomeStore = defineStore("home", {
       } catch (err) {
         this._toast({
           kind: "info",
-          title: "Failed to create item",
-          body: "Please try again",
+          title: t("toast.createItemFailed"),
+          body: t("toast.tryAgain"),
         });
         if (statusOf(err) === 401)
           await this._handle401();
@@ -499,8 +507,8 @@ export const useHomeStore = defineStore("home", {
       this.flashShopId = temp;
       this._toast({
         kind: "restock",
-        title: "Added to shopping list",
-        body: `${item.name} is at or below its minimum`,
+        title: t("toast.restockAdded"),
+        body: t("toast.restockBelowMin", { name: item.name }),
         link: "shopping",
       });
       return temp;
@@ -544,8 +552,8 @@ export const useHomeStore = defineStore("home", {
         if (temp) this.shopping = this.shopping.filter((sh) => sh.id !== temp);
         this._toast({
           kind: "info",
-          title: "Update failed",
-          body: "Changes reverted",
+          title: t("toast.updateFailed"),
+          body: t("toast.reverted"),
         });
         if (statusOf(err) === 401)
           await this._handle401();
@@ -564,7 +572,7 @@ export const useHomeStore = defineStore("home", {
       } catch (err) {
         this.inventory = previousInventory;
         this.shopping = previousShopping;
-        await this._fail(err, "Delete failed");
+        await this._fail(err, t("toast.deleteFailed"));
       }
     },
 
@@ -592,7 +600,7 @@ export const useHomeStore = defineStore("home", {
         await this._patchShopItem(id, { checked: item.checked });
       } catch (err) {
         item.checked = previous;
-        await this._fail(err, "Update failed");
+        await this._fail(err, t("toast.updateFailed"));
       }
     },
 
@@ -625,7 +633,7 @@ export const useHomeStore = defineStore("home", {
       } catch (err) {
         this.shopping = this.shopping.filter((sh) => sh !== item);
         if (this.flashShopId === temp) this.flashShopId = null;
-        await this._fail(err, "Failed to add item", "Please try again");
+        await this._fail(err, t("toast.addItemFailed"), t("toast.tryAgain"));
       } finally {
         pendingShopCreates.delete(temp);
       }
@@ -642,7 +650,7 @@ export const useHomeStore = defineStore("home", {
         await this._patchShopItem(id, { qty: item.qty });
       } catch (err) {
         item.qty = previous;
-        await this._fail(err, "Update failed");
+        await this._fail(err, t("toast.updateFailed"));
       }
     },
 
@@ -656,7 +664,7 @@ export const useHomeStore = defineStore("home", {
         await this._patchShopItem(id, { price: item.price });
       } catch (err) {
         item.price = previous;
-        await this._fail(err, "Update failed");
+        await this._fail(err, t("toast.updateFailed"));
       }
     },
 
@@ -668,7 +676,7 @@ export const useHomeStore = defineStore("home", {
         await this._deleteShopItem(id);
       } catch (err) {
         this.shopping.splice(index, 0, removed!);
-        await this._fail(err, "Delete failed");
+        await this._fail(err, t("toast.deleteFailed"));
       }
     },
 
@@ -700,8 +708,14 @@ export const useHomeStore = defineStore("home", {
       this.shopping = this.shopping.filter((sh) => !sh.checked);
       this._toast({
         kind: "check",
-        title: "Purchase logged",
-        body: `${checked.length} item${checked.length > 1 ? "s" : ""}${restocked ? " · " + restocked + " restocked" : ""} · ${money(total, this.household.currency)}`,
+        title: t("toast.purchaseLogged"),
+        body:
+          tc("toast.purchaseItems", checked.length, { n: checked.length }) +
+          (restocked
+            ? " · " + tc("toast.purchaseRestocked", restocked, { n: restocked })
+            : "") +
+          " · " +
+          money(total, this.household.currency),
         link: "history",
       });
       try {
@@ -722,8 +736,8 @@ export const useHomeStore = defineStore("home", {
       } catch (err) {
         this._toast({
           kind: "info",
-          title: "Sync failed",
-          body: "Purchase recorded locally",
+          title: t("toast.syncFailed"),
+          body: t("toast.recordedLocally"),
         });
         if (statusOf(err) === 401) {
           await this._handle401();
@@ -752,12 +766,12 @@ export const useHomeStore = defineStore("home", {
         pending.id = created.id;
         this._toast({
           kind: "info",
-          title: "Invitation sent",
-          body: `Pending invite to ${trimmed}`,
+          title: t("toast.inviteSent"),
+          body: t("toast.invitePending", { email: trimmed }),
         });
       } catch (err) {
         this.members = this.members.filter((m) => m !== pending);
-        await this._fail(err, "Invite failed", "Please try again");
+        await this._fail(err, t("toast.inviteFailed"), t("toast.tryAgain"));
       }
     },
 
@@ -775,11 +789,11 @@ export const useHomeStore = defineStore("home", {
     },
 
     revoke(id: string) {
-      return this._removeMemberById(id, "Revoke failed");
+      return this._removeMemberById(id, t("toast.revokeFailed"));
     },
 
     removeMember(id: string) {
-      return this._removeMemberById(id, "Remove failed");
+      return this._removeMemberById(id, t("toast.removeFailed"));
     },
 
     async renameHousehold(name: string) {
@@ -789,14 +803,17 @@ export const useHomeStore = defineStore("home", {
         await api("/api/household", { method: "PATCH", body: { name } });
       } catch {
         this.household.name = prev;
-        this._toast({ kind: "info", title: "Failed to rename household" });
+        this._toast({ kind: "info", title: t("toast.renameFailed") });
       }
     },
 
     applyAccentColor() {
+      this.setAccentColor(this.me.accentColor ?? null);
+    },
+
+    setAccentColor(color: string | null) {
       if (!import.meta.client) return;
       const root = document.documentElement.style;
-      const color = this.me.accentColor;
       if (color) {
         root.setProperty("--accent", color);
         root.setProperty(
@@ -874,7 +891,7 @@ export const useHomeStore = defineStore("home", {
             body: householdPatch,
           });
         }
-        this._toast({ kind: "info", title: "Settings saved" });
+        this._toast({ kind: "info", title: t("toast.settingsSaved") });
       } catch (err) {
         member.name = prev.name;
         member.accentColor = prev.accentColor;
@@ -887,8 +904,8 @@ export const useHomeStore = defineStore("home", {
         this.applyAccentColor();
         this._toast({
           kind: "info",
-          title: "Save failed",
-          body: "Changes reverted",
+          title: t("toast.saveFailed"),
+          body: t("toast.reverted"),
         });
         if (statusOf(err) === 401) {
           await this._handle401();
