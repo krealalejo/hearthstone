@@ -243,12 +243,12 @@ export const useHomeStore = defineStore("home", {
       tk.done = willDo;
       tk.doneBy = willDo ? who : null;
       try {
-        await $fetch("/api/tasks", {
+        await api("/api/tasks", {
           method: "PATCH",
           body: { id, done: tk.done, doneBy: tk.doneBy },
         });
         if (member) {
-          await $fetch("/api/members", {
+          await api("/api/members", {
             method: "PATCH",
             body: { id: who, weekXp: member.weekXp, totalXp: member.totalXp },
           });
@@ -265,7 +265,7 @@ export const useHomeStore = defineStore("home", {
           title: "Update failed",
           body: "Changes reverted",
         });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
+        if (statusOf(err) === 401) {
           await this._handle401();
         }
       }
@@ -277,7 +277,7 @@ export const useHomeStore = defineStore("home", {
       const previousAssignee = tk.assignee;
       tk.assignee = this.currentUserId;
       try {
-        await $fetch("/api/tasks", {
+        await api("/api/tasks", {
           method: "PATCH",
           body: { id, assignee: this.currentUserId },
         });
@@ -288,7 +288,7 @@ export const useHomeStore = defineStore("home", {
           title: "Update failed",
           body: "Changes reverted",
         });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
+        if (statusOf(err) === 401) {
           await this._handle401();
         }
       }
@@ -297,7 +297,7 @@ export const useHomeStore = defineStore("home", {
     async saveTask(data: Partial<Task> & { title: string }) {
       if (!data.id) {
         try {
-          const created = await $fetch<Task>("/api/tasks", {
+          const created = await api<Task>("/api/tasks", {
             method: "POST",
             body: data,
           });
@@ -308,7 +308,7 @@ export const useHomeStore = defineStore("home", {
             title: "Failed to create task",
             body: "Please try again",
           });
-          if ((err as { statusCode?: number })?.statusCode === 401) {
+          if (statusOf(err) === 401) {
             await this._handle401();
           }
         }
@@ -319,7 +319,7 @@ export const useHomeStore = defineStore("home", {
       if (idx !== -1)
         this.tasks[idx] = { ...this.tasks[idx]!, ...data } as Task;
       try {
-        await $fetch("/api/tasks", { method: "PATCH", body: data });
+        await api("/api/tasks", { method: "PATCH", body: data });
       } catch (err) {
         if (idx !== -1 && previous) this.tasks[idx] = previous as Task;
         this._toast({
@@ -327,7 +327,7 @@ export const useHomeStore = defineStore("home", {
           title: "Update failed",
           body: "Changes reverted",
         });
-        if ((err as { statusCode?: number })?.statusCode === 401)
+        if (statusOf(err) === 401)
           await this._handle401();
       }
     },
@@ -336,7 +336,7 @@ export const useHomeStore = defineStore("home", {
       const previousTasks = [...this.tasks];
       this.tasks = this.tasks.filter((t) => t.id !== id);
       try {
-        await $fetch("/api/tasks", {
+        await api("/api/tasks", {
           method: "DELETE",
           body: { id },
         });
@@ -347,7 +347,7 @@ export const useHomeStore = defineStore("home", {
           title: "Delete failed",
           body: "Changes reverted",
         });
-        if ((err as { statusCode?: number })?.statusCode === 401) {
+        if (statusOf(err) === 401) {
           await this._handle401();
         }
       }
@@ -372,9 +372,9 @@ export const useHomeStore = defineStore("home", {
       });
       await Promise.allSettled([
         ...toDelete.map((tk) =>
-          $fetch("/api/tasks", { method: "DELETE", body: { id: tk.id } }),
+          api("/api/tasks", { method: "DELETE", body: { id: tk.id } }),
         ),
-        $fetch("/api/household", {
+        api("/api/household", {
           method: "PATCH",
           body: { lastResetWeek: key },
         }),
@@ -385,7 +385,7 @@ export const useHomeStore = defineStore("home", {
       const current = this.weekKey;
       if (!this.household.lastResetWeek) {
         this.household.lastResetWeek = current;
-        await $fetch("/api/household", {
+        await api("/api/household", {
           method: "PATCH",
           body: { lastResetWeek: current },
         });
