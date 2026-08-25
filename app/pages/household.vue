@@ -75,7 +75,8 @@
       <span class="count">{{ store.activeMembers.length }}</span
       ><span class="line" />
     </div>
-    <div class="card" style="margin-bottom: 22px">
+    <AppSkeleton v-if="!store.bootstrapped" :count="3" />
+    <div v-else class="card" style="margin-bottom: 22px">
       <div v-for="m in store.activeMembers" :key="m.id" class="member-row">
         <AppAvatar :member="m" size="lg" />
         <div class="member-meta">

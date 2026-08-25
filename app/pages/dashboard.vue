@@ -61,7 +61,8 @@
 
     <div class="dash-grid">
       <div ref="taskListEl">
-        <div v-if="!byRoom.length" class="empty">
+        <AppSkeleton v-if="!store.bootstrapped" variant="card" :count="3" />
+        <div v-else-if="!byRoom.length" class="empty">
           <v-icon class="empty-icon">mdi-broom</v-icon>
           <h3>{{ $t("dashboard.emptyTitle") }}</h3>
           <p>{{ $t("dashboard.emptyBody") }}</p>

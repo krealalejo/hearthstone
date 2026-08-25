@@ -32,7 +32,8 @@
           </v-btn>
         </div>
 
-        <div v-if="!store.shopping.length" class="empty">
+        <AppSkeleton v-if="!store.bootstrapped" :count="4" />
+        <div v-else-if="!store.shopping.length" class="empty">
           <v-icon class="empty-icon">mdi-cart-outline</v-icon>
           <h3>{{ $t("shopping.emptyTitle") }}</h3>
           <p>{{ $t("shopping.emptyBody") }}</p>
