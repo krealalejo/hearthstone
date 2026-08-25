@@ -578,38 +578,93 @@ export const useHomeStore = defineStore("home", {
       });
     },
 
-    toggleShop(id: string) {
+    async toggleShop(id: string) {
       const item = this.shopping.find((sh) => sh.id === id);
-      if (item) item.checked = !item.checked;
+      if (!item) return;
+      const previous = item.checked;
+      item.checked = !previous;
+      try {
+        await this._patchShopItem(id, { checked: item.checked });
+      } catch (err) {
+        item.checked = previous;
+        await this._fail(err, "Update failed");
+      }
     },
 
-    addManualShop(name: string) {
-      if (!name.trim()) return;
-      const tempId = "temp_" + Date.now().toString(36);
+    async addManualShop(name: string) {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      const temp = tempId();
       this.shopping.push({
-        id: tempId,
-        name: name.trim(),
+        id: temp,
+        name: trimmed,
         source: "manual",
         invId: null,
         qty: 1,
         price: null,
         checked: false,
       });
-      this.flashShopId = tempId;
+      const item = this.shopping[this.shopping.length - 1]!;
+      this.flashShopId = temp;
+      const creation = api<ShoppingItem>("/api/shopping", {
+        method: "POST",
+        body: { name: trimmed, source: "manual", qty: 1 },
+      }).then((created) => {
+        item.id = created.id;
+        if (this.flashShopId === temp) this.flashShopId = created.id;
+        return created.id;
+      });
+      pendingShopCreates.set(temp, creation);
+      try {
+        await creation;
+      } catch (err) {
+        this.shopping = this.shopping.filter((sh) => sh !== item);
+        if (this.flashShopId === temp) this.flashShopId = null;
+        await this._fail(err, "Failed to add item", "Please try again");
+      } finally {
+        pendingShopCreates.delete(temp);
+      }
     },
 
-    setShopQty(id: string, qty: number) {
+    async setShopQty(id: string, qty: number) {
       const item = this.shopping.find((sh) => sh.id === id);
-      if (item) item.qty = Math.max(1, qty);
+      if (!item) return;
+      const previous = item.qty;
+      const next = Math.max(1, qty);
+      if (next === previous) return;
+      item.qty = next;
+      try {
+        await this._patchShopItem(id, { qty: item.qty });
+      } catch (err) {
+        item.qty = previous;
+        await this._fail(err, "Update failed");
+      }
     },
 
-    setShopPrice(id: string, price: number | null) {
+    async setShopPrice(id: string, price: number | null) {
       const item = this.shopping.find((sh) => sh.id === id);
-      if (item) item.price = price;
+      if (!item) return;
+      const previous = item.price;
+      if (price === previous) return;
+      item.price = price;
+      try {
+        await this._patchShopItem(id, { price: item.price });
+      } catch (err) {
+        item.price = previous;
+        await this._fail(err, "Update failed");
+      }
     },
 
-    removeShop(id: string) {
-      this.shopping = this.shopping.filter((sh) => sh.id !== id);
+    async removeShop(id: string) {
+      const index = this.shopping.findIndex((sh) => sh.id === id);
+      if (index === -1) return;
+      const [removed] = this.shopping.splice(index, 1);
+      try {
+        await this._deleteShopItem(id);
+      } catch (err) {
+        this.shopping.splice(index, 0, removed!);
+        await this._fail(err, "Delete failed");
+      }
     },
 
     async checkout() {
