@@ -48,7 +48,7 @@ const store = useHomeStore();
 const route = useRoute();
 const profileOpen = ref(false);
 
-await useBootstrap();
+useBootstrap();
 
 const VIEW_TITLES: Record<string, string> = {
   dashboard: "Hearthstone",

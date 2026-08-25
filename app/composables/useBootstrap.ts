@@ -7,59 +7,51 @@ import type {
   HistoryEntry,
 } from "~/stores/home";
 import { useHomeStore } from "~/stores/home";
+import { api } from "~/utils/api";
 
-export async function useBootstrap() {
+export function useBootstrap() {
   const store = useHomeStore();
   const headers = useRequestHeaders(["cookie"]);
 
-  const [
-    { data: userData },
-    { data: invData },
-    { data: shopData },
-    { data: membersData },
-    { data: householdData },
-    { data: tasksData },
-    { data: historyData },
-  ] = await Promise.all([
-    useAsyncData("current-user", () =>
-      $fetch<{ userId: string; name?: string; role: string }>("/api/auth/me", {
-        headers,
-      }).catch(() => null),
-    ),
-    useAsyncData("inventory", () =>
-      $fetch<InventoryItem[]>("/api/inventory", { headers }),
-    ),
-    useAsyncData("shopping", () =>
-      $fetch<ShoppingItem[]>("/api/shopping", { headers }),
-    ),
-    useAsyncData("members", () =>
-      $fetch<Member[]>("/api/members", { headers }),
-    ),
-    useAsyncData("household", () =>
-      $fetch<Household>("/api/household", { headers }),
-    ),
-    useAsyncData("tasks", () => $fetch<Task[]>("/api/tasks", { headers })),
-    useAsyncData("history", () =>
-      $fetch<HistoryEntry[]>("/api/history", { headers }),
-    ),
-  ]);
+  return useAsyncData(
+    "bootstrap",
+    async () => {
+      const [user, inventory, shopping, members, household, tasks, history] =
+        await Promise.all([
+          api<{ userId: string; name?: string; role: string }>(
+            "/api/auth/me",
+            { headers },
+          ).catch(() => null),
+          api<InventoryItem[]>("/api/inventory", { headers }).catch(() => null),
+          api<ShoppingItem[]>("/api/shopping", { headers }).catch(() => null),
+          api<Member[]>("/api/members", { headers }).catch(() => null),
+          api<Household>("/api/household", { headers }).catch(() => null),
+          api<Task[]>("/api/tasks", { headers }).catch(() => null),
+          api<HistoryEntry[]>("/api/history", { headers }).catch(() => null),
+        ]);
 
-  if (userData.value) {
-    store.setCurrentUser({
-      id: userData.value.userId,
-      name: userData.value.name ?? "",
-      role: userData.value.role,
-    });
-  }
-  if (invData.value) store.setInventory(invData.value);
-  if (shopData.value) store.setShopping(shopData.value);
-  if (membersData.value) store.setMembers(membersData.value);
-  if (householdData.value) store.setHousehold(householdData.value);
-  if (tasksData.value) store.setTasks(tasksData.value);
-  if (historyData.value) store.setHistory(historyData.value);
+      if (user) {
+        store.setCurrentUser({
+          id: user.userId,
+          name: user.name ?? "",
+          role: user.role,
+        });
+      }
+      if (inventory) store.setInventory(inventory);
+      if (shopping) store.setShopping(shopping);
+      if (members) store.setMembers(members);
+      if (household) store.setHousehold(household);
+      if (tasks) store.setTasks(tasks);
+      if (history) store.setHistory(history);
 
-  if (import.meta.client) {
-    store.applyAccentColor();
-    await store.checkAutoReset();
-  }
+      store.setBootstrapped(true);
+
+      if (import.meta.client) {
+        store.applyAccentColor();
+        await store.checkAutoReset();
+      }
+      return true;
+    },
+    { lazy: true, server: false },
+  );
 }
