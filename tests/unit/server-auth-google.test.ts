@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { createHash } from "node:crypto";
 
 const TEST_SECRET = "test-secret-for-unit-tests-32chars-ok";
 
@@ -8,6 +9,8 @@ vi.mock("#server/utils/jwt", async (importOriginal) => {
     ...actual,
     signAccessToken: vi.fn().mockResolvedValue("mock.access.token"),
     signRefreshToken: vi.fn().mockResolvedValue("mock.refresh.token"),
+    signAppHandoffToken: vi.fn().mockResolvedValue("mock.handoff.token"),
+    verifyToken: vi.fn(),
   };
 });
 
@@ -128,8 +131,14 @@ function fakeProfile(overrides = {}) {
   };
 }
 
+const APP_VERIFIER = "v".repeat(43);
+const APP_CHALLENGE = createHash("sha256")
+  .update(APP_VERIFIER)
+  .digest("base64url");
+
 beforeEach(() => {
   vi.clearAllMocks();
+  mockGetQuery.mockReturnValue({});
 });
 
 describe("auth/google.get", () => {
@@ -158,6 +167,23 @@ describe("auth/google.get", () => {
     expect(redirectUrl.searchParams.get("scope")).toBe("openid email profile");
     expect(redirectUrl.searchParams.get("prompt")).toBe("select_account");
     expect(redirectUrl.searchParams.has("client_id")).toBe(true);
+  });
+
+  it("appends a valid app PKCE challenge to the state", async () => {
+    mockGetQuery.mockReturnValue({ challenge: APP_CHALLENGE });
+    const { default: handler } = await import("#server/api/auth/google.get");
+    await (handler as Function)(mockEvent());
+
+    const stateInCookie = mockSetCookie.mock.calls[0][2] as string;
+    expect(stateInCookie).toMatch(new RegExp(`^[0-9a-f]+\\.${APP_CHALLENGE}$`));
+  });
+
+  it("ignores a malformed app challenge", async () => {
+    mockGetQuery.mockReturnValue({ challenge: "short" });
+    const { default: handler } = await import("#server/api/auth/google.get");
+    await (handler as Function)(mockEvent());
+
+    expect(mockSetCookie.mock.calls[0][2]).toMatch(/^[0-9a-f]+$/);
   });
 
   it("includes state param matching the cookie value", async () => {
@@ -318,6 +344,35 @@ describe("auth/google/callback.get", () => {
     );
   });
 
+  it("redirects to the app with a handoff token when state carries a challenge", async () => {
+    const appState = `valid-state.${APP_CHALLENGE}`;
+    mockGetQuery.mockReturnValue({ code: "authcode", state: appState });
+    mockGetCookie.mockReturnValue(appState);
+    mockFetch
+      .mockResolvedValueOnce({ access_token: "goog-token" })
+      .mockResolvedValueOnce(fakeProfile());
+    mockUserFindOne.mockResolvedValue(fakeUser());
+    const { signAppHandoffToken } = await import("#server/utils/jwt");
+    const { default: handler } =
+      await import("#server/api/auth/google/callback.get");
+    await (handler as Function)(mockEvent());
+
+    expect(signAppHandoffToken).toHaveBeenCalledWith(
+      expect.objectContaining({ sub: "u1", challenge: APP_CHALLENGE }),
+      expect.any(String),
+    );
+    expect(mockSendRedirect).toHaveBeenCalledWith(
+      expect.anything(),
+      "com.heartshtone.app://auth?token=mock.handoff.token",
+    );
+    expect(mockSetCookie).not.toHaveBeenCalledWith(
+      expect.anything(),
+      "access_token",
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
   it("deletes oauth_state cookie regardless of outcome", async () => {
     mockGetQuery.mockReturnValue({ code: "authcode", state: "valid-state" });
     mockGetCookie.mockReturnValue("valid-state");
@@ -334,5 +389,88 @@ describe("auth/google/callback.get", () => {
       "oauth_state",
       expect.objectContaining({ path: "/" }),
     );
+  });
+});
+
+describe("auth/google/app-exchange.post", () => {
+  const mockReadBody = vi.fn();
+  vi.stubGlobal("readBody", mockReadBody);
+
+  async function givenHandoff(overrides: Record<string, unknown> = {}) {
+    const { verifyToken } = await import("#server/utils/jwt");
+    vi.mocked(verifyToken).mockResolvedValueOnce({
+      sub: "u1",
+      householdId: "hh1",
+      role: "admin",
+      challenge: APP_CHALLENGE,
+      purpose: "app-handoff",
+      ...overrides,
+    });
+  }
+
+  it("sets session cookies when the verifier matches the challenge", async () => {
+    await givenHandoff();
+    mockReadBody.mockResolvedValue({
+      token: "handoff.token",
+      verifier: APP_VERIFIER,
+    });
+    const { default: handler } =
+      await import("#server/api/auth/google/app-exchange.post");
+    const result = await (handler as Function)(mockEvent());
+
+    expect(result).toEqual({ ok: true });
+    expect(mockSetCookie).toHaveBeenCalledWith(
+      expect.anything(),
+      "access_token",
+      "mock.access.token",
+      expect.objectContaining({ httpOnly: true }),
+    );
+    expect(mockSetCookie).toHaveBeenCalledWith(
+      expect.anything(),
+      "refresh_token",
+      "mock.refresh.token",
+      expect.objectContaining({ httpOnly: true }),
+    );
+  });
+
+  it("rejects a verifier that does not match the challenge", async () => {
+    await givenHandoff();
+    mockReadBody.mockResolvedValue({
+      token: "handoff.token",
+      verifier: "w".repeat(43),
+    });
+    const { default: handler } =
+      await import("#server/api/auth/google/app-exchange.post");
+    await expect((handler as Function)(mockEvent())).rejects.toMatchObject({
+      statusCode: 401,
+    });
+    expect(mockSetCookie).not.toHaveBeenCalled();
+  });
+
+  it("rejects a token that is not an app handoff", async () => {
+    await givenHandoff({ purpose: undefined });
+    mockReadBody.mockResolvedValue({
+      token: "handoff.token",
+      verifier: APP_VERIFIER,
+    });
+    const { default: handler } =
+      await import("#server/api/auth/google/app-exchange.post");
+    await expect((handler as Function)(mockEvent())).rejects.toMatchObject({
+      statusCode: 401,
+    });
+  });
+
+  it("rejects a forged token", async () => {
+    const { verifyToken } = await import("#server/utils/jwt");
+    vi.mocked(verifyToken).mockRejectedValueOnce(new Error("bad signature"));
+    mockReadBody.mockResolvedValue({
+      token: "not.a.jwt",
+      verifier: APP_VERIFIER,
+    });
+    const { default: handler } =
+      await import("#server/api/auth/google/app-exchange.post");
+    await expect((handler as Function)(mockEvent())).rejects.toMatchObject({
+      statusCode: 401,
+    });
   });
 });

@@ -16,6 +16,11 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export const appHandoffSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+  verifier: z.string().regex(/^[A-Za-z0-9_-]{43,128}$/, "Invalid verifier"),
+});
+
 export const registerSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   email: z.string().email({ message: "Invalid email address" }),
