@@ -6,6 +6,11 @@ const config: CapacitorConfig = {
   appId: "com.heartshtone.app",
   appName: "Hearth",
   webDir: "dist",
+  plugins: {
+    SystemBars: {
+      initialViewportFitValueHint: "cover",
+    },
+  },
   server: isDev
     ? {
         url: "http://localhost:3000",

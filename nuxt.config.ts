@@ -107,6 +107,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: "Hearthstone — Home Dashboard",
+      viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
       script: [
         {
           innerHTML: `(function(){var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=d?'dark':'light';})();`,

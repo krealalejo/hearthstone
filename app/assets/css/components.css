@@ -1509,7 +1509,8 @@
 .auth-form-wrap {
   display: grid;
   place-items: center;
-  padding: 40px;
+  padding: max(40px, env(safe-area-inset-top)) 40px
+    max(40px, env(safe-area-inset-bottom));
 }
 .auth-form {
   width: 100%;
@@ -1680,7 +1681,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 18px;
+    padding: calc(14px + env(safe-area-inset-top)) 18px 14px;
     border-bottom: 1px solid var(--hairline);
     background: color-mix(in oklab, var(--bg) 85%, transparent);
     backdrop-filter: blur(8px);
@@ -1708,7 +1709,7 @@
     display: none;
   }
   .page-content {
-    padding: 18px 16px 96px;
+    padding: 18px 16px calc(96px + env(safe-area-inset-bottom));
   }
 
   .tabbar {

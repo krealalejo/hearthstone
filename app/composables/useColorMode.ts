@@ -1,6 +1,7 @@
 import { ref, onMounted } from "vue";
 import { useTheme } from "vuetify";
 import { gsap } from "gsap";
+import { nativeBridge } from "~/utils/nativeBridge";
 
 const isDark = ref(false);
 
@@ -24,6 +25,9 @@ export function useColorMode() {
     if (import.meta.client) {
       document.documentElement.dataset.theme = dark ? "dark" : "light";
       localStorage.setItem("theme", dark ? "dark" : "light");
+      nativeBridge()
+        ?.Plugins.SystemBars.setStyle({ style: dark ? "DARK" : "LIGHT" })
+        .catch(() => undefined);
     }
   }
 
