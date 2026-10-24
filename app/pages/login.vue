@@ -176,6 +176,7 @@
               <a
                 href="/api/auth/google"
                 class="btn btn-ghost"
+                @click="onGoogleClick"
                 style="
                   width: 100%;
                   height: 46px;
@@ -306,6 +307,7 @@ import { ref, computed, onMounted } from "vue";
 import { z } from "zod";
 import { useAnimations } from "~/composables/useAnimations";
 import { useColorMode } from "~/composables/useColorMode";
+import { useNativeGoogleSignIn } from "~/composables/useNativeGoogleSignIn";
 import { gsap } from "gsap";
 
 definePageMeta({ layout: "auth" });
@@ -313,6 +315,13 @@ definePageMeta({ layout: "auth" });
 const { animateIn } = useAnimations();
 const { t } = useI18n();
 const { isDark, toggle } = useColorMode();
+const nativeGoogleSignIn = useNativeGoogleSignIn();
+
+function onGoogleClick(event: MouseEvent) {
+  if (!nativeGoogleSignIn.isNativeApp()) return;
+  event.preventDefault();
+  nativeGoogleSignIn.start();
+}
 
 const mode = ref<"login" | "signup">("login");
 const switchDir = ref<1 | -1>(1);

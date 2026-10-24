@@ -30,3 +30,14 @@ export async function verifyToken(token: string, jwtSecret: string) {
   const { payload } = await jwtVerify(token, getSecret(jwtSecret));
   return payload;
 }
+
+export async function signAppHandoffToken(
+  payload: Record<string, unknown>,
+  jwtSecret: string,
+): Promise<string> {
+  return new SignJWT({ ...payload, purpose: "app-handoff" })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("2m")
+    .sign(getSecret(jwtSecret));
+}

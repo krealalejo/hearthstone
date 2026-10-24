@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
     "/api/auth/refresh",
     "/api/auth/google",
     "/api/auth/google/callback",
+    "/api/auth/google/app-exchange",
     "/api/auth/forgot-password",
     "/api/auth/reset-password",
   ];

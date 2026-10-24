@@ -155,7 +155,8 @@ useSeoMeta({
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-ui);
-  padding: 48px 20px 80px;
+  padding: max(48px, env(safe-area-inset-top)) 20px
+    calc(80px + env(safe-area-inset-bottom));
   display: flex;
   justify-content: center;
 }

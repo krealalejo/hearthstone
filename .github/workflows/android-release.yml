@@ -1,0 +1,64 @@
+name: Android Release
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to build and publish (e.g. v1.0.1)
+        required: true
+permissions:
+  contents: write
+jobs:
+  apk:
+    name: Build and publish APK
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Prepare web dir
+        run: |
+          mkdir -p dist
+          printf '<!doctype html><html><head><meta charset="utf-8"></head><body></body></html>\n' > dist/index.html
+      - name: Sync Capacitor
+        run: pnpm exec cap sync android
+      - name: Configure signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+          {
+            echo "storeFile=$RUNNER_TEMP/upload.jks"
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyAlias=upload"
+            echo "keyPassword=$ANDROID_KEYSTORE_PASSWORD"
+          } > android/keystore.properties
+      - name: Build release APK
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon -PappVersionCode=${{ github.run_number }} -PappVersionName=${TAG#v}
+      - name: Publish to GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK="hearth-${TAG#v}.apk"
+          mv android/app/build/outputs/apk/release/app-release.apk "$APK"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" --clobber
+          else
+            gh release create "$TAG" "$APK" --title "Hearth ${TAG#v} for Android" --generate-notes
+          fi

@@ -1,9 +1,18 @@
-import { defineEventHandler, getRequestURL, sendRedirect, setCookie } from "h3";
+import {
+  defineEventHandler,
+  getQuery,
+  getRequestURL,
+  sendRedirect,
+  setCookie,
+} from "h3";
 import { randomBytes } from "node:crypto";
+import { isPkceValue } from "#server/utils/appAuth";
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
-  const state = randomBytes(16).toString("hex");
+  const { challenge } = getQuery(event);
+  const nonce = randomBytes(16).toString("hex");
+  const state = isPkceValue(challenge) ? `${nonce}.${challenge}` : nonce;
 
   setCookie(event, "oauth_state", state, {
     httpOnly: true,

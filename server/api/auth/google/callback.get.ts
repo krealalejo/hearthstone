@@ -11,7 +11,15 @@ import {
 import { User } from "#server/models/User";
 import { Household } from "#server/models/Household";
 import { PendingInvite } from "#server/models/PendingInvite";
-import { signAccessToken, signRefreshToken } from "#server/utils/jwt";
+import {
+  signAccessToken,
+  signAppHandoffToken,
+  signRefreshToken,
+} from "#server/utils/jwt";
+import {
+  APP_AUTH_CALLBACK_URL,
+  appChallengeFromState,
+} from "#server/utils/appAuth";
 
 interface GoogleUserInfo {
   sub: string;
@@ -113,6 +121,18 @@ export default defineEventHandler(async (event) => {
     householdId: user.householdId.toString(),
     role: user.role,
   };
+
+  const appChallenge = appChallengeFromState(state);
+  if (appChallenge) {
+    const handoffToken = await signAppHandoffToken(
+      { ...tokenPayload, challenge: appChallenge },
+      config.jwtSecret,
+    );
+    const appUrl = new URL(APP_AUTH_CALLBACK_URL);
+    appUrl.searchParams.set("token", handoffToken);
+    return sendRedirect(event, appUrl.toString());
+  }
+
   const accessToken = await signAccessToken(tokenPayload, config.jwtSecret);
   const refreshToken = await signRefreshToken(
     { sub: user._id.toString() },
