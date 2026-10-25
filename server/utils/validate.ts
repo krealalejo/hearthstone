@@ -62,6 +62,15 @@ export const shoppingSchema = z.object({
   checked: z.boolean().optional(),
 });
 
+export const todoSchema = z.object({
+  text: z.string().trim().min(1, "Text is required").max(300),
+  done: z.boolean().optional(),
+});
+
+export const todoPatchSchema = todoSchema.partial().extend({
+  id: z.string().min(1, "id required"),
+});
+
 export const householdPatchSchema = z
   .object({
     name: z.string().min(1).max(100).optional(),
