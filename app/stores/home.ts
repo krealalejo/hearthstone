@@ -8,6 +8,7 @@ import type {
   Task,
   InventoryItem,
   ShoppingItem,
+  TodoItem,
   HistoryEntry,
   Toast,
   Household,
@@ -19,6 +20,7 @@ export type {
   Task,
   InventoryItem,
   ShoppingItem,
+  TodoItem,
   HistoryEntry,
   Toast,
   Household,
@@ -47,10 +49,18 @@ function isTempId(id: string): boolean {
 }
 
 const pendingShopCreates = new Map<string, Promise<string>>();
+const pendingTodoCreates = new Map<string, Promise<string>>();
 
 async function resolveShopId(id: string): Promise<string | null> {
   if (!isTempId(id)) return id;
   const creation = pendingShopCreates.get(id);
+  if (!creation) return null;
+  return creation.catch(() => null);
+}
+
+async function resolveTodoId(id: string): Promise<string | null> {
+  if (!isTempId(id)) return id;
+  const creation = pendingTodoCreates.get(id);
   if (!creation) return null;
   return creation.catch(() => null);
 }
@@ -82,6 +92,7 @@ export const useHomeStore = defineStore("home", {
     tasks: [] as Task[],
     inventory: [] as InventoryItem[],
     shopping: [] as ShoppingItem[],
+    todos: [] as TodoItem[],
     history: [] as HistoryEntry[],
     toasts: [] as Toast[],
     flashShopId: null as string | null,
@@ -147,6 +158,7 @@ export const useHomeStore = defineStore("home", {
     pendingMembers: (s) => s.members.filter((m) => m.status === "pending"),
     lowCount: (s) => s.inventory.filter((i) => i.qty <= i.min).length,
     shopCount: (s) => s.shopping.filter((i) => !i.checked).length,
+    todoCount: (s) => s.todos.filter((i) => !i.done).length,
   },
 
   actions: {
@@ -197,6 +209,10 @@ export const useHomeStore = defineStore("home", {
 
     setShopping(items: ShoppingItem[]) {
       this.shopping = items;
+    },
+
+    setTodos(items: TodoItem[]) {
+      this.todos = items;
     },
 
     setHistory(entries: HistoryEntry[]) {
@@ -678,6 +694,101 @@ export const useHomeStore = defineStore("home", {
         this.shopping.splice(index, 0, removed!);
         await this._fail(err, t("toast.deleteFailed"));
       }
+    },
+
+    async addTodo(text: string) {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+      const temp = tempId();
+      this.todos.push({ id: temp, text: trimmed, done: false });
+      const item = this.todos[this.todos.length - 1]!;
+      const creation = api<TodoItem>("/api/todos", {
+        method: "POST",
+        body: { text: trimmed },
+      }).then((created) => {
+        item.id = created.id;
+        return created.id;
+      });
+      pendingTodoCreates.set(temp, creation);
+      try {
+        await creation;
+      } catch (err) {
+        this.todos = this.todos.filter((td) => td !== item);
+        await this._fail(err, t("toast.addTodoFailed"), t("toast.tryAgain"));
+      } finally {
+        pendingTodoCreates.delete(temp);
+      }
+    },
+
+    async _patchTodo(id: string, updates: Partial<TodoItem>) {
+      const realId = await resolveTodoId(id);
+      if (!realId) return;
+      await api("/api/todos", {
+        method: "PATCH",
+        body: { id: realId, ...updates },
+      });
+    },
+
+    async _deleteTodo(id: string) {
+      const realId = await resolveTodoId(id);
+      if (!realId) return;
+      await api("/api/todos", { method: "DELETE", body: { id: realId } });
+    },
+
+    async toggleTodo(id: string) {
+      const item = this.todos.find((td) => td.id === id);
+      if (!item) return;
+      const previous = item.done;
+      item.done = !previous;
+      try {
+        await this._patchTodo(id, { done: item.done });
+      } catch (err) {
+        item.done = previous;
+        await this._fail(err, t("toast.updateFailed"));
+      }
+    },
+
+    async renameTodo(id: string, text: string) {
+      const item = this.todos.find((td) => td.id === id);
+      if (!item) return;
+      const trimmed = text.trim();
+      const previous = item.text;
+      if (!trimmed || trimmed === previous) return;
+      item.text = trimmed;
+      try {
+        await this._patchTodo(id, { text: trimmed });
+      } catch (err) {
+        item.text = previous;
+        await this._fail(err, t("toast.updateFailed"));
+      }
+    },
+
+    async removeTodo(id: string) {
+      const index = this.todos.findIndex((td) => td.id === id);
+      if (index === -1) return;
+      const [removed] = this.todos.splice(index, 1);
+      try {
+        await this._deleteTodo(id);
+      } catch (err) {
+        this.todos.splice(index, 0, removed!);
+        await this._fail(err, t("toast.deleteFailed"));
+      }
+    },
+
+    async clearDoneTodos() {
+      const done = this.todos.filter((td) => td.done);
+      if (!done.length) return;
+      this.todos = this.todos.filter((td) => !td.done);
+      const results = await Promise.allSettled(
+        done.map((td) => this._deleteTodo(td.id)),
+      );
+      const failed = done.filter((_, i) => results[i]!.status === "rejected");
+      if (!failed.length) return;
+      this.todos.push(...failed);
+      const reason = results.find((r) => r.status === "rejected") as
+        | PromiseRejectedResult
+        | undefined;
+      await this._fail(reason?.reason, t("toast.deleteFailed"));
     },
 
     async checkout() {

@@ -125,6 +125,7 @@ const NAV = computed(() => [
   { id: "dashboard", label: t("nav.dashboard"), icon: "mdi-view-dashboard" },
   { id: "inventory", label: t("nav.inventory"), icon: "mdi-package-variant" },
   { id: "shopping", label: t("nav.shopping"), icon: "mdi-cart" },
+  { id: "todos", label: t("nav.todos"), icon: "mdi-checkbox-marked-outline" },
   {
     id: "history",
     label: t("nav.history"),
@@ -159,5 +160,6 @@ function onNavClick(nav: (typeof NAV.value)[number]) {
 const badges = computed<Record<string, number | undefined>>(() => ({
   inventory: store.lowCount || undefined,
   shopping: store.shopCount || undefined,
+  todos: store.todoCount || undefined,
 }));
 </script>

@@ -46,6 +46,12 @@ const NAV = computed(() => [
     iconFill: "mdi-cart",
   },
   {
+    id: "todos",
+    label: t("nav.todos"),
+    icon: "mdi-checkbox-marked-outline",
+    iconFill: "mdi-checkbox-marked",
+  },
+  {
     id: "history",
     label: t("nav.history"),
     icon: "mdi-receipt-text-outline",
@@ -69,5 +75,6 @@ function isActive(nav: (typeof NAV.value)[number]): boolean {
 const badges = computed<Record<string, number | undefined>>(() => ({
   inventory: store.lowCount || undefined,
   shopping: store.shopCount || undefined,
+  todos: store.todoCount || undefined,
 }));
 </script>

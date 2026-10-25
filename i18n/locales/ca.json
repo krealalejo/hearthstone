@@ -3,6 +3,7 @@
     "dashboard": "Inici",
     "inventory": "Inventari",
     "shopping": "Llista de la compra",
+    "todos": "Pendents",
     "history": "Historial",
     "household": "Llar",
     "purchases": "Compres",
@@ -14,6 +15,7 @@
     "dashSub": "Això és el que la teva llar necessita aquesta setmana",
     "inventorySub": "Controla l'estoc d'aliments, neteja i més",
     "shoppingSub": "S'omple automàticament quan hi ha poc estoc",
+    "todosSub": "Llista compartida de la llar",
     "histPurchasesSub": "Cada compra finalitzada",
     "histWeeksSub": "Tasques, compres i més per setmana",
     "householdSub": "Membres, invitacions i compartir",
@@ -104,6 +106,17 @@
     "estimatedTotal": "Total estimat",
     "finalize": "Finalitzar compra",
     "restockNote": "{n} article es reposarà al seu nivell òptim. | {n} articles es reposaran al seu nivell òptim."
+  },
+  "todos": {
+    "title": "Llista de pendents",
+    "progress": "{done} de {n} fet | {done} de {n} fets",
+    "addPlaceholder": "Afegeix un pendent…  (p. ex. trucar al lampista)",
+    "add": "Afegir",
+    "emptyTitle": "Res pendent",
+    "emptyBody": "Afegeix un pendent a dalt i marca’l quan estigui fet.",
+    "completed": "Completats",
+    "clearCompleted": "Esborra els completats",
+    "editHint": "Fes clic per editar"
   },
   "history": {
     "purchasesTab": "Compres",
@@ -256,7 +269,8 @@
     "restockBelowMin": "{name} és al mínim o per sota",
     "purchaseLogged": "Compra registrada",
     "purchaseItems": "{n} article | {n} articles",
-    "purchaseRestocked": "{n} reabastit | {n} reabastits"
+    "purchaseRestocked": "{n} reabastit | {n} reabastits",
+    "addTodoFailed": "No s’ha pogut afegir el pendent"
   },
   "badge": {
     "auto": "Auto",
@@ -274,7 +288,9 @@
     "close": "Tanca",
     "editHouseholdName": "Edita el nom de la llar",
     "memberActions": "Accions del membre",
-    "themeToggle": "Canvia el tema de color"
+    "themeToggle": "Canvia el tema de color",
+    "toggleTodo": "Marca el pendent",
+    "removeTodo": "Elimina el pendent"
   },
   "task": {
     "claim": "Reclama",

@@ -50,6 +50,7 @@ const TITLES = computed(() => ({
   dashboard: { h: "", s: t("topbar.dashSub") },
   inventory: { h: t("nav.inventory"), s: t("topbar.inventorySub") },
   shopping: { h: t("nav.shopping"), s: t("topbar.shoppingSub") },
+  todos: { h: t("nav.todos"), s: t("topbar.todosSub") },
   "history-purchases": {
     h: t("nav.purchases") + " " + t("nav.history"),
     s: t("topbar.histPurchasesSub"),

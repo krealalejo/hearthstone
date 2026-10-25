@@ -51,6 +51,12 @@ export interface ShoppingItem {
   checked: boolean;
 }
 
+export interface TodoItem {
+  id: string;
+  text: string;
+  done: boolean;
+}
+
 export interface HistoryEntry {
   id: string;
   date: string;

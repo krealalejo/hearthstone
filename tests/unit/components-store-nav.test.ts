@@ -117,10 +117,10 @@ describe("AppAvatar", () => {
 });
 
 describe("AppTabBar", () => {
-  it("renders 5 nav tabs", async () => {
+  it("renders 6 nav tabs", async () => {
     const { default: Component } = await import("~/components/AppTabBar.vue");
     const wrapper = await mountSuspended(Component);
-    expect(wrapper.findAll("button.tab")).toHaveLength(5);
+    expect(wrapper.findAll("button.tab")).toHaveLength(6);
   });
 
   it("shows inventory badge when lowCount > 0", async () => {

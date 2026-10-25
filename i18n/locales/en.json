@@ -3,6 +3,7 @@
     "dashboard": "Dashboard",
     "inventory": "Inventory",
     "shopping": "Shopping List",
+    "todos": "To-dos",
     "history": "History",
     "household": "Household",
     "purchases": "Purchases",
@@ -14,6 +15,7 @@
     "dashSub": "Here's what your home needs this week",
     "inventorySub": "Track stock across food, cleaning & more",
     "shoppingSub": "Auto-filled when stock runs low",
+    "todosSub": "Shared checklist for the household",
     "histPurchasesSub": "Every finalized shopping trip",
     "histWeeksSub": "Tasks, purchases & more by week",
     "householdSub": "Members, invites & sharing",
@@ -104,6 +106,17 @@
     "estimatedTotal": "Estimated total",
     "finalize": "Finalize purchase",
     "restockNote": "{n} item will be replenished to their optimal stock level. | {n} items will be replenished to their optimal stock level."
+  },
+  "todos": {
+    "title": "To-do list",
+    "progress": "{done} of {n} done | {done} of {n} done",
+    "addPlaceholder": "Add a to-do…  (e.g. call the plumber)",
+    "add": "Add",
+    "emptyTitle": "Nothing to do",
+    "emptyBody": "Add a to-do above and check it off when it’s done.",
+    "completed": "Completed",
+    "clearCompleted": "Clear completed",
+    "editHint": "Click to edit"
   },
   "history": {
     "purchasesTab": "Purchases",
@@ -256,7 +269,8 @@
     "restockBelowMin": "{name} is at or below its minimum",
     "purchaseLogged": "Purchase logged",
     "purchaseItems": "{n} item | {n} items",
-    "purchaseRestocked": "{n} restocked"
+    "purchaseRestocked": "{n} restocked",
+    "addTodoFailed": "Failed to add to-do"
   },
   "badge": {
     "auto": "Auto",
@@ -274,7 +288,9 @@
     "close": "Close",
     "editHouseholdName": "Edit household name",
     "memberActions": "Member actions",
-    "themeToggle": "Toggle colour theme"
+    "themeToggle": "Toggle colour theme",
+    "toggleTodo": "Toggle to-do",
+    "removeTodo": "Remove to-do"
   },
   "task": {
     "claim": "Claim",

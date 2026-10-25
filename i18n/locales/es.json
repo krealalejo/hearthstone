@@ -3,6 +3,7 @@
     "dashboard": "Inicio",
     "inventory": "Inventario",
     "shopping": "Lista de compra",
+    "todos": "Pendientes",
     "history": "Historial",
     "household": "Hogar",
     "purchases": "Compras",
@@ -14,6 +15,7 @@
     "dashSub": "Esto es lo que tu hogar necesita esta semana",
     "inventorySub": "Controla el stock de comida, limpieza y más",
     "shoppingSub": "Se rellena automáticamente cuando hay poco stock",
+    "todosSub": "Lista compartida del hogar",
     "histPurchasesSub": "Cada compra finalizada",
     "histWeeksSub": "Tareas, compras y más por semana",
     "householdSub": "Miembros, invitaciones y compartir",
@@ -104,6 +106,17 @@
     "estimatedTotal": "Total estimado",
     "finalize": "Finalizar compra",
     "restockNote": "{n} artículo se repondrá a su nivel óptimo. | {n} artículos se repondrán a su nivel óptimo."
+  },
+  "todos": {
+    "title": "Lista de pendientes",
+    "progress": "{done} de {n} hecho | {done} de {n} hechos",
+    "addPlaceholder": "Añade un pendiente…  (p. ej. llamar al fontanero)",
+    "add": "Añadir",
+    "emptyTitle": "Nada pendiente",
+    "emptyBody": "Añade un pendiente arriba y márcalo cuando esté hecho.",
+    "completed": "Completados",
+    "clearCompleted": "Borrar completados",
+    "editHint": "Haz clic para editar"
   },
   "history": {
     "purchasesTab": "Compras",
@@ -256,7 +269,8 @@
     "restockBelowMin": "{name} está en su mínimo o por debajo",
     "purchaseLogged": "Compra registrada",
     "purchaseItems": "{n} artículo | {n} artículos",
-    "purchaseRestocked": "{n} reabastecido | {n} reabastecidos"
+    "purchaseRestocked": "{n} reabastecido | {n} reabastecidos",
+    "addTodoFailed": "No se pudo añadir el pendiente"
   },
   "badge": {
     "auto": "Auto",
@@ -274,7 +288,9 @@
     "close": "Cerrar",
     "editHouseholdName": "Editar nombre del hogar",
     "memberActions": "Acciones del miembro",
-    "themeToggle": "Cambiar el tema de color"
+    "themeToggle": "Cambiar el tema de color",
+    "toggleTodo": "Marcar pendiente",
+    "removeTodo": "Eliminar pendiente"
   },
   "task": {
     "claim": "Reclamar",
