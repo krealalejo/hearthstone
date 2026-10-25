@@ -298,6 +298,13 @@
   box-shadow: var(--shadow-md);
   filter: brightness(1.04);
 }
+.bg-primary:not(.v-btn--disabled) {
+  background-color: var(--accent);
+  color: var(--on-accent);
+}
+.text-primary {
+  color: var(--accent);
+}
 .btn-ghost {
   background: transparent;
   border-color: var(--hairline);
