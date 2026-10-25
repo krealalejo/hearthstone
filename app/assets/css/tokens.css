@@ -55,32 +55,32 @@
 
 /* ── Dark theme ── */
 [data-theme="dark"] {
-  --bg: #1a1713;
-  --bg-2: #14110e;
-  --surface: #24201b;
-  --surface-2: #2f2b25;
-  --ink: #f6f5f2;
-  --ink-2: #cdcac5;
-  --ink-3: #98958e;
-  --hairline: #3b3732;
-  --hairline-2: #33302b;
+  --bg: #0b0b0c;
+  --bg-2: #070708;
+  --surface: #151517;
+  --surface-2: #1d1d20;
+  --ink: #f4f4f5;
+  --ink-2: #c4c4c8;
+  --ink-3: #8b8b92;
+  --hairline: #2a2a2e;
+  --hairline-2: #222225;
 
   --accent: #3ca8e5;
   --accent-soft: #00375b;
   --accent-soft-2: #004e79;
   --accent-ink: #75cfff;
-  --on-accent: #14110d;
+  --on-accent: #0b0b0c;
 }
 
 /* Override Vuetify's SSR-baked light theme vars when dark is detected before hydration */
 [data-theme="dark"] .v-theme--light {
-  --v-theme-background: 46 41 37;
+  --v-theme-background: 11 11 12;
   --v-theme-on-background: 255 255 255;
-  --v-theme-surface: 58 52 46;
+  --v-theme-surface: 21 21 23;
   --v-theme-on-surface: 255 255 255;
-  --v-theme-surface-bright: 72 65 57;
-  --v-theme-surface-light: 46 41 37;
-  --v-theme-surface-variant: 72 65 57;
+  --v-theme-surface-bright: 29 29 32;
+  --v-theme-surface-light: 21 21 23;
+  --v-theme-surface-variant: 29 29 32;
   --v-theme-on-surface-variant: 255 255 255;
   --v-theme-primary: 126 196 160;
   --v-theme-on-primary: 0 0 0;

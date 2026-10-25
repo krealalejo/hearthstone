@@ -5,7 +5,7 @@ import { nativeBridge } from "~/utils/nativeBridge";
 
 const isDark = ref(false);
 
-const DARK_BG = "#14110e";
+const DARK_BG = "#070708";
 const LIGHT_BG = "#f9f6f1";
 
 function scheduleThemeSwapRemoval() {
