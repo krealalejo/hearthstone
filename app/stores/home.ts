@@ -796,8 +796,7 @@ export const useHomeStore = defineStore("home", {
       if (!checked.length) return;
       const restockedItems: InventoryItem[] = [];
       this.inventory.forEach((i) => {
-        const hit = checked.find((sh) => sh.invId === i.id);
-        if (hit) {
+        if (checked.some((sh) => sh.invId === i.id)) {
           i.qty = i.optimal;
           restockedItems.push(i);
         }
