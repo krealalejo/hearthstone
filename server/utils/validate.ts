@@ -12,7 +12,7 @@ const passwordSchema = z
   });
 
 export const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
+  email: z.email({ error: "Invalid email address" }),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -23,12 +23,12 @@ export const appHandoffSchema = z.object({
 
 export const registerSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
-  email: z.string().email({ message: "Invalid email address" }),
+  email: z.email({ error: "Invalid email address" }),
   password: passwordSchema,
 });
 
 export const memberInviteSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
+  email: z.email({ error: "Invalid email address" }),
   role: z.enum(["admin", "member"]).optional().default("member"),
 });
 
@@ -89,7 +89,7 @@ export const householdPatchSchema = z
     { message: "At least one field required" },
   );
 
-export function validate<T>(schema: z.ZodSchema<T>, body: unknown): T {
+export function validate<T>(schema: z.ZodType<T>, body: unknown): T {
   const result = schema.safeParse(body);
   if (!result.success) {
     const message = result.error.issues[0]?.message ?? "Validation failed";
