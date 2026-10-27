@@ -20,7 +20,6 @@
           id="task-title"
           v-model="form.title"
           :placeholder="$t('taskModal.titlePlaceholder')"
-          autofocus
         />
       </div>
       <div class="field">

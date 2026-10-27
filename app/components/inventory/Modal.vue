@@ -61,7 +61,7 @@
           />
         </div>
         <div class="field">
-          <div class="label">
+          <div id="inv-price-label" class="label">
             {{ $t("inventoryModal.fieldPrice") }}
             <span style="color: var(--ink-3); font-weight: 400"
               >· {{ $t("common.optional") }}</span
@@ -73,6 +73,7 @@
             </span>
             <input
               id="inv-price"
+              aria-labelledby="inv-price-label"
               v-model="form.price"
               class="price-input"
               type="number"

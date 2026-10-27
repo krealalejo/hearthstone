@@ -27,7 +27,6 @@
             v-model="email"
             type="email"
             :placeholder="$t('household.invitePlaceholder')"
-            autofocus
             @keydown.enter="submit"
           />
         </div>

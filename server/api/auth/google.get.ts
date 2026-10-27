@@ -8,7 +8,7 @@ import {
 import { randomBytes } from "node:crypto";
 import { isPkceValue } from "#server/utils/appAuth";
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event);
   const { challenge } = getQuery(event);
   const nonce = randomBytes(16).toString("hex");

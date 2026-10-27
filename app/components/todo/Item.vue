@@ -10,9 +10,11 @@
     </button>
     <input
       v-if="editing"
+      :id="`todo-edit-${item.id}`"
       ref="input"
       v-model="draft"
       class="todo-edit"
+      :aria-label="t('a11y.editTodo')"
       maxlength="300"
       @keydown.enter="commit"
       @keydown.esc="cancel"
