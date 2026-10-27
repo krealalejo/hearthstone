@@ -95,7 +95,7 @@ describe("home store", () => {
     if (!shopItem) return;
     store.toggleShop(shopItem.id);
     store.checkout();
-    expect(store.history.length).toBe(beforeLen + 1);
+    expect(store.history).toHaveLength(beforeLen + 1);
   });
 
   it("checkout removes checked items from shopping list", () => {
@@ -133,7 +133,7 @@ describe("home store", () => {
     const store = useHomeStore();
     const before = store.shopping.length;
     await store.addManualShop("Test item");
-    expect(store.shopping.length).toBe(before + 1);
+    expect(store.shopping).toHaveLength(before + 1);
     expect(store.shopping.at(-1)?.name).toBe("Test item");
     expect(store.shopping.at(-1)?.source).toBe("manual");
   });
@@ -142,7 +142,7 @@ describe("home store", () => {
     const store = useHomeStore();
     const before = store.members.length;
     await store.invite("new@example.com");
-    expect(store.members.length).toBe(before + 1);
+    expect(store.members).toHaveLength(before + 1);
     expect(store.members.at(-1)?.status).toBe("pending");
   });
 });

@@ -794,29 +794,16 @@ describe("household/InviteDialog", () => {
 });
 
 describe("default layout", () => {
-  it("renders app shell with slot", async () => {
-    const { default: Component } = await import("~/layouts/default.vue");
-    const wrapper = await mount(Component, {
-      slots: { default: "<div class='page-slot'>content</div>" },
-    });
-    expect(wrapper.find(".app-shell").exists()).toBe(true);
-  });
-
-  it("shows mobile top bar", async () => {
-    const { default: Component } = await import("~/layouts/default.vue");
-    const wrapper = await mount(Component, {
-      slots: { default: "<div />" },
-    });
-    expect(wrapper.find(".mobile-top").exists()).toBe(true);
-  });
-
-  it("renders mobileTitle element", async () => {
-    const { default: Component } = await import("~/layouts/default.vue");
-    const wrapper = await mount(Component, {
-      slots: { default: "<div />" },
-    });
-    expect(wrapper.find(".mt-title").exists()).toBe(true);
-  });
+  it.each([".app-shell", ".mobile-top", ".mt-title"])(
+    "renders %s",
+    async (selector) => {
+      const { default: Component } = await import("~/layouts/default.vue");
+      const wrapper = await mount(Component, {
+        slots: { default: "<div class='page-slot'>content</div>" },
+      });
+      expect(wrapper.find(selector).exists()).toBe(true);
+    },
+  );
 
   it("toggles dark mode when button clicked", async () => {
     const { default: Component } = await import("~/layouts/default.vue");

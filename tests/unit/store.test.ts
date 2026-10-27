@@ -117,27 +117,14 @@ describe("home store — API-backed (no seed / no localStorage)", () => {
   });
 
 
-  it("home.ts source does not contain 'seed('", () => {
-    const src = readFileSync(
-      resolve(process.cwd(), "app/stores/home.ts"),
-      "utf-8",
-    );
-    expect(src).not.toContain("seed(");
-  });
-
-  it("home.ts source does not contain 'quiethome.v2'", () => {
-    const src = readFileSync(
-      resolve(process.cwd(), "app/stores/home.ts"),
-      "utf-8",
-    );
-    expect(src).not.toContain("quiethome.v2");
-  });
-
-  it("home.ts source does not contain 'localStorage'", () => {
-    const src = readFileSync(
-      resolve(process.cwd(), "app/stores/home.ts"),
-      "utf-8",
-    );
-    expect(src).not.toContain("localStorage");
-  });
+  it.each(["seed(", "quiethome.v2", "localStorage"])(
+    "home.ts source does not contain '%s'",
+    (forbidden) => {
+      const src = readFileSync(
+        resolve(process.cwd(), "app/stores/home.ts"),
+        "utf-8",
+      );
+      expect(src).not.toContain(forbidden);
+    },
+  );
 });
