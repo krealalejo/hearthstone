@@ -1,5 +1,6 @@
-import { signAccessToken, signRefreshToken, verifyToken } from "#server/utils/jwt";
+import { verifyToken } from "#server/utils/jwt";
 import { pkceChallengeFor } from "#server/utils/appAuth";
+import { startSession } from "#server/utils/authSession";
 import { appHandoffSchema, validate } from "#server/utils/validate";
 
 export default defineEventHandler(async (event) => {
@@ -17,35 +18,15 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: "Handoff invalid" });
   }
 
-  const userId = handoff.sub as string;
-  const accessToken = await signAccessToken(
+  await startSession(
+    event,
     {
-      sub: userId,
+      sub: handoff.sub as string,
       householdId: handoff.householdId,
       role: handoff.role,
     },
     config.jwtSecret,
   );
-  const refreshToken = await signRefreshToken(
-    { sub: userId },
-    config.jwtSecret,
-  );
-
-  const isProd = process.env.NODE_ENV === "production";
-  setCookie(event, "access_token", accessToken, {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 3600,
-  });
-  setCookie(event, "refresh_token", refreshToken, {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 2592000,
-  });
 
   return { ok: true };
 });

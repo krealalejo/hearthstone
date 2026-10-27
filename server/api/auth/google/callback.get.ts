@@ -5,17 +5,11 @@ import {
   getRequestURL,
   deleteCookie,
   sendRedirect,
-  setCookie,
   createError,
 } from "h3";
 import { User } from "#server/models/User";
-import { Household } from "#server/models/Household";
-import { PendingInvite } from "#server/models/PendingInvite";
-import {
-  signAccessToken,
-  signAppHandoffToken,
-  signRefreshToken,
-} from "#server/utils/jwt";
+import { signAppHandoffToken } from "#server/utils/jwt";
+import { joinOrCreateHousehold, startSession } from "#server/utils/authSession";
 import {
   APP_AUTH_CALLBACK_URL,
   appChallengeFromState,
@@ -84,25 +78,10 @@ export default defineEventHandler(async (event) => {
       await user.save();
     }
   } else {
-    let householdId: string;
-    let role: "admin" | "member";
-
-    const pendingInvite = await PendingInvite.findOne({
-      email: profile.email.toLowerCase(),
-    });
-
-    if (pendingInvite) {
-      householdId = pendingInvite.householdId.toString();
-      role = pendingInvite.role;
-      await PendingInvite.deleteOne({ _id: pendingInvite._id });
-    } else {
-      const household = await Household.create({
-        name: `${profile.name.split(" ")[0]}'s Home`,
-        emoji: "mdi-home",
-      });
-      householdId = household._id.toString();
-      role = "admin";
-    }
+    const { householdId, role } = await joinOrCreateHousehold(
+      profile.email,
+      profile.name,
+    );
 
     user = await User.create({
       name: profile.name,
@@ -133,27 +112,7 @@ export default defineEventHandler(async (event) => {
     return sendRedirect(event, appUrl.toString());
   }
 
-  const accessToken = await signAccessToken(tokenPayload, config.jwtSecret);
-  const refreshToken = await signRefreshToken(
-    { sub: user._id.toString() },
-    config.jwtSecret,
-  );
-
-  const isProd = process.env.NODE_ENV === "production";
-  setCookie(event, "access_token", accessToken, {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 3600,
-  });
-  setCookie(event, "refresh_token", refreshToken, {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 2592000,
-  });
+  await startSession(event, tokenPayload, config.jwtSecret);
 
   return sendRedirect(event, "/dashboard");
 });

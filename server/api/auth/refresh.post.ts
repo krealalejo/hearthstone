@@ -1,5 +1,6 @@
 import { User } from "#server/models/User";
 import { verifyToken, signAccessToken } from "#server/utils/jwt";
+import { setAccessTokenCookie } from "#server/utils/authSession";
 
 export default defineEventHandler(async (event) => {
   const token = getCookie(event, "refresh_token");
@@ -29,14 +30,7 @@ export default defineEventHandler(async (event) => {
     config.jwtSecret,
   );
 
-  const isProd = process.env.NODE_ENV === "production";
-  setCookie(event, "access_token", accessToken, {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 3600,
-  });
+  setAccessTokenCookie(event, accessToken);
 
   return { ok: true };
 });
