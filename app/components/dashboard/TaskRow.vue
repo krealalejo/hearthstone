@@ -8,16 +8,21 @@
     >
       <v-icon v-if="task.done" style="font-size: 15px">mdi-check-bold</v-icon>
     </button>
-    <div class="task-body" style="cursor: pointer" @click="emit('edit')">
-      <div class="task-title">{{ task.title }}</div>
-      <div v-if="task.desc || task.recurring" class="task-desc">
+    <button
+      type="button"
+      class="plain-button task-body"
+      style="cursor: pointer"
+      @click="emit('edit')"
+    >
+      <span class="task-title">{{ task.title }}</span>
+      <span v-if="task.desc || task.recurring" class="task-desc">
         <span v-if="task.recurring"
           ><v-icon style="font-size: 11px">mdi-sync</v-icon> {{ t("task.weekly") }}</span
         >
         <span v-if="task.recurring && task.desc"> · </span>
         {{ task.desc }}
-      </div>
-    </div>
+      </span>
+    </button>
     <div class="task-side">
       <span v-if="gameLevel !== 'subtle'" class="chip chip-xp">
         <v-icon style="font-size: 13px">mdi-diamond-stone</v-icon>{{ task.xp }}

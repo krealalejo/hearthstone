@@ -291,7 +291,8 @@
     "themeToggle": "Cambiar el tema de color",
     "toggleTodo": "Marcar pendiente",
     "removeTodo": "Eliminar pendiente",
-    "editTodo": "Editar pendiente"
+    "editTodo": "Editar pendiente",
+    "editPrice": "Editar precio"
   },
   "task": {
     "claim": "Reclamar",

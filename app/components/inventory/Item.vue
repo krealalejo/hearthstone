@@ -13,21 +13,26 @@
     >
       <v-icon style="font-size: 20px">{{ item.icon }}</v-icon>
     </span>
-    <div class="inv-body" style="cursor: pointer" @click="emit('edit')">
-      <div class="inv-name">
+    <button
+      type="button"
+      class="plain-button inv-body"
+      style="cursor: pointer"
+      @click="emit('edit')"
+    >
+      <span class="inv-name">
         {{ item.name }}
         <span v-if="low" class="low-tag">{{ t("badge.low") }}</span>
-      </div>
-      <div class="inv-meta">min {{ item.min }} · {{ money(item.price) }}</div>
-      <div class="inv-thresh">
+      </span>
+      <span class="inv-meta">min {{ item.min }} · {{ money(item.price) }}</span>
+      <span class="inv-thresh">
         <ProgressBar
           :value="item.qty"
           :max="barMax"
           :min-mark="item.min"
           :color="low ? '#dc7b40' : 'var(--accent)'"
         />
-      </div>
-    </div>
+      </span>
+    </button>
     <QuantityStepper
       :value="item.qty"
       @change="store.setInvQty(item.id, $event)"

@@ -345,14 +345,19 @@ async function handleLogout() {
   border-radius: 50%;
   border: 2.5px solid transparent;
   cursor: pointer;
-  transition:
-    transform 0.12s,
-    border-color 0.15s;
+  transition: border-color 0.15s;
   outline: none;
   padding: 0;
 }
 .color-swatch:hover {
   transform: scale(1.12);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .color-swatch {
+    transition:
+      transform 0.12s,
+      border-color 0.15s;
+  }
 }
 .color-swatch.on {
   border-color: var(--ink);

@@ -291,7 +291,8 @@
     "themeToggle": "Toggle colour theme",
     "toggleTodo": "Toggle to-do",
     "removeTodo": "Remove to-do",
-    "editTodo": "Edit to-do"
+    "editTodo": "Edit to-do",
+    "editPrice": "Edit price"
   },
   "task": {
     "claim": "Claim",

@@ -116,44 +116,18 @@ describe("AppToastHost", () => {
     expect(store.toasts.some((t) => t.title === "Two")).toBe(false);
   });
 
-  it("renders xp icon for kind=xp", async () => {
+  it.each([
+    ["xp", "mdi-sparkles"],
+    ["restock", "mdi-auto-fix"],
+    ["check", "mdi-check-circle"],
+    ["info", "mdi-information"],
+    ["other", "mdi-bell"],
+  ])("renders the icon for kind=%s", async (kind, icon) => {
     const wrapper = await mount();
     const store = useHomeStore();
-    store._toast({ kind: "xp", title: "XP" });
+    store._toast({ kind, title: kind });
     await nextTick();
-    expect(wrapper.html()).toContain("mdi-sparkles");
-  });
-
-  it("renders auto-fix icon for kind=restock", async () => {
-    const wrapper = await mount();
-    const store = useHomeStore();
-    store._toast({ kind: "restock", title: "Restock" });
-    await nextTick();
-    expect(wrapper.html()).toContain("mdi-auto-fix");
-  });
-
-  it("renders check-circle icon for kind=check", async () => {
-    const wrapper = await mount();
-    const store = useHomeStore();
-    store._toast({ kind: "check", title: "Done" });
-    await nextTick();
-    expect(wrapper.html()).toContain("mdi-check-circle");
-  });
-
-  it("renders information icon for kind=info", async () => {
-    const wrapper = await mount();
-    const store = useHomeStore();
-    store._toast({ kind: "info", title: "Info" });
-    await nextTick();
-    expect(wrapper.html()).toContain("mdi-information");
-  });
-
-  it("renders bell icon for unknown kind", async () => {
-    const wrapper = await mount();
-    const store = useHomeStore();
-    store._toast({ kind: "other", title: "Other" });
-    await nextTick();
-    expect(wrapper.html()).toContain("mdi-bell");
+    expect(wrapper.html()).toContain(icon);
   });
 
   it("fires confetti when toast has celebrate=true", async () => {

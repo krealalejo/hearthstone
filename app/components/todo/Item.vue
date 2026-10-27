@@ -20,17 +20,15 @@
       @keydown.esc="cancel"
       @blur="commit"
     />
-    <div
+    <button
       v-else
-      class="todo-text"
-      role="button"
-      tabindex="0"
+      type="button"
+      class="plain-button todo-text"
       :title="t('todos.editHint')"
       @click="startEdit"
-      @keydown.enter="startEdit"
     >
       {{ item.text }}
-    </div>
+    </button>
     <button
       class="btn btn-ghost btn-icon btn-sm"
       style="border: 0"

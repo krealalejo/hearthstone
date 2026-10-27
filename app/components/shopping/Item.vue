@@ -24,8 +24,10 @@
         <span v-if="!editable" class="item-price">{{ money(item.price) }}</span>
         <span v-else class="price-editable">
           <input
+            :id="`shop-price-${item.id}`"
             class="item-price"
             type="text"
+            :aria-label="t('a11y.editPrice')"
             inputmode="decimal"
             v-model="localPrice"
             @focus="onFocus"

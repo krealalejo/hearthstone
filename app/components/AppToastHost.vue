@@ -1,11 +1,13 @@
 <template>
-  <div class="toast-wrap" role="status" aria-live="polite">
+  <output class="toast-wrap" aria-live="polite">
     <TransitionGroup name="toast">
-      <div
+      <component
+        :is="t.link ? 'button' : 'div'"
         v-for="t in store.toasts"
         :key="t.id"
+        :type="t.link ? 'button' : undefined"
         class="toast"
-        :class="{ clickable: !!t.link }"
+        :class="{ 'plain-button': !!t.link, clickable: !!t.link }"
         @click="t.link && handleLink(t.link)"
         @vue:mounted="onToastMounted"
       >
@@ -18,9 +20,9 @@
             · {{ t.body }}</span
           ></span
         >
-      </div>
+      </component>
     </TransitionGroup>
-  </div>
+  </output>
 </template>
 
 <script setup lang="ts">

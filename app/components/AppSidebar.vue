@@ -10,25 +10,31 @@
       </div>
     </div>
 
-    <div class="hh-switch" @click="router.push('/household')">
+    <button
+      type="button"
+      class="plain-button hh-switch"
+      @click="router.push('/household')"
+    >
       <v-icon style="color: var(--accent-ink); font-size: 17px"
         >mdi-home</v-icon
       >
-      <div style="flex: 1; min-width: 0">
-        <div class="hh-name">{{ store.household.name }}</div>
-        <div class="hh-count">
+      <span style="flex: 1; min-width: 0">
+        <span class="hh-name">{{ store.household.name }}</span>
+        <span class="hh-count">
           {{ store.activeMembers.length }} {{ $t("nav.members") }}
-        </div>
-      </div>
+        </span>
+      </span>
       <v-icon style="color: var(--ink-3); font-size: 15px"
         >mdi-unfold-more-horizontal</v-icon
       >
-    </div>
+    </button>
 
     <div class="nav-label">{{ $t("nav.menu") }}</div>
     <template v-for="nav in NAV" :key="nav.id">
-      <div
-        class="nav-item"
+      <button
+        type="button"
+        class="plain-button nav-item"
+        :aria-expanded="nav.children ? expandedId === nav.id : undefined"
         :class="{
           active: nav.children
             ? route.path.startsWith('/' + nav.id)
@@ -57,41 +63,40 @@
           }"
           >mdi-chevron-down</v-icon
         >
-      </div>
+      </button>
       <div v-if="nav.children && expandedId === nav.id" class="nav-children">
-        <div
+        <button
           v-for="child in nav.children"
           :key="child.id"
-          class="nav-sub"
+          type="button"
+          class="plain-button nav-sub"
           :class="{ active: route.name === child.id }"
           @click="router.push(child.path)"
         >
           {{ child.label }}
-        </div>
+        </button>
       </div>
     </template>
 
     <div class="sidebar-foot">
-      <div
-        class="me-card"
-        role="button"
-        tabindex="0"
+      <button
+        type="button"
+        class="plain-button me-card"
         :aria-label="$t('a11y.openProfile')"
         @click="emit('open-profile')"
-        @keydown.enter="emit('open-profile')"
       >
         <AppAvatar :member="store.me" size="md" />
-        <div style="flex: 1; min-width: 0">
-          <div class="me-name">{{ store.me.name }}</div>
-          <div class="me-role">
+        <span style="flex: 1; min-width: 0">
+          <span class="me-name">{{ store.me.name }}</span>
+          <span class="me-role">
             {{
               $t("household.level", { n: levelInfo(store.me.totalXp).level })
             }}
             · {{ store.me.totalXp.toLocaleString() }} XP
-          </div>
-        </div>
+          </span>
+        </span>
         <v-icon style="color: var(--ink-3); font-size: 18px">mdi-cog</v-icon>
-      </div>
+      </button>
     </div>
   </aside>
 </template>
