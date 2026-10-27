@@ -196,6 +196,7 @@ const AVATAR_IMAGES = [
 
 const AVATAR_DEFAULT_COLOR: Record<string, string> = {
   "pepe-mage.png": "#458554",
+  "arthas.png": DEFAULT_COLOR,
   "jaina.png": "#0096af",
   "paladin.png": "#ad721c",
   "kadghar.png": "#8668b6",
@@ -239,8 +240,12 @@ onBeforeUnmount(() => {
   if (!saved.value) store.applyAccentColor();
 });
 
+function accentFor(color: string): string {
+  return color === DEFAULT_COLOR ? "" : color;
+}
+
 function pickColor(value: string, event: MouseEvent) {
-  form.accentColor = value === DEFAULT_COLOR ? "" : value;
+  form.accentColor = accentFor(value);
   animateCheckToggle(event.currentTarget as Element, true);
 }
 
@@ -252,8 +257,9 @@ function pickInitials(event: MouseEvent) {
 function pickAvatar(filename: string, event: MouseEvent) {
   form.avatarImage = filename;
   form.avatarEmoji = "";
-  if (AVATAR_DEFAULT_COLOR[filename]) {
-    form.accentColor = AVATAR_DEFAULT_COLOR[filename];
+  const avatarColor = AVATAR_DEFAULT_COLOR[filename];
+  if (avatarColor) {
+    form.accentColor = accentFor(avatarColor);
   }
   animateCheckToggle(event.currentTarget as Element, true);
 }

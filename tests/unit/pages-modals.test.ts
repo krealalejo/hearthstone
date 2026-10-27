@@ -409,6 +409,20 @@ describe("ProfileModal", () => {
     expect(wrapper.html()).toBeTruthy();
   });
 
+  it("switches the accent colour and tints the button when Arthas is picked", async () => {
+    const { wrapper } = await mountProfileModal();
+    await wrapper.find(".color-swatch[title='Red']").trigger("click");
+    await nextTick();
+    expect(wrapper.find(".color-swatch.on").attributes("title")).toBe("Red");
+
+    const arthas = wrapper.find(".emoji-opt.img-opt[title='Arthas']");
+    await arthas.trigger("click");
+    await nextTick();
+
+    expect(wrapper.find(".color-swatch.on").attributes("title")).toBe("Default");
+    expect(arthas.attributes("style")).toContain("background");
+  });
+
   it("saves with empty name (early return branch)", async () => {
     const { default: Component } = await import("~/components/ProfileModal.vue");
     const wrapper = await mount(Component);
