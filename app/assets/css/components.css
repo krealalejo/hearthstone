@@ -1723,7 +1723,13 @@
   border: 1px solid var(--hairline);
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-lg);
-  overflow: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.qh-dialog.v-dialog > .v-overlay__content {
+  max-height: calc(
+    100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 32px
+  );
 }
 .modal-head {
   padding: 22px 24px 4px;
