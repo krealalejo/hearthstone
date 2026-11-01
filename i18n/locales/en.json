@@ -50,7 +50,11 @@
     "fieldAssign": "Assign to",
     "anyone": "Anyone",
     "fieldEffort": "Effort · {xp} XP",
-    "recurring": "Recurring weekly",
+    "repeat": "Repeat",
+    "every": "Every",
+    "unitDay": "day | days",
+    "unitWeek": "week | weeks",
+    "unitMonth": "month | months",
     "delete": "Delete",
     "cancel": "Cancel",
     "save": "Save changes",
@@ -297,7 +301,12 @@
   },
   "task": {
     "claim": "Claim",
-    "weekly": "weekly"
+    "weekly": "weekly",
+    "daily": "daily",
+    "monthly": "monthly",
+    "everyDays": "every {n} days",
+    "everyWeeks": "every {n} weeks",
+    "everyMonths": "every {n} months"
   },
   "reset": {
     "doneTitle": "Password updated",

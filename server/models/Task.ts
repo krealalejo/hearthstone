@@ -8,8 +8,11 @@ export interface ITask {
   assignee: string | null;
   xp: number;
   recurring: boolean;
+  repeatEvery: number;
+  repeatUnit: "day" | "week" | "month";
   done: boolean;
   doneBy: string | null;
+  doneAt: Date | null;
 }
 
 const TaskSchema = new Schema<ITask>(
@@ -26,8 +29,15 @@ const TaskSchema = new Schema<ITask>(
     assignee: { type: String, default: null },
     xp: { type: Number, default: 10 },
     recurring: { type: Boolean, default: false },
+    repeatEvery: { type: Number, default: 1, min: 1 },
+    repeatUnit: {
+      type: String,
+      enum: ["day", "week", "month"],
+      default: "week",
+    },
     done: { type: Boolean, default: false },
     doneBy: { type: String, default: null },
+    doneAt: { type: Date, default: null },
   },
   { timestamps: true, toJSON: { virtuals: true } },
 );

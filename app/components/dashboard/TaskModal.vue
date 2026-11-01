@@ -104,13 +104,38 @@
       </div>
       <v-switch
         v-model="form.recurring"
-        :label="$t('taskModal.recurring')"
+        :label="$t('taskModal.repeat')"
         prepend-icon="mdi-sync"
         color="primary"
         density="compact"
         hide-details
         style="align-self: center"
       />
+      <div v-if="form.recurring" class="repeat-row">
+        <span class="label">{{ $t("taskModal.every") }}</span>
+        <QuantityStepper
+          :value="form.repeatEvery"
+          :min="1"
+          :delay="0"
+          @change="form.repeatEvery = Math.min(365, $event)"
+        />
+        <v-btn-toggle
+          v-model="form.repeatUnit"
+          mandatory
+          density="compact"
+          variant="outlined"
+          rounded="sm"
+        >
+          <v-btn
+            v-for="unit in UNIT_OPTS"
+            :key="unit.id"
+            :value="unit.id"
+            size="small"
+          >
+            {{ $t(unit.labelKey, form.repeatEvery) }}
+          </v-btn>
+        </v-btn-toggle>
+      </div>
     </div>
     <div class="modal-foot">
       <v-btn
@@ -137,6 +162,7 @@
 import { reactive, computed } from "vue";
 import type { Task } from "~/stores/home";
 import { useHomeStore } from "~/stores/home";
+import type { RepeatUnit } from "~/utils/recurrence";
 
 const props = defineProps<{ task?: Task | null }>();
 const emit = defineEmits<{ close: []; saved: [] }>();
@@ -152,6 +178,12 @@ const XP_OPTS = computed(() => [
   { n: 50, l: t("taskModal.effortDeep") },
 ]);
 
+const UNIT_OPTS: { id: RepeatUnit; labelKey: string }[] = [
+  { id: "day", labelKey: "taskModal.unitDay" },
+  { id: "week", labelKey: "taskModal.unitWeek" },
+  { id: "month", labelKey: "taskModal.unitMonth" },
+];
+
 const form = reactive({
   title: props.task?.title ?? "",
   desc: props.task?.desc ?? "",
@@ -159,6 +191,8 @@ const form = reactive({
   assignee: props.task?.assignee ?? (null as string | null),
   xp: props.task?.xp ?? 10,
   recurring: props.task?.recurring ?? true,
+  repeatEvery: props.task?.repeatEvery ?? 1,
+  repeatUnit: props.task?.repeatUnit ?? ("week" as RepeatUnit),
 });
 
 function handleSave() {
@@ -171,6 +205,8 @@ function handleSave() {
     assignee: form.assignee,
     xp: form.xp,
     recurring: form.recurring,
+    repeatEvery: form.repeatEvery,
+    repeatUnit: form.repeatUnit,
   });
   emit("saved");
   emit("close");
@@ -181,3 +217,16 @@ function handleDelete() {
   emit("close");
 }
 </script>
+
+<style scoped>
+.repeat-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.repeat-row :deep(.stepper) {
+  margin: 0;
+}
+</style>

@@ -1,4 +1,5 @@
 import type { Category } from "~/utils/categories";
+import type { RepeatUnit } from "~/utils/recurrence";
 
 export interface Member {
   id: string;
@@ -28,8 +29,11 @@ export interface Task {
   assignee: string | null;
   xp: number;
   recurring: boolean;
+  repeatEvery?: number;
+  repeatUnit?: RepeatUnit;
   done: boolean;
   doneBy: string | null;
+  doneAt?: string | null;
 }
 
 export interface InventoryItem {

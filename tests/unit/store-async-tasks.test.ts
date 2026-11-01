@@ -245,7 +245,7 @@ describe("saveTask", () => {
     store.tasks = [baseTask()];
 
     await expect(
-      store.saveTask({ id: "t1", title: "Updated" })
+      store.saveTask({ id: "t1", title: "Updated" }),
     ).resolves.toBeUndefined();
   });
 
@@ -312,6 +312,129 @@ describe("resetWeek", () => {
   });
 });
 
+function daysAgo(n: number) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString();
+}
+
+function patchedIds() {
+  return vi
+    .mocked($fetch)
+    .mock.calls.filter(
+      ([url, opts]) =>
+        url === "/api/tasks" &&
+        (opts as { method?: string } | undefined)?.method === "PATCH",
+    )
+    .map(([, opts]) => (opts as { body: { id: string } }).body.id);
+}
+
+describe("recurrence", () => {
+  it("stamps doneAt when a task is completed and clears it when undone", async () => {
+    makeFetch({});
+    const store = useHomeStore();
+    store.tasks = [baseTask({ id: "t1", recurring: true })];
+    store.members = [baseMember()];
+    store.currentUserId = "u1";
+
+    await store.toggleTask("t1");
+    const doneAt = store.tasks[0]!.doneAt;
+    expect(doneAt).toBeTruthy();
+    expect($fetch).toHaveBeenCalledWith(
+      "/api/tasks",
+      expect.objectContaining({
+        body: expect.objectContaining({ id: "t1", doneAt }),
+      }),
+    );
+
+    await store.toggleTask("t1");
+    expect(store.tasks[0]!.doneAt).toBeNull();
+  });
+
+  it("restores doneAt when the toggle fails", async () => {
+    makeFetchFail();
+    const store = useHomeStore();
+    const previous = daysAgo(3);
+    store.tasks = [
+      baseTask({ id: "t1", recurring: true, done: true, doneAt: previous }),
+    ];
+
+    await store.toggleTask("t1");
+
+    expect(store.tasks[0]!.doneAt).toBe(previous);
+  });
+
+  it("resetWeek persists the restart of recurring tasks", async () => {
+    makeFetch({});
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
+    store.tasks = [
+      baseTask({ id: "legacy", recurring: true, done: true, doneBy: "u1" }),
+      baseTask({
+        id: "weekly",
+        recurring: true,
+        done: true,
+        doneAt: daysAgo(8),
+      }),
+    ];
+
+    await store.resetWeek();
+
+    expect(store.tasks.every((tk) => !tk.done)).toBe(true);
+    expect(patchedIds().sort()).toEqual(["legacy", "weekly"]);
+  });
+
+  it("resetWeek keeps a task that is not due yet", async () => {
+    makeFetch({});
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
+    store.tasks = [
+      baseTask({
+        id: "monthly",
+        recurring: true,
+        done: true,
+        doneAt: new Date().toISOString(),
+        repeatEvery: 2,
+        repeatUnit: "month",
+      }),
+    ];
+
+    await store.resetWeek();
+
+    expect(store.tasks[0]!.done).toBe(true);
+    expect(patchedIds()).toEqual([]);
+  });
+
+  it("resetDueTasks restarts only due tasks with a doneAt", async () => {
+    makeFetch({});
+    const store = useHomeStore();
+    store.tasks = [
+      baseTask({
+        id: "daily",
+        recurring: true,
+        done: true,
+        doneAt: daysAgo(1),
+        repeatUnit: "day",
+      }),
+      baseTask({
+        id: "fresh",
+        recurring: true,
+        done: true,
+        doneAt: new Date().toISOString(),
+        repeatUnit: "day",
+      }),
+      baseTask({ id: "legacy", recurring: true, done: true }),
+    ];
+
+    await store.resetDueTasks();
+
+    expect(store.tasks.find((tk) => tk.id === "daily")!.done).toBe(false);
+    expect(store.tasks.find((tk) => tk.id === "fresh")!.done).toBe(true);
+    expect(store.tasks.find((tk) => tk.id === "legacy")!.done).toBe(true);
+    expect(patchedIds()).toEqual(["daily"]);
+  });
+});
+
 describe("checkAutoReset", () => {
   it("sets lastResetWeek when unset", async () => {
     makeFetch({});
@@ -349,5 +472,25 @@ describe("checkAutoReset", () => {
     await store.checkAutoReset();
 
     expect(store.resetWeek).toHaveBeenCalled();
+  });
+
+  it("restarts due tasks mid-week", async () => {
+    makeFetch({});
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
+    store.household.lastResetWeek = store.weekKey;
+    store.tasks = [
+      baseTask({
+        id: "daily",
+        recurring: true,
+        done: true,
+        doneAt: daysAgo(2),
+        repeatUnit: "day",
+      }),
+    ];
+
+    await store.checkAutoReset();
+
+    expect(store.tasks[0]!.done).toBe(false);
   });
 });

@@ -46,8 +46,11 @@ export const taskSchema = z.object({
   assignee: z.string().nullable().optional(),
   xp: z.number().int().min(0).max(1000).optional(),
   recurring: z.boolean().optional(),
+  repeatEvery: z.number().int().min(1).max(365).optional(),
+  repeatUnit: z.enum(["day", "week", "month"]).optional(),
   done: z.boolean().optional(),
   doneBy: z.string().nullable().optional(),
+  doneAt: z.iso.datetime().nullable().optional(),
 });
 
 export const inventorySchema = z.object({

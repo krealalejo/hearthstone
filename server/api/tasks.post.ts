@@ -13,8 +13,11 @@ export default defineEventHandler(async (event) => {
     assignee: body.assignee,
     xp: body.xp,
     recurring: body.recurring,
+    repeatEvery: body.repeatEvery,
+    repeatUnit: body.repeatUnit,
     done: body.done,
     doneBy: body.doneBy,
+    doneAt: body.doneAt,
   });
   const doc = task.toJSON();
   return { ...doc, id: doc._id.toString() };

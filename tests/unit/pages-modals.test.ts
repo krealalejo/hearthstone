@@ -686,6 +686,46 @@ describe("dashboard/TaskModal", () => {
     }
   });
 
+  it("hides the interval picker when the task does not repeat", async () => {
+    const { default: Component } =
+      await import("~/components/dashboard/TaskModal.vue");
+    const wrapper = await mount(Component, {
+      props: { task: baseTask({ recurring: false }) },
+    });
+    expect(wrapper.find(".repeat-row").exists()).toBe(false);
+  });
+
+  it("saves a custom interval", async () => {
+    const { default: Component } =
+      await import("~/components/dashboard/TaskModal.vue");
+    const wrapper = await mount(Component, {
+      props: {
+        task: baseTask({ recurring: true, repeatEvery: 2, repeatUnit: "week" }),
+      },
+    });
+    const store = useHomeStore();
+    vi.spyOn(store, "saveTask").mockImplementation(vi.fn() as any);
+    const row = wrapper.find(".repeat-row");
+    expect(row.exists()).toBe(true);
+    await row.findAll(".stepper button").at(-1)!.trigger("click");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await row
+      .findAll("button")
+      .find((b) => b.text().includes("months"))!
+      .trigger("click");
+    await wrapper
+      .findAll("button")
+      .find((b) => b.text().includes("Save"))!
+      .trigger("click");
+    expect(store.saveTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recurring: true,
+        repeatEvery: 3,
+        repeatUnit: "month",
+      }),
+    );
+  });
+
   it("save button is disabled when title is empty", async () => {
     const { default: Component } =
       await import("~/components/dashboard/TaskModal.vue");

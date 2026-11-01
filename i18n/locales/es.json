@@ -50,7 +50,11 @@
     "fieldAssign": "Asignar a",
     "anyone": "Cualquiera",
     "fieldEffort": "Esfuerzo · {xp} XP",
-    "recurring": "Repetir semanalmente",
+    "repeat": "Repetir",
+    "every": "Cada",
+    "unitDay": "día | días",
+    "unitWeek": "semana | semanas",
+    "unitMonth": "mes | meses",
     "delete": "Eliminar",
     "cancel": "Cancelar",
     "save": "Guardar cambios",
@@ -297,7 +301,12 @@
   },
   "task": {
     "claim": "Reclamar",
-    "weekly": "semanal"
+    "weekly": "semanal",
+    "daily": "diaria",
+    "monthly": "mensual",
+    "everyDays": "cada {n} días",
+    "everyWeeks": "cada {n} semanas",
+    "everyMonths": "cada {n} meses"
   },
   "reset": {
     "doneTitle": "Contraseña actualizada",

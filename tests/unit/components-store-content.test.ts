@@ -157,6 +157,24 @@ describe("TaskRow", () => {
     expect(wrapper.text()).toContain("weekly");
   });
 
+  it.each([
+    [1, "day", "daily"],
+    [1, "month", "monthly"],
+    [3, "day", "every 3 days"],
+    [2, "week", "every 2 weeks"],
+    [6, "month", "every 6 months"],
+  ] as const)(
+    "labels a task repeating every %i %s as '%s'",
+    async (repeatEvery, repeatUnit, label) => {
+      const { default: Component } =
+        await import("~/components/dashboard/TaskRow.vue");
+      const wrapper = await mountSuspended(Component, {
+        props: { task: baseTask({ recurring: true, repeatEvery, repeatUnit }) },
+      });
+      expect(wrapper.text()).toContain(label);
+    },
+  );
+
   it("calls store.claimTask when Claim clicked", async () => {
     const { default: Component } =
       await import("~/components/dashboard/TaskRow.vue");

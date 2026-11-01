@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { money } from "~/utils/home";
 import { api, statusOf } from "~/utils/api";
 import { t, tc } from "~/utils/i18n";
+import { isRecurrenceDue } from "~/utils/recurrence";
 import type {
   Member,
   Room,
@@ -242,6 +243,7 @@ export const useHomeStore = defineStore("home", {
       if (!tk) return;
       const previousDone = tk.done;
       const previousDoneBy = tk.doneBy;
+      const previousDoneAt = tk.doneAt ?? null;
       const willDo = !tk.done;
       const who = tk.assignee ?? this.currentUserId;
       const member = this.members.find((m) => m.id === who);
@@ -267,10 +269,11 @@ export const useHomeStore = defineStore("home", {
       }
       tk.done = willDo;
       tk.doneBy = willDo ? who : null;
+      tk.doneAt = willDo ? new Date().toISOString() : null;
       try {
         await api("/api/tasks", {
           method: "PATCH",
-          body: { id, done: tk.done, doneBy: tk.doneBy },
+          body: { id, done: tk.done, doneBy: tk.doneBy, doneAt: tk.doneAt },
         });
         if (member) {
           await api("/api/members", {
@@ -281,6 +284,7 @@ export const useHomeStore = defineStore("home", {
       } catch (err) {
         tk.done = previousDone;
         tk.doneBy = previousDoneBy;
+        tk.doneAt = previousDoneAt;
         if (member && prevWeekXp !== undefined && prevTotalXp !== undefined) {
           member.weekXp = prevWeekXp;
           member.totalXp = prevTotalXp;
@@ -378,13 +382,42 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
+    _restartTasks(tasks: Task[]) {
+      tasks.forEach((tk) => {
+        tk.done = false;
+        tk.doneBy = null;
+        tk.doneAt = null;
+      });
+      return tasks.map((tk) =>
+        api("/api/tasks", {
+          method: "PATCH",
+          body: { id: tk.id, done: false, doneBy: null, doneAt: null },
+        }),
+      );
+    },
+
+    _dueTasks(includeUndated: boolean) {
+      const now = new Date();
+      const weekStartDay = this.household.weekStartDay ?? "monday";
+      return this.tasks.filter(
+        (tk) =>
+          tk.recurring &&
+          tk.done &&
+          ((includeUndated && !tk.doneAt) ||
+            isRecurrenceDue(tk, now, weekStartDay)),
+      );
+    },
+
+    async resetDueTasks() {
+      const due = this._dueTasks(false);
+      if (!due.length) return;
+      await Promise.allSettled(this._restartTasks(due));
+    },
+
     async resetWeek() {
       const toDelete = this.tasks.filter((tk) => !tk.recurring);
       this.tasks = this.tasks.filter((tk) => tk.recurring);
-      this.tasks.forEach((tk) => {
-        tk.done = false;
-        tk.doneBy = null;
-      });
+      const restarted = this._restartTasks(this._dueTasks(true));
       this.members.forEach((m) => {
         m.weekXp = 0;
       });
@@ -396,6 +429,7 @@ export const useHomeStore = defineStore("home", {
         body: t("toast.weekResetBody"),
       });
       await Promise.allSettled([
+        ...restarted,
         ...toDelete.map((tk) =>
           api("/api/tasks", { method: "DELETE", body: { id: tk.id } }),
         ),
@@ -414,11 +448,11 @@ export const useHomeStore = defineStore("home", {
           method: "PATCH",
           body: { lastResetWeek: current },
         });
+      } else if (this.household.lastResetWeek !== current) {
+        await this.resetWeek();
         return;
       }
-      if (this.household.lastResetWeek !== current) {
-        await this.resetWeek();
-      }
+      await this.resetDueTasks();
     },
 
     async setInvQty(id: string, qty: number) {

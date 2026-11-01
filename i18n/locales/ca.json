@@ -50,7 +50,11 @@
     "fieldAssign": "Assignar a",
     "anyone": "Qualsevol",
     "fieldEffort": "Esforç · {xp} XP",
-    "recurring": "Repetir setmanalment",
+    "repeat": "Repetir",
+    "every": "Cada",
+    "unitDay": "dia | dies",
+    "unitWeek": "setmana | setmanes",
+    "unitMonth": "mes | mesos",
     "delete": "Eliminar",
     "cancel": "Cancel·lar",
     "save": "Desar canvis",
@@ -297,7 +301,12 @@
   },
   "task": {
     "claim": "Reclama",
-    "weekly": "setmanal"
+    "weekly": "setmanal",
+    "daily": "diària",
+    "monthly": "mensual",
+    "everyDays": "cada {n} dies",
+    "everyWeeks": "cada {n} setmanes",
+    "everyMonths": "cada {n} mesos"
   },
   "reset": {
     "doneTitle": "Contrasenya actualitzada",
