@@ -42,12 +42,13 @@
           id="task-title"
           v-model="form.title"
           :maxlength="isTodo ? 300 : 200"
+          autofocus
           :placeholder="
             isTodo
               ? $t('todos.addPlaceholder')
               : $t('taskModal.titlePlaceholder')
           "
-          @keydown.enter="isTodo && handleSave()"
+          @keydown.enter="handleSave"
         />
       </div>
       <template v-if="!isTodo">
@@ -61,16 +62,18 @@
           <textarea
             id="task-desc"
             v-model="form.desc"
+            maxlength="500"
+            rows="2"
             :placeholder="$t('taskModal.descPlaceholder')"
           />
         </div>
-        <div class="field" style="align-items: center">
+        <div class="field">
           <div class="label">{{ $t("taskModal.fieldRoom") }}</div>
           <v-chip-group
             v-model="form.roomId"
             mandatory
             column
-            style="justify-content: center"
+            selected-class="chip-selected"
           >
             <v-chip
               v-for="r in store.rooms"
@@ -84,12 +87,12 @@
             </v-chip>
           </v-chip-group>
         </div>
-        <div class="field" style="align-items: center">
+        <div class="field">
           <div class="label">{{ $t("taskModal.fieldAssign") }}</div>
           <v-chip-group
             v-model="form.assignee"
             column
-            style="justify-content: center"
+            selected-class="chip-selected"
           >
             <v-chip :value="null" variant="outlined" size="small">
               <v-icon icon="mdi-account-group" size="14" start />
@@ -107,16 +110,16 @@
             </v-chip>
           </v-chip-group>
         </div>
-        <div class="field" style="align-items: center">
+        <div class="field">
           <div class="label">
             {{ $t("taskModal.fieldEffort", { xp: form.xp }) }}
           </div>
           <v-btn-toggle
             v-model="form.xp"
             mandatory
-            density="compact"
             variant="outlined"
             rounded="sm"
+            class="effort-toggle"
           >
             <v-btn
               v-for="opt in XP_OPTS"
@@ -131,39 +134,40 @@
             </v-btn>
           </v-btn-toggle>
         </div>
-        <v-switch
-          v-model="form.recurring"
-          :label="$t('taskModal.repeat')"
-          prepend-icon="mdi-sync"
-          color="primary"
-          density="compact"
-          hide-details
-          style="align-self: center"
-        />
-        <div v-if="form.recurring" class="repeat-row">
-          <span class="label">{{ $t("taskModal.every") }}</span>
-          <QuantityStepper
-            :value="form.repeatEvery"
-            :min="1"
-            :delay="0"
-            @change="form.repeatEvery = Math.min(365, $event)"
-          />
-          <v-btn-toggle
-            v-model="form.repeatUnit"
-            mandatory
+        <div class="repeat-box">
+          <v-switch
+            v-model="form.recurring"
+            :label="$t('taskModal.repeat')"
+            prepend-icon="mdi-sync"
+            color="primary"
             density="compact"
-            variant="outlined"
-            rounded="sm"
-          >
-            <v-btn
-              v-for="unit in UNIT_OPTS"
-              :key="unit.id"
-              :value="unit.id"
-              size="small"
+            hide-details
+          />
+          <div v-if="form.recurring" class="repeat-row">
+            <span class="label">{{ $t("taskModal.every") }}</span>
+            <QuantityStepper
+              :value="form.repeatEvery"
+              :min="1"
+              :delay="0"
+              @change="form.repeatEvery = Math.min(365, $event)"
+            />
+            <v-btn-toggle
+              v-model="form.repeatUnit"
+              mandatory
+              density="compact"
+              variant="outlined"
+              rounded="sm"
             >
-              {{ $t(unit.labelKey, form.repeatEvery) }}
-            </v-btn>
-          </v-btn-toggle>
+              <v-btn
+                v-for="unit in UNIT_OPTS"
+                :key="unit.id"
+                :value="unit.id"
+                size="small"
+              >
+                {{ $t(unit.labelKey, form.repeatEvery) }}
+              </v-btn>
+            </v-btn-toggle>
+          </div>
         </div>
       </template>
     </div>
@@ -270,13 +274,54 @@ function handleDelete() {
 
 <style scoped>
 .kind-switch {
-  align-self: center;
+  align-self: stretch;
+}
+.kind-switch :deep(.v-btn) {
+  flex: 1;
+}
+.label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.field :deep(.v-chip-group) {
+  padding: 0;
+}
+:deep(.chip-selected) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.effort-toggle {
+  display: flex;
+  width: 100%;
+  height: auto;
+}
+.effort-toggle :deep(.v-btn) {
+  flex: 1;
+  height: 48px;
+  min-width: 0;
+  padding: 0 4px;
+}
+.repeat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+.repeat-box :deep(.v-label) {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  opacity: 1;
 }
 .repeat-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
   gap: 10px;
 }
 .repeat-row :deep(.stepper) {
