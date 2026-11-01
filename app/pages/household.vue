@@ -1,22 +1,13 @@
 <template>
   <div class="content-inner" style="max-width: 760px">
-    <div
-      class="card"
-      style="
-        padding: 24px;
-        margin-bottom: 22px;
-        display: flex;
-        align-items: center;
-        gap: 18px;
-      "
-    >
+    <div class="card hh-card">
       <span
         class="brand-mark"
         style="width: 56px; height: 56px; font-size: 28px; border-radius: 16px"
       >
         <img src="/favicon.png" alt="Hearthstone" />
       </span>
-      <div style="flex: 1">
+      <div class="hh-card-info">
         <div
           v-if="editName"
           style="display: flex; gap: 8px; align-items: center"
@@ -32,8 +23,8 @@
             $t("household.save")
           }}</v-btn>
         </div>
-        <div v-else style="display: flex; align-items: center; gap: 10px">
-          <h2 style="font-family: var(--font-display); font-size: 26px">
+        <div v-else class="hh-card-title">
+          <h2 class="hh-card-name" :title="store.household.name">
             {{ store.household.name }}
           </h2>
           <v-btn
@@ -64,7 +55,12 @@
           }}
         </div>
       </div>
-      <v-btn v-if="isAdmin" color="primary" @click="inviteOpen = true">
+      <v-btn
+        v-if="isAdmin"
+        class="hh-card-invite"
+        color="primary"
+        @click="inviteOpen = true"
+      >
         <v-icon size="17" start>mdi-account-plus</v-icon
         >{{ $t("household.invite") }}
       </v-btn>
