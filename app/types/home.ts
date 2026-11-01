@@ -1,3 +1,6 @@
+import type { Category } from "~/utils/categories";
+import type { RepeatUnit } from "~/utils/recurrence";
+
 export interface Member {
   id: string;
   name: string;
@@ -26,14 +29,17 @@ export interface Task {
   assignee: string | null;
   xp: number;
   recurring: boolean;
+  repeatEvery?: number;
+  repeatUnit?: RepeatUnit;
   done: boolean;
   doneBy: string | null;
+  doneAt?: string | null;
 }
 
 export interface InventoryItem {
   id: string;
   name: string;
-  cat: "food" | "cleaning" | "misc";
+  cat: Category;
   qty: number;
   min: number;
   optimal: number;
@@ -49,6 +55,8 @@ export interface ShoppingItem {
   qty: number;
   price: number | null;
   checked: boolean;
+  cat?: Category | null;
+  note?: string;
 }
 
 export interface TodoItem {
@@ -80,4 +88,15 @@ export interface Household {
   lastResetWeek?: string;
   weekStartDay?: "monday" | "sunday";
   currency?: string;
+  restockSyncedAt?: string | null;
+  timezone?: string;
+  lastReminderWeek?: string;
+}
+
+export interface AppNotification {
+  id: string;
+  type: "week-reminder";
+  data: { mine: number; unassigned: number };
+  readAt: string | null;
+  createdAt: string;
 }

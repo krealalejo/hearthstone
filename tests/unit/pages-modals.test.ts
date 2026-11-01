@@ -172,7 +172,7 @@ describe("AppSidebar", () => {
     expect(wrapper.text()).toContain("2 members");
   });
 
-  it("shows inventory badge when lowCount > 0", async () => {
+  it("shows no inventory badge when stock is low", async () => {
     const { default: Component } = await import("~/components/AppSidebar.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
@@ -180,7 +180,18 @@ describe("AppSidebar", () => {
     store.members = [baseMember()];
     store.inventory = [{ ...baseInvItem(), qty: 0, min: 3 }];
     await nextTick();
-    expect(wrapper.find(".nav-badge").exists()).toBe(true);
+    expect(wrapper.find(".nav-badge").exists()).toBe(false);
+  });
+
+  it("shows todos badge for pending weekly tasks", async () => {
+    const { default: Component } = await import("~/components/AppSidebar.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.household = baseHousehold();
+    store.members = [baseMember()];
+    store.tasks = [baseTask({ done: false })];
+    await nextTick();
+    expect(wrapper.find(".nav-badge").text()).toBe("1");
   });
 
   it("emits open-profile when me-card clicked", async () => {
@@ -339,50 +350,62 @@ describe("ProfileModal", () => {
   });
 
   it("clicks Monday weekStartDay button (admin)", async () => {
-    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const { default: Component } =
+      await import("~/components/ProfileModal.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
     store.members = [baseMember({ id: "u1", role: "admin" as const })];
     store.household = baseHousehold();
     await nextTick();
-    const mondayBtn = wrapper.findAll("button").find((b) => b.text() === "Monday");
+    const mondayBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Monday");
     if (mondayBtn) await mondayBtn.trigger("click");
     expect(wrapper.html()).toBeTruthy();
   });
 
   it("clicks Sunday weekStartDay button (admin)", async () => {
-    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const { default: Component } =
+      await import("~/components/ProfileModal.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
     store.members = [baseMember({ id: "u1", role: "admin" as const })];
     store.household = baseHousehold();
     await nextTick();
-    const sundayBtn = wrapper.findAll("button").find((b) => b.text() === "Sunday");
+    const sundayBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Sunday");
     if (sundayBtn) await sundayBtn.trigger("click");
     expect(wrapper.html()).toBeTruthy();
   });
 
   it("clicks a locale button", async () => {
     const { wrapper } = await mountProfileModal();
-    const spanishBtn = wrapper.findAll("button").find((b) => b.text() === "Español");
+    const spanishBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Español");
     if (spanishBtn) await spanishBtn.trigger("click");
     expect(wrapper.html()).toBeTruthy();
   });
 
   it("clicks a currency button (admin)", async () => {
-    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const { default: Component } =
+      await import("~/components/ProfileModal.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
     store.members = [baseMember({ id: "u1", role: "admin" as const })];
     store.household = baseHousehold();
     await nextTick();
-    const euroBtn = wrapper.findAll(".currency-opt").find((b) => b.text() === "€");
+    const euroBtn = wrapper
+      .findAll(".currency-opt")
+      .find((b) => b.text() === "€");
     if (euroBtn) await euroBtn.trigger("click");
     expect(wrapper.html()).toBeTruthy();
   });
 
   it("initializes with undefined household weekStartDay/currency (covers ?? fallbacks)", async () => {
-    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const { default: Component } =
+      await import("~/components/ProfileModal.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
     store.currentUser = "u1";
@@ -419,18 +442,23 @@ describe("ProfileModal", () => {
     await arthas.trigger("click");
     await nextTick();
 
-    expect(wrapper.find(".color-swatch.on").attributes("title")).toBe("Default");
+    expect(wrapper.find(".color-swatch.on").attributes("title")).toBe(
+      "Default",
+    );
     expect(arthas.attributes("style")).toContain("background");
   });
 
   it("saves with empty name (early return branch)", async () => {
-    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const { default: Component } =
+      await import("~/components/ProfileModal.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
     vi.spyOn(store, "saveSettings").mockResolvedValue(undefined as any);
     const nameInput = wrapper.find("#profile-name");
     if (nameInput.exists()) await nameInput.setValue("");
-    const saveBtn = wrapper.findAll("button").find((b) => b.text().includes("Save"));
+    const saveBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text().includes("Save"));
     if (saveBtn) await saveBtn.trigger("click");
     await nextTick();
     expect(store.saveSettings).not.toHaveBeenCalled();
@@ -686,6 +714,125 @@ describe("dashboard/TaskModal", () => {
     }
   });
 
+  it("hides the interval picker when the task does not repeat", async () => {
+    const { default: Component } =
+      await import("~/components/dashboard/TaskModal.vue");
+    const wrapper = await mount(Component, {
+      props: { task: baseTask({ recurring: false }) },
+    });
+    expect(wrapper.find(".repeat-row").exists()).toBe(false);
+  });
+
+  it("saves a custom interval", async () => {
+    const { default: Component } =
+      await import("~/components/dashboard/TaskModal.vue");
+    const wrapper = await mount(Component, {
+      props: {
+        task: baseTask({ recurring: true, repeatEvery: 2, repeatUnit: "week" }),
+      },
+    });
+    const store = useHomeStore();
+    vi.spyOn(store, "saveTask").mockImplementation(vi.fn() as any);
+    const row = wrapper.find(".repeat-row");
+    expect(row.exists()).toBe(true);
+    await row.findAll(".stepper button").at(-1)!.trigger("click");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await row
+      .findAll("button")
+      .find((b) => b.text().includes("months"))!
+      .trigger("click");
+    await wrapper
+      .findAll("button")
+      .find((b) => b.text().includes("Save"))!
+      .trigger("click");
+    expect(store.saveTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        recurring: true,
+        repeatEvery: 3,
+        repeatUnit: "month",
+      }),
+    );
+  });
+
+  async function mountAddModal() {
+    const { default: Component } =
+      await import("~/components/dashboard/TaskModal.vue");
+    const wrapper = await mount(Component, {
+      props: { task: null, allowTodo: true },
+    });
+    const store = useHomeStore();
+    vi.spyOn(store, "addTodo").mockImplementation(vi.fn() as any);
+    vi.spyOn(store, "saveTask").mockImplementation(vi.fn() as any);
+    const kindButton = (label: string) =>
+      wrapper
+        .find(".kind-switch")
+        .findAll("button")
+        .find((b) => b.text().includes(label))!;
+    return { wrapper, store, kindButton };
+  }
+
+  it("starts on To-do with only the text field when to-dos are allowed", async () => {
+    const { wrapper } = await mountAddModal();
+    expect(wrapper.find("h2").text()).toBe("New to-do");
+    expect(wrapper.find(".kind-switch").exists()).toBe(true);
+    expect(wrapper.find("#task-desc").exists()).toBe(false);
+    expect(wrapper.find(".v-chip").exists()).toBe(false);
+  });
+
+  it("adds a to-do instead of a task", async () => {
+    const { wrapper, store } = await mountAddModal();
+    await wrapper.find("#task-title").setValue("Call the plumber");
+    await wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Add to-do")!
+      .trigger("click");
+    expect(store.addTodo).toHaveBeenCalledWith("Call the plumber");
+    expect(store.saveTask).not.toHaveBeenCalled();
+    expect(wrapper.emitted("close")).toBeTruthy();
+  });
+
+  it("adds a to-do with Enter", async () => {
+    const { wrapper, store } = await mountAddModal();
+    const input = wrapper.find("#task-title");
+    await input.setValue("Buy stamps");
+    await input.trigger("keydown", { key: "Enter" });
+    expect(store.addTodo).toHaveBeenCalledWith("Buy stamps");
+  });
+
+  it("switches to the full task form and creates a weekly task", async () => {
+    const { wrapper, store, kindButton } = await mountAddModal();
+    await kindButton("Weekly task").trigger("click");
+    expect(wrapper.find("h2").text()).toBe("New task");
+    expect(wrapper.find("#task-desc").exists()).toBe(true);
+    await wrapper.find("#task-title").setValue("Water plants");
+    await wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Add task")!
+      .trigger("click");
+    expect(store.saveTask).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "Water plants" }),
+    );
+    expect(store.addTodo).not.toHaveBeenCalled();
+  });
+
+  it("hides the kind switch when editing a task", async () => {
+    const { default: Component } =
+      await import("~/components/dashboard/TaskModal.vue");
+    const wrapper = await mount(Component, {
+      props: { task: baseTask(), allowTodo: true },
+    });
+    expect(wrapper.find(".kind-switch").exists()).toBe(false);
+    expect(wrapper.find("#task-desc").exists()).toBe(true);
+  });
+
+  it("hides the kind switch on Home", async () => {
+    const { default: Component } =
+      await import("~/components/dashboard/TaskModal.vue");
+    const wrapper = await mount(Component, { props: { task: null } });
+    expect(wrapper.find(".kind-switch").exists()).toBe(false);
+    expect(wrapper.find("h2").text()).toBe("New task");
+  });
+
   it("save button is disabled when title is empty", async () => {
     const { default: Component } =
       await import("~/components/dashboard/TaskModal.vue");
@@ -696,6 +843,83 @@ describe("dashboard/TaskModal", () => {
     if (saveBtn) {
       expect(saveBtn.attributes("disabled")).toBeDefined();
     }
+  });
+});
+
+describe("shopping/Modal", () => {
+  async function mountShopModal() {
+    const { default: Component } =
+      await import("~/components/shopping/Modal.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.household = baseHousehold();
+    store.inventory = [
+      baseInvItem({ id: "i7", name: "Shampoo", cat: "hygiene", price: 4.5 }),
+    ];
+    await nextTick();
+    vi.spyOn(store, "addShop").mockImplementation(vi.fn() as any);
+    return { wrapper, store };
+  }
+
+  function addButton(wrapper: Awaited<ReturnType<typeof mount>>) {
+    return wrapper.findAll("button").find((b) => b.text() === "Add item")!;
+  }
+
+  it("saves name, quantity, price, category and note", async () => {
+    const { wrapper, store } = await mountShopModal();
+    await wrapper.find("input[placeholder]").setValue("Candles");
+    await wrapper.findAll(".stepper button").at(-1)!.trigger("click");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await wrapper.find("#shop-price").setValue("3.2");
+    await wrapper
+      .findAll(".v-chip")
+      .find((c) => c.text().includes("Miscellaneous"))!
+      .trigger("click");
+    await wrapper.find("#shop-note").setValue("Birthday");
+    await addButton(wrapper).trigger("click");
+
+    expect(store.addShop).toHaveBeenCalledWith({
+      name: "Candles",
+      invId: null,
+      qty: 2,
+      price: 3.2,
+      cat: "misc",
+      note: "Birthday",
+    });
+    expect(wrapper.emitted("close")).toBeTruthy();
+  });
+
+  it("prefills name, category and price from the linked inventory item", async () => {
+    const { wrapper, store } = await mountShopModal();
+    await wrapper.findComponent({ name: "VSelect" }).setValue("i7");
+    await nextTick();
+    await addButton(wrapper).trigger("click");
+
+    expect(store.addShop).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Shampoo",
+        invId: "i7",
+        cat: "hygiene",
+        price: 4.5,
+      }),
+    );
+  });
+
+  it("keeps a name the user typed when linking an inventory item", async () => {
+    const { wrapper, store } = await mountShopModal();
+    await wrapper.find("input[placeholder]").setValue("Anti-dandruff shampoo");
+    await wrapper.findComponent({ name: "VSelect" }).setValue("i7");
+    await nextTick();
+    await addButton(wrapper).trigger("click");
+
+    expect(store.addShop).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "Anti-dandruff shampoo", invId: "i7" }),
+    );
+  });
+
+  it("disables Add while the name is empty", async () => {
+    const { wrapper } = await mountShopModal();
+    expect(addButton(wrapper).attributes("disabled")).toBeDefined();
   });
 });
 

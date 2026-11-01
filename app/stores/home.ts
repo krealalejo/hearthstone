@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { money } from "~/utils/home";
 import { api, statusOf } from "~/utils/api";
 import { t, tc } from "~/utils/i18n";
+import { isRecurrenceDue } from "~/utils/recurrence";
 import type {
   Member,
   Room,
@@ -12,19 +13,12 @@ import type {
   HistoryEntry,
   Toast,
   Household,
+  AppNotification,
 } from "~/types/home";
+import { unregisterPushDevice } from "~/composables/usePushNotifications";
 
-export type {
-  Member,
-  Room,
-  Task,
-  InventoryItem,
-  ShoppingItem,
-  TodoItem,
-  HistoryEntry,
-  Toast,
-  Household,
-};
+export type NewShopItem = Pick<ShoppingItem, "name"> &
+  Partial<Pick<ShoppingItem, "invId" | "qty" | "price" | "cat" | "note">>;
 
 function toastId(): string {
   const arr = new Uint32Array(1);
@@ -95,6 +89,7 @@ export const useHomeStore = defineStore("home", {
     todos: [] as TodoItem[],
     history: [] as HistoryEntry[],
     toasts: [] as Toast[],
+    notifications: [] as AppNotification[],
     flashShopId: null as string | null,
   }),
 
@@ -156,9 +151,11 @@ export const useHomeStore = defineStore("home", {
       } as Member),
     activeMembers: (s) => s.members.filter((m) => m.status === "active"),
     pendingMembers: (s) => s.members.filter((m) => m.status === "pending"),
-    lowCount: (s) => s.inventory.filter((i) => i.qty <= i.min).length,
     shopCount: (s) => s.shopping.filter((i) => !i.checked).length,
-    todoCount: (s) => s.todos.filter((i) => !i.done).length,
+    todoCount: (s) =>
+      s.todos.filter((i) => !i.done).length +
+      s.tasks.filter((tk) => !tk.done).length,
+    unreadNotifications: (s) => s.notifications.filter((n) => !n.readAt).length,
   },
 
   actions: {
@@ -174,6 +171,7 @@ export const useHomeStore = defineStore("home", {
     },
 
     async logout() {
+      await unregisterPushDevice();
       await api("/api/auth/logout", { method: "POST" }).catch(() => null);
       if (import.meta.client) {
         globalThis.location.assign("/login");
@@ -227,6 +225,36 @@ export const useHomeStore = defineStore("home", {
       this.household = h;
     },
 
+    setNotifications(items: AppNotification[]) {
+      this.notifications = items;
+    },
+
+    async markNotificationsRead() {
+      const unread = this.notifications.filter((n) => !n.readAt);
+      if (!unread.length) return;
+      const readAt = new Date().toISOString();
+      unread.forEach((n) => (n.readAt = readAt));
+      try {
+        await api("/api/notifications", { method: "PATCH" });
+      } catch (err) {
+        unread.forEach((n) => (n.readAt = null));
+        await this._fail(err, t("toast.updateFailed"));
+      }
+    },
+
+    async syncTimezone() {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (!timezone || timezone === this.household.timezone) return;
+      const previous = this.household.timezone;
+      this.household.timezone = timezone;
+      await api("/api/household", {
+        method: "PATCH",
+        body: { timezone },
+      }).catch(() => {
+        this.household.timezone = previous;
+      });
+    },
+
     setCurrentUser(user: { id: string; name: string; role: string }) {
       this.currentUser = user.name;
       this.currentUserId = user.id;
@@ -242,6 +270,7 @@ export const useHomeStore = defineStore("home", {
       if (!tk) return;
       const previousDone = tk.done;
       const previousDoneBy = tk.doneBy;
+      const previousDoneAt = tk.doneAt ?? null;
       const willDo = !tk.done;
       const who = tk.assignee ?? this.currentUserId;
       const member = this.members.find((m) => m.id === who);
@@ -267,10 +296,11 @@ export const useHomeStore = defineStore("home", {
       }
       tk.done = willDo;
       tk.doneBy = willDo ? who : null;
+      tk.doneAt = willDo ? new Date().toISOString() : null;
       try {
         await api("/api/tasks", {
           method: "PATCH",
-          body: { id, done: tk.done, doneBy: tk.doneBy },
+          body: { id, done: tk.done, doneBy: tk.doneBy, doneAt: tk.doneAt },
         });
         if (member) {
           await api("/api/members", {
@@ -281,6 +311,7 @@ export const useHomeStore = defineStore("home", {
       } catch (err) {
         tk.done = previousDone;
         tk.doneBy = previousDoneBy;
+        tk.doneAt = previousDoneAt;
         if (member && prevWeekXp !== undefined && prevTotalXp !== undefined) {
           member.weekXp = prevWeekXp;
           member.totalXp = prevTotalXp;
@@ -378,13 +409,42 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
+    _restartTasks(tasks: Task[]) {
+      tasks.forEach((tk) => {
+        tk.done = false;
+        tk.doneBy = null;
+        tk.doneAt = null;
+      });
+      return tasks.map((tk) =>
+        api("/api/tasks", {
+          method: "PATCH",
+          body: { id: tk.id, done: false, doneBy: null, doneAt: null },
+        }),
+      );
+    },
+
+    _dueTasks(includeUndated: boolean) {
+      const now = new Date();
+      const weekStartDay = this.household.weekStartDay ?? "monday";
+      return this.tasks.filter(
+        (tk) =>
+          tk.recurring &&
+          tk.done &&
+          ((includeUndated && !tk.doneAt) ||
+            isRecurrenceDue(tk, now, weekStartDay)),
+      );
+    },
+
+    async resetDueTasks() {
+      const due = this._dueTasks(false);
+      if (!due.length) return;
+      await Promise.allSettled(this._restartTasks(due));
+    },
+
     async resetWeek() {
       const toDelete = this.tasks.filter((tk) => !tk.recurring);
       this.tasks = this.tasks.filter((tk) => tk.recurring);
-      this.tasks.forEach((tk) => {
-        tk.done = false;
-        tk.doneBy = null;
-      });
+      const restarted = this._restartTasks(this._dueTasks(true));
       this.members.forEach((m) => {
         m.weekXp = 0;
       });
@@ -396,6 +456,7 @@ export const useHomeStore = defineStore("home", {
         body: t("toast.weekResetBody"),
       });
       await Promise.allSettled([
+        ...restarted,
         ...toDelete.map((tk) =>
           api("/api/tasks", { method: "DELETE", body: { id: tk.id } }),
         ),
@@ -414,11 +475,11 @@ export const useHomeStore = defineStore("home", {
           method: "PATCH",
           body: { lastResetWeek: current },
         });
+      } else if (this.household.lastResetWeek !== current) {
+        await this.resetWeek();
         return;
       }
-      if (this.household.lastResetWeek !== current) {
-        await this.resetWeek();
-      }
+      await this.resetDueTasks();
     },
 
     async setInvQty(id: string, qty: number) {
@@ -479,12 +540,12 @@ export const useHomeStore = defineStore("home", {
     },
 
     async _createInv(data: Partial<InventoryItem> & { name: string }) {
+      let created: InventoryItem;
       try {
-        const created = await api<InventoryItem>("/api/inventory", {
+        created = await api<InventoryItem>("/api/inventory", {
           method: "POST",
           body: data,
         });
-        this.inventory.push(created);
       } catch (err) {
         this._toast({
           kind: "info",
@@ -493,6 +554,18 @@ export const useHomeStore = defineStore("home", {
         });
         if (statusOf(err) === 401)
           await this._handle401();
+        return;
+      }
+      this.inventory.push(created);
+      const item = this.inventory[this.inventory.length - 1]!;
+      const temp = this._queueAutoRestock(item);
+      if (!temp) return;
+      try {
+        await this._persistAutoRestock(item, temp);
+      } catch (err) {
+        this.shopping = this.shopping.filter((sh) => sh.id !== temp);
+        if (this.flashShopId === temp) this.flashShopId = null;
+        await this._fail(err, t("toast.addItemFailed"), t("toast.tryAgain"));
       }
     },
 
@@ -504,7 +577,10 @@ export const useHomeStore = defineStore("home", {
         ...this.inventory[idx]!,
         ...data,
       } as InventoryItem;
-      const item = this.inventory[idx]!;
+      return this._queueAutoRestock(this.inventory[idx]!);
+    },
+
+    _queueAutoRestock(item: InventoryItem, notify = true): string | null {
       const needsRestock =
         item.qty <= item.min &&
         !this.shopping.some((sh) => sh.invId === item.id);
@@ -521,13 +597,52 @@ export const useHomeStore = defineStore("home", {
         checked: false,
       });
       this.flashShopId = temp;
+      if (notify) {
+        this._toast({
+          kind: "restock",
+          title: t("toast.restockAdded"),
+          body: t("toast.restockBelowMin", { name: item.name }),
+          link: "shopping",
+        });
+      }
+      return temp;
+    },
+
+    async syncLowStockOnce() {
+      if (this.household.restockSyncedAt) return;
+      const syncedAt = new Date().toISOString();
+      this.household.restockSyncedAt = syncedAt;
+      try {
+        await api("/api/household", {
+          method: "PATCH",
+          body: { restockSyncedAt: syncedAt },
+        });
+      } catch {
+        this.household.restockSyncedAt = null;
+        return;
+      }
+      const queued = this.inventory.flatMap((item) => {
+        const temp = this._queueAutoRestock(item, false);
+        return temp ? [{ item, temp }] : [];
+      });
+      if (!queued.length) return;
       this._toast({
         kind: "restock",
         title: t("toast.restockAdded"),
-        body: t("toast.restockBelowMin", { name: item.name }),
+        body: tc("toast.restockSynced", queued.length),
         link: "shopping",
       });
-      return temp;
+      const results = await Promise.allSettled(
+        queued.map(({ item, temp }) => this._persistAutoRestock(item, temp)),
+      );
+      const failed = new Set(
+        queued
+          .filter((_, i) => results[i]!.status === "rejected")
+          .map(({ temp }) => temp),
+      );
+      if (failed.size) {
+        this.shopping = this.shopping.filter((sh) => !failed.has(sh.id));
+      }
     },
 
     async _persistAutoRestock(item: InventoryItem, temp: string) {
@@ -620,24 +735,29 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
-    async addManualShop(name: string) {
-      const trimmed = name.trim();
+    async addShop(input: NewShopItem) {
+      const trimmed = input.name.trim();
       if (!trimmed) return;
       const temp = tempId();
+      const fields = {
+        name: trimmed,
+        invId: input.invId ?? null,
+        qty: Math.max(1, input.qty ?? 1),
+        price: input.price ?? null,
+        cat: input.cat ?? null,
+        note: input.note?.trim() ?? "",
+      };
       this.shopping.push({
         id: temp,
-        name: trimmed,
         source: "manual",
-        invId: null,
-        qty: 1,
-        price: null,
         checked: false,
+        ...fields,
       });
       const item = this.shopping[this.shopping.length - 1]!;
       this.flashShopId = temp;
       const creation = api<ShoppingItem>("/api/shopping", {
         method: "POST",
-        body: { name: trimmed, source: "manual", qty: 1 },
+        body: { source: "manual", ...fields },
       }).then((created) => {
         item.id = created.id;
         if (this.flashShopId === temp) this.flashShopId = created.id;

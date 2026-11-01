@@ -154,7 +154,7 @@ import { useI18n } from "vue-i18n";
 import { useHomeStore } from "~/stores/home";
 import { levelInfo } from "~/utils/home";
 import { useAnimations } from "~/composables/useAnimations";
-import type { Member } from "~/stores/home";
+import type { Member } from "~/types/home";
 
 const emit = defineEmits<{ close: [] }>();
 const { t, locale, setLocale } = useI18n();

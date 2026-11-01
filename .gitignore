@@ -11,4 +11,6 @@ android/.idea
 android/app/release
 ANDROID-RELEASE.md
 .codegraph
-docs
+
+docs/
+android/app/google-services.json

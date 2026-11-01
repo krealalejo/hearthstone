@@ -123,8 +123,9 @@
 
 <script setup lang="ts">
 import { reactive, computed } from "vue";
-import type { InventoryItem } from "~/stores/home";
+import type { InventoryItem } from "~/types/home";
 import { useHomeStore } from "~/stores/home";
+import { CATEGORIES, type Category } from "~/utils/categories";
 
 const props = defineProps<{ item?: InventoryItem | null }>();
 const emit = defineEmits<{ close: [] }>();
@@ -132,15 +133,13 @@ const isEdit = !!props.item;
 const store = useHomeStore();
 const { t } = useI18n();
 
-const CATS = computed(() => [
-  { id: "food", name: t("inventory.catFood"), icon: "mdi-basket" },
-  { id: "cleaning", name: t("inventory.catCleaning"), icon: "mdi-spray" },
-  { id: "misc", name: t("inventory.catMisc"), icon: "mdi-package-variant" },
-]);
+const CATS = computed(() =>
+  CATEGORIES.map((c) => ({ ...c, name: t(c.labelKey) })),
+);
 
 const form = reactive<{
   name: string;
-  cat: "food" | "cleaning" | "misc";
+  cat: Category;
   qty: number;
   min: number;
   optimal: number;
@@ -184,40 +183,5 @@ function handleDelete() {
 :deep(.stepper button) {
   width: 44px;
   height: 42px;
-}
-
-.price-input {
-  height: 42px;
-  padding: 0 13px;
-  border: 1px solid var(--hairline);
-  border-radius: 9px;
-  background: var(--surface);
-  color: var(--ink);
-  font-size: 14px;
-  font-family: var(--font-ui);
-  outline: none;
-  width: 100%;
-  transition: border-color 0.15s;
-  -moz-appearance: textfield;
-}
-.price-input:focus {
-  border-color: var(--accent);
-}
-.price-input::-webkit-outer-spin-button,
-.price-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-}
-.price-wrap {
-  position: relative;
-}
-.price-currency {
-  position: absolute;
-  right: 13px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ink-3);
-  pointer-events: none;
 }
 </style>

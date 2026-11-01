@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { InventoryItem } from "~/stores/home";
+import type { InventoryItem } from "~/types/home";
 import { useHomeStore, useMoney } from "~/stores/home";
 
 const { money } = useMoney();

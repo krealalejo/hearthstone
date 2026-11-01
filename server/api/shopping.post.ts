@@ -13,6 +13,8 @@ export default defineEventHandler(async (event) => {
     qty: body.qty,
     price: body.price,
     checked: body.checked,
+    cat: body.cat,
+    note: body.note,
   });
   const doc = item.toJSON();
   return { ...doc, id: doc._id.toString() };

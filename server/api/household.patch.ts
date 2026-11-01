@@ -3,10 +3,15 @@ import { householdPatchSchema, validate } from "#server/utils/validate";
 
 export default defineEventHandler(async (event) => {
   const { householdId } = event.context.user;
-  const { name, emoji, lastResetWeek, weekStartDay, currency } = validate(
-    householdPatchSchema,
-    await readBody(event),
-  );
+  const {
+    name,
+    emoji,
+    lastResetWeek,
+    weekStartDay,
+    currency,
+    restockSyncedAt,
+    timezone,
+  } = validate(householdPatchSchema, await readBody(event));
 
   const updates: Record<string, unknown> = {};
   if (name) updates.name = name;
@@ -14,6 +19,8 @@ export default defineEventHandler(async (event) => {
   if (lastResetWeek) updates.lastResetWeek = lastResetWeek;
   if (weekStartDay !== undefined) updates.weekStartDay = weekStartDay;
   if (currency) updates.currency = currency;
+  if (restockSyncedAt) updates.restockSyncedAt = restockSyncedAt;
+  if (timezone) updates.timezone = timezone;
 
   const hh = await Household.findByIdAndUpdate(householdId, updates, {
     returnDocument: "after",

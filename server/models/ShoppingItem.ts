@@ -8,6 +8,8 @@ export interface IShoppingItem {
   qty: number;
   price: number | null;
   checked: boolean;
+  cat: "food" | "cleaning" | "hygiene" | "misc" | null;
+  note: string;
 }
 
 const ShoppingItemSchema = new Schema<IShoppingItem>(
@@ -28,6 +30,12 @@ const ShoppingItemSchema = new Schema<IShoppingItem>(
     qty: { type: Number, default: 1 },
     price: { type: Number, default: null },
     checked: { type: Boolean, default: false },
+    cat: {
+      type: String,
+      enum: ["food", "cleaning", "hygiene", "misc", null],
+      default: null,
+    },
+    note: { type: String, default: "", maxlength: 200 },
   },
   { timestamps: true, toJSON: { virtuals: true } },
 );

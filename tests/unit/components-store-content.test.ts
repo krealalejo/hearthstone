@@ -157,6 +157,24 @@ describe("TaskRow", () => {
     expect(wrapper.text()).toContain("weekly");
   });
 
+  it.each([
+    [1, "day", "daily"],
+    [1, "month", "monthly"],
+    [3, "day", "every 3 days"],
+    [2, "week", "every 2 weeks"],
+    [6, "month", "every 6 months"],
+  ] as const)(
+    "labels a task repeating every %i %s as '%s'",
+    async (repeatEvery, repeatUnit, label) => {
+      const { default: Component } =
+        await import("~/components/dashboard/TaskRow.vue");
+      const wrapper = await mountSuspended(Component, {
+        props: { task: baseTask({ recurring: true, repeatEvery, repeatUnit }) },
+      });
+      expect(wrapper.text()).toContain(label);
+    },
+  );
+
   it("calls store.claimTask when Claim clicked", async () => {
     const { default: Component } =
       await import("~/components/dashboard/TaskRow.vue");
@@ -240,6 +258,33 @@ describe("inventory/Item", () => {
 });
 
 describe("shopping/Item", () => {
+  it("shows the category badge and note when present", async () => {
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
+    const { default: Component } =
+      await import("~/components/shopping/Item.vue");
+    const wrapper = await mountSuspended(Component, {
+      props: {
+        item: baseShopItem({ cat: "hygiene", note: "Mint, 75ml" }),
+        flashId: null,
+      },
+    });
+    expect(wrapper.find(".src-cat").text()).toContain("Hygiene");
+    expect(wrapper.find(".shop-note").text()).toBe("Mint, 75ml");
+  });
+
+  it("omits the category badge and note when absent", async () => {
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
+    const { default: Component } =
+      await import("~/components/shopping/Item.vue");
+    const wrapper = await mountSuspended(Component, {
+      props: { item: baseShopItem(), flashId: null },
+    });
+    expect(wrapper.find(".src-cat").exists()).toBe(false);
+    expect(wrapper.find(".shop-note").exists()).toBe(false);
+  });
+
   it("renders item name", async () => {
     const store = useHomeStore();
     store.household = { id: "hh1", name: "Home", emoji: "🏠" };

@@ -181,3 +181,10 @@ heartshtone/
 | `NUXT_GOOGLE_REDIRECT_URI`  | OAuth callback URL (must match Google Console — default: `/api/auth/google/callback`) |
 | `NUXT_RESEND_API_KEY`       | Resend API key for password reset emails                                  |
 | `NUXT_PUBLIC_BASE_URL`      | Public base URL for email links (default: `http://localhost:3000`)        |
+| `NUXT_CRON_SECRET`          | Secret the week-reminder cron must send as `Authorization: Bearer …`      |
+| `CRON_SECRET`               | Same value as `NUXT_CRON_SECRET`; Vercel Cron sends it automatically      |
+| `NUXT_FCM_PROJECT_ID`       | Firebase project ID for Android push notifications                        |
+| `NUXT_FCM_CLIENT_EMAIL`     | Firebase service account `client_email`                                   |
+| `NUXT_FCM_PRIVATE_KEY`      | Firebase service account `private_key` (`\n` escapes are accepted)        |
+
+Week-end reminders run daily from `vercel.json` (`0 9 * * *` UTC). Without the FCM variables, reminders still appear in the in-app bell but no push is sent. The Android build needs `android/app/google-services.json` (git-ignored); the release workflow writes it from the `GOOGLE_SERVICES_JSON_BASE64` secret.

@@ -129,10 +129,10 @@ describe("home store", () => {
     });
   });
 
-  it("addManualShop adds item to shopping list", async () => {
+  it("addShop with only a name adds item to shopping list", async () => {
     const store = useHomeStore();
     const before = store.shopping.length;
-    await store.addManualShop("Test item");
+    await store.addShop({ name: "Test item" });
     expect(store.shopping).toHaveLength(before + 1);
     expect(store.shopping.at(-1)?.name).toBe("Test item");
     expect(store.shopping.at(-1)?.source).toBe("manual");
