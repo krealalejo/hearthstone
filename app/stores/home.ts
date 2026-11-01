@@ -516,12 +516,12 @@ export const useHomeStore = defineStore("home", {
     },
 
     async _createInv(data: Partial<InventoryItem> & { name: string }) {
+      let created: InventoryItem;
       try {
-        const created = await api<InventoryItem>("/api/inventory", {
+        created = await api<InventoryItem>("/api/inventory", {
           method: "POST",
           body: data,
         });
-        this.inventory.push(created);
       } catch (err) {
         this._toast({
           kind: "info",
@@ -530,6 +530,18 @@ export const useHomeStore = defineStore("home", {
         });
         if (statusOf(err) === 401)
           await this._handle401();
+        return;
+      }
+      this.inventory.push(created);
+      const item = this.inventory[this.inventory.length - 1]!;
+      const temp = this._queueAutoRestock(item);
+      if (!temp) return;
+      try {
+        await this._persistAutoRestock(item, temp);
+      } catch (err) {
+        this.shopping = this.shopping.filter((sh) => sh.id !== temp);
+        if (this.flashShopId === temp) this.flashShopId = null;
+        await this._fail(err, t("toast.addItemFailed"), t("toast.tryAgain"));
       }
     },
 
@@ -541,7 +553,10 @@ export const useHomeStore = defineStore("home", {
         ...this.inventory[idx]!,
         ...data,
       } as InventoryItem;
-      const item = this.inventory[idx]!;
+      return this._queueAutoRestock(this.inventory[idx]!);
+    },
+
+    _queueAutoRestock(item: InventoryItem): string | null {
       const needsRestock =
         item.qty <= item.min &&
         !this.shopping.some((sh) => sh.invId === item.id);
