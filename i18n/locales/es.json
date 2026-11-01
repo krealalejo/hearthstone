@@ -334,5 +334,21 @@
     "fieldNote": "Nota",
     "notePlaceholder": "p. ej. Marca X, 1 L",
     "add": "Añadir artículo"
+  },
+  "tabs": {
+    "home": "Inicio",
+    "inventory": "Inventario",
+    "shopping": "Compra",
+    "todos": "Pendientes",
+    "more": "Más"
+  },
+  "more": {
+    "purchases": "Historial de compras",
+    "purchasesSub": "Compras anteriores y totales",
+    "weeks": "Historial semanal",
+    "weeksSub": "Puntos y tareas por semana",
+    "householdSub": "Miembros e invitaciones",
+    "profile": "Perfil y ajustes",
+    "profileSub": "Avatar, idioma y preferencias"
   }
 }

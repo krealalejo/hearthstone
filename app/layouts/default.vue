@@ -34,7 +34,7 @@
         <slot />
       </div>
     </div>
-    <AppTabBar />
+    <AppTabBar @open-profile="profileOpen = true" />
     <v-dialog v-model="profileOpen" max-width="480" class="qh-dialog">
       <ProfileModal @close="profileOpen = false" />
     </v-dialog>

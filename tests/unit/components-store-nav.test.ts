@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { nextTick } from "vue";
 import { useHomeStore } from "~/stores/home";
@@ -117,10 +117,96 @@ describe("AppAvatar", () => {
 });
 
 describe("AppTabBar", () => {
-  it("renders 6 nav tabs", async () => {
+  beforeAll(() => {
+    if (!globalThis.visualViewport) {
+      Object.defineProperty(globalThis, "visualViewport", {
+        value: {
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          width: 390,
+          height: 844,
+          offsetLeft: 0,
+          offsetTop: 0,
+          scale: 1,
+          pageLeft: 0,
+          pageTop: 0,
+        },
+        writable: true,
+      });
+    }
+  });
+
+  async function openMore() {
+    const { default: Component } = await import("~/components/AppTabBar.vue");
+    const wrapper = await mountSuspended(Component, {
+      attachTo: document.body,
+    });
+    await wrapper.find("button.tab-more").trigger("click");
+    await nextTick();
+    await nextTick();
+    const items = () =>
+      Array.from(document.querySelectorAll<HTMLButtonElement>(".more-item"));
+    return { wrapper, items };
+  }
+
+  it("renders four primary tabs plus More", async () => {
     const { default: Component } = await import("~/components/AppTabBar.vue");
     const wrapper = await mountSuspended(Component);
-    expect(wrapper.findAll("button.tab")).toHaveLength(6);
+    const tabs = wrapper.findAll("button.tab");
+    expect(tabs).toHaveLength(5);
+    expect(tabs.map((tab) => tab.text())).toEqual([
+      "Home",
+      "Inventory",
+      "Shopping",
+      "To-dos",
+      "More",
+    ]);
+  });
+
+  it("lists history, household and profile in the More sheet", async () => {
+    const { wrapper, items } = await openMore();
+    expect(wrapper.find("button.tab-more").attributes("aria-expanded")).toBe(
+      "true",
+    );
+    expect(
+      items().map((item) => item.querySelector(".more-label")?.textContent),
+    ).toEqual([
+      "Purchase history",
+      "Weekly history",
+      "Household",
+      "Profile & settings",
+    ]);
+    wrapper.unmount();
+  });
+
+  it("navigates from a More item and closes the sheet", async () => {
+    const { wrapper, items } = await openMore();
+    const push = vi.spyOn(useRouter(), "push");
+    items()[2]!.click();
+    await nextTick();
+    expect(push).toHaveBeenCalledWith("/household");
+    expect(wrapper.find("button.tab-more").attributes("aria-expanded")).toBe(
+      "false",
+    );
+    wrapper.unmount();
+  });
+
+  it("emits open-profile from the profile item", async () => {
+    const { wrapper, items } = await openMore();
+    items()[3]!.click();
+    await nextTick();
+    expect(wrapper.emitted("open-profile")).toBeTruthy();
+    wrapper.unmount();
+  });
+
+  it("flags More when invites are pending", async () => {
+    const { default: Component } = await import("~/components/AppTabBar.vue");
+    const wrapper = await mountSuspended(Component);
+    expect(wrapper.find(".tab-dot").exists()).toBe(false);
+    const store = useHomeStore();
+    store.members = [baseMember({ id: "u2", status: "pending" })];
+    await nextTick();
+    expect(wrapper.find(".tab-dot").exists()).toBe(true);
   });
 
   it("shows inventory badge when lowCount > 0", async () => {
@@ -161,8 +247,6 @@ describe("AppTopbar", () => {
     expect(wrapper.find(".topbar").exists()).toBe(true);
     expect(wrapper.text()).toContain("Week");
   });
-
-
 
   it("clicks color mode toggle button", async () => {
     const { default: Component } = await import("~/components/AppTopbar.vue");

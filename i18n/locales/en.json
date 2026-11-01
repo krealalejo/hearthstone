@@ -334,5 +334,21 @@
     "fieldNote": "Note",
     "notePlaceholder": "e.g. Brand X, 1L",
     "add": "Add item"
+  },
+  "tabs": {
+    "home": "Home",
+    "inventory": "Inventory",
+    "shopping": "Shopping",
+    "todos": "To-dos",
+    "more": "More"
+  },
+  "more": {
+    "purchases": "Purchase history",
+    "purchasesSub": "Past shopping trips and totals",
+    "weeks": "Weekly history",
+    "weeksSub": "Points and tasks per week",
+    "householdSub": "Members and invites",
+    "profile": "Profile & settings",
+    "profileSub": "Avatar, language and preferences"
   }
 }
