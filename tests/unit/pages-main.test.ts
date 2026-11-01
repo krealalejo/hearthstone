@@ -278,6 +278,9 @@ describe("pages/todos", () => {
 
   it("links to Home for the full task board", async () => {
     const { wrapper } = await mountTodos();
-    expect(wrapper.find('a[href="/dashboard"]').exists()).toBe(true);
+    const link = wrapper
+      .findAllComponents({ name: "VBtn" })
+      .find((btn) => btn.text().includes("Open Home"));
+    expect(link?.props("to")).toBe("/dashboard");
   });
 });

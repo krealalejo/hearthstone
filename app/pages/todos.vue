@@ -43,10 +43,14 @@
         })
       }}</span>
       <span class="line" />
-      <NuxtLink to="/dashboard" class="btn btn-ghost btn-sm">
+      <v-btn
+        to="/dashboard"
+        variant="text"
+        size="small"
+        append-icon="mdi-arrow-right"
+      >
         {{ $t("todos.openHome") }}
-        <v-icon style="font-size: 15px">mdi-arrow-right</v-icon>
-      </NuxtLink>
+      </v-btn>
     </div>
     <p
       v-if="store.bootstrapped && !pendingTasks.length"
