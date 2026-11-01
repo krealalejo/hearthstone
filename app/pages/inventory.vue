@@ -20,7 +20,7 @@
         density="compact"
         variant="outlined"
         rounded="sm"
-        class="seg"
+        class="seg inv-filter"
       >
         <v-btn value="all" size="small">{{ $t("dashboard.filterAll") }}</v-btn>
         <v-btn v-for="c in CATS" :key="c.id" :value="c.id" size="small">

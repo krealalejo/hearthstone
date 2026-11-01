@@ -1847,6 +1847,20 @@
     border-bottom-color: var(--accent-ink);
   }
 
+  .sec-head .inv-filter {
+    order: 10;
+    flex: 1 0 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sec-head .inv-filter::-webkit-scrollbar {
+    display: none;
+  }
+  .sec-head .inv-filter .v-btn {
+    flex: 1 0 auto;
+  }
+
   .hh-card {
     flex-wrap: wrap;
     padding: 18px;
