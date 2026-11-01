@@ -165,6 +165,15 @@ describe("pages/inventory", () => {
     expect(wrapper.text()).toContain("Food");
   });
 
+  it("keeps New item in the header and the filter on its own row", async () => {
+    const { default: Component } = await import("~/pages/inventory.vue");
+    const wrapper = await mount(Component);
+    const head = wrapper.find(".inv-head");
+    expect(head.find(".inv-new").text()).toContain("New item");
+    expect(head.find(".v-btn-group").exists()).toBe(false);
+    expect(wrapper.find(".inv-filter .v-btn-group").exists()).toBe(true);
+  });
+
   it("groups hygiene items under their own category", async () => {
     const { default: Component } = await import("~/pages/inventory.vue");
     const wrapper = await mount(Component);

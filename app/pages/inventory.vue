@@ -1,6 +1,6 @@
 <template>
   <div class="content-inner">
-    <div class="sec-head">
+    <div class="sec-head inv-head">
       <h2>{{ $t("inventory.title") }}</h2>
       <span class="count"
         >{{
@@ -14,13 +14,24 @@
         }}</span
       >
       <span class="line" />
+      <v-btn
+        class="inv-new"
+        color="primary"
+        size="small"
+        @click="modalItem = {}"
+      >
+        <v-icon size="15" start>mdi-plus</v-icon>{{ $t("inventory.newItem") }}
+      </v-btn>
+    </div>
+
+    <div class="inv-filter">
       <v-btn-toggle
         v-model="tab"
         mandatory
         density="compact"
         variant="outlined"
         rounded="sm"
-        class="seg inv-filter"
+        class="seg"
       >
         <v-btn value="all" size="small">{{ $t("dashboard.filterAll") }}</v-btn>
         <v-btn v-for="c in CATS" :key="c.id" :value="c.id" size="small">
@@ -28,9 +39,6 @@
           {{ c.name.split(" ")[0] }}
         </v-btn>
       </v-btn-toggle>
-      <v-btn color="primary" size="small" @click="modalItem = {}">
-        <v-icon size="15" start>mdi-plus</v-icon>{{ $t("inventory.newItem") }}
-      </v-btn>
     </div>
 
     <AppSkeleton v-if="!store.bootstrapped" variant="grid" :count="6" />

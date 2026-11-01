@@ -1439,6 +1439,28 @@
 /* ════════════════════════════════════════════════════════════
    HOUSEHOLD
    ════════════════════════════════════════════════════════════ */
+.inv-head {
+  flex-wrap: nowrap;
+}
+.inv-head .count {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.inv-head .inv-new {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.inv-filter {
+  margin: -4px 2px 20px;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.inv-filter::-webkit-scrollbar {
+  display: none;
+}
+
 .hh-card {
   padding: 24px;
   margin-bottom: 22px;
@@ -1981,17 +2003,10 @@
     border-bottom-color: var(--accent-ink);
   }
 
-  .sec-head .inv-filter {
-    order: 10;
-    flex: 1 0 100%;
-    max-width: 100%;
-    overflow-x: auto;
-    scrollbar-width: none;
+  .inv-filter .seg {
+    min-width: 100%;
   }
-  .sec-head .inv-filter::-webkit-scrollbar {
-    display: none;
-  }
-  .sec-head .inv-filter .v-btn {
+  .inv-filter .seg .v-btn {
     flex: 1 0 auto;
   }
 
