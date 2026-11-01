@@ -119,7 +119,6 @@ import { reactive, computed, watch } from "vue";
 import { useHomeStore } from "~/stores/home";
 import { CATEGORIES, type Category } from "~/utils/categories";
 
-const props = defineProps<{ initialName?: string }>();
 const emit = defineEmits<{ close: [] }>();
 const store = useHomeStore();
 const { t } = useI18n();
@@ -140,7 +139,7 @@ const form = reactive<{
   cat: Category | null;
   note: string;
 }>({
-  name: props.initialName?.trim() ?? "",
+  name: "",
   invId: null,
   qty: 1,
   price: "",

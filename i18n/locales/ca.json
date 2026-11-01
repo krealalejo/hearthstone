@@ -108,8 +108,7 @@
     "pricedItems": "Articles amb preu",
     "estimatedTotal": "Total estimat",
     "finalize": "Finalitzar compra",
-    "restockNote": "{n} article es reposarà al seu nivell òptim. | {n} articles es reposaran al seu nivell òptim.",
-    "options": "Més opcions"
+    "restockNote": "{n} article es reposarà al seu nivell òptim. | {n} articles es reposaran al seu nivell òptim."
   },
   "todos": {
     "title": "Llista de pendents",

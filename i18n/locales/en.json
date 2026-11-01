@@ -108,8 +108,7 @@
     "pricedItems": "Priced items",
     "estimatedTotal": "Estimated total",
     "finalize": "Finalize purchase",
-    "restockNote": "{n} item will be replenished to their optimal stock level. | {n} items will be replenished to their optimal stock level.",
-    "options": "More options"
+    "restockNote": "{n} item will be replenished to their optimal stock level. | {n} items will be replenished to their optimal stock level."
   },
   "todos": {
     "title": "To-do list",

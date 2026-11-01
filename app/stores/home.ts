@@ -711,10 +711,6 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
-    async addManualShop(name: string) {
-      await this.addShop({ name });
-    },
-
     async addShop(input: NewShopItem) {
       const trimmed = input.name.trim();
       if (!trimmed) return;

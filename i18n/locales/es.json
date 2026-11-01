@@ -108,8 +108,7 @@
     "pricedItems": "Artículos con precio",
     "estimatedTotal": "Total estimado",
     "finalize": "Finalizar compra",
-    "restockNote": "{n} artículo se repondrá a su nivel óptimo. | {n} artículos se repondrán a su nivel óptimo.",
-    "options": "Más opciones"
+    "restockNote": "{n} artículo se repondrá a su nivel óptimo. | {n} artículos se repondrán a su nivel óptimo."
   },
   "todos": {
     "title": "Lista de pendientes",

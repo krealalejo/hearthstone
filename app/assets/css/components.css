@@ -1190,6 +1190,10 @@
 .shop-add input:focus {
   border-color: var(--accent);
 }
+.shop-add-trigger,
+.shop-add-trigger input {
+  cursor: pointer;
+}
 
 .shop-item {
   display: flex;

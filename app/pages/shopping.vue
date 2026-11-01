@@ -22,22 +22,17 @@
       <div>
         <div class="shop-add">
           <v-text-field
-            v-model="draft"
+            class="shop-add-trigger"
             :placeholder="$t('shopping.addPlaceholder')"
+            readonly
             hide-details
-            @keydown.enter="addItem"
+            role="button"
+            aria-haspopup="dialog"
+            @click="openAddModal"
+            @keydown.enter.prevent="openAddModal"
+            @keydown.space.prevent="openAddModal"
           />
-          <v-btn
-            variant="outlined"
-            icon
-            class="shop-options"
-            :aria-label="$t('shopping.options')"
-            :title="$t('shopping.options')"
-            @click="optionsOpen = true"
-          >
-            <v-icon size="18">mdi-tune-variant</v-icon>
-          </v-btn>
-          <v-btn color="primary" :loading="adding" @click="addItem">
+          <v-btn color="primary" @click="openAddModal">
             <v-icon size="17" start>mdi-plus</v-icon>{{ $t("shopping.add") }}
           </v-btn>
         </div>
@@ -155,8 +150,8 @@
       </div>
     </div>
 
-    <v-dialog v-model="optionsOpen" max-width="480" class="qh-dialog">
-      <ShoppingModal :initial-name="draft" @close="closeOptions" />
+    <v-dialog v-model="addModalOpen" max-width="480" class="qh-dialog">
+      <ShoppingModal :key="addModalKey" @close="addModalOpen = false" />
     </v-dialog>
   </div>
 </template>
@@ -171,14 +166,13 @@ definePageMeta({ middleware: "auth" });
 
 const store = useHomeStore();
 
-const draft = ref("");
 const checkingOut = ref(false);
-const adding = ref(false);
-const optionsOpen = ref(false);
+const addModalOpen = ref(false);
+const addModalKey = ref(0);
 
-function closeOptions() {
-  optionsOpen.value = false;
-  draft.value = "";
+function openAddModal() {
+  addModalKey.value += 1;
+  addModalOpen.value = true;
 }
 
 async function finalize() {
@@ -200,13 +194,4 @@ const knownTotal = computed(() =>
 const restockCount = computed(
   () => checkedItems.value.filter((i) => i.invId).length,
 );
-
-async function addItem() {
-  if (adding.value) return;
-  const name = draft.value;
-  draft.value = "";
-  adding.value = true;
-  await store.addManualShop(name);
-  adding.value = false;
-}
 </script>

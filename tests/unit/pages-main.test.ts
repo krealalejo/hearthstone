@@ -1,4 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  beforeEach,
+  afterEach,
+} from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { nextTick } from "vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
@@ -209,12 +217,66 @@ describe("pages/inventory", () => {
 });
 
 describe("pages/shopping", () => {
-  it("offers a more-options button next to quick add", async () => {
+  beforeAll(() => {
+    if (!globalThis.visualViewport) {
+      Object.defineProperty(globalThis, "visualViewport", {
+        value: {
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+          width: 390,
+          height: 844,
+          offsetLeft: 0,
+          offsetTop: 0,
+          scale: 1,
+          pageLeft: 0,
+          pageTop: 0,
+        },
+        writable: true,
+      });
+    }
+  });
+
+  async function flushDialog() {
+    await nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+
+  async function mountShopping() {
     const { default: Component } = await import("~/pages/shopping.vue");
-    const wrapper = await mount(Component);
-    const options = wrapper.find(".shop-options");
-    expect(options.exists()).toBe(true);
-    expect(options.attributes("aria-label")).toBe("More options");
+    const wrapper = await mount(Component, { attachTo: document.body });
+    const modalOpen = () =>
+      Array.from(document.querySelectorAll(".modal-head h2")).some(
+        (h) => h.textContent === "Add to shopping list",
+      );
+    return { wrapper, modalOpen };
+  }
+
+  it("opens the add form when the quick-add field is clicked", async () => {
+    const { wrapper, modalOpen } = await mountShopping();
+    expect(modalOpen()).toBe(false);
+    await wrapper.find(".shop-add-trigger input").trigger("click");
+    await flushDialog();
+    expect(modalOpen()).toBe(true);
+    wrapper.unmount();
+  });
+
+  it("opens the add form from the keyboard", async () => {
+    const { wrapper, modalOpen } = await mountShopping();
+    await wrapper.find(".shop-add-trigger input").trigger("keydown", {
+      key: "Enter",
+    });
+    await flushDialog();
+    expect(modalOpen()).toBe(true);
+    wrapper.unmount();
+  });
+
+  it("keeps the quick-add field read-only and has no settings button", async () => {
+    const { wrapper } = await mountShopping();
+    const input = wrapper.find(".shop-add-trigger input");
+    expect(input.attributes("readonly")).toBeDefined();
+    expect(wrapper.find(".shop-options").exists()).toBe(false);
+    expect(wrapper.html()).not.toContain("mdi-tune-variant");
+    wrapper.unmount();
   });
 
   it("renders shopping page", async () => {
@@ -229,18 +291,15 @@ describe("pages/shopping", () => {
     expect(wrapper.find("input").exists()).toBe(true);
   });
 
-  it("calls store.addManualShop when add button clicked", async () => {
-    const { default: Component } = await import("~/pages/shopping.vue");
-    const wrapper = await mount(Component);
-    const store = useHomeStore();
-    vi.spyOn(store, "addManualShop").mockImplementation(vi.fn() as any);
-    await wrapper.find("input").setValue("Bread");
-    const addBtn = wrapper
+  it("opens the add form from the Add button", async () => {
+    const { wrapper, modalOpen } = await mountShopping();
+    await wrapper
       .findAll("button")
-      .find((b) => b.text().includes("Add"));
-    if (addBtn) await addBtn.trigger("click");
-    await nextTick();
-    expect(store.addManualShop).toHaveBeenCalledWith("Bread");
+      .find((b) => b.text() === "Add")!
+      .trigger("click");
+    await flushDialog();
+    expect(modalOpen()).toBe(true);
+    wrapper.unmount();
   });
 
   it("shows auto vs manual sections", async () => {

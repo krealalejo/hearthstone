@@ -339,50 +339,62 @@ describe("ProfileModal", () => {
   });
 
   it("clicks Monday weekStartDay button (admin)", async () => {
-    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const { default: Component } =
+      await import("~/components/ProfileModal.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
     store.members = [baseMember({ id: "u1", role: "admin" as const })];
     store.household = baseHousehold();
     await nextTick();
-    const mondayBtn = wrapper.findAll("button").find((b) => b.text() === "Monday");
+    const mondayBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Monday");
     if (mondayBtn) await mondayBtn.trigger("click");
     expect(wrapper.html()).toBeTruthy();
   });
 
   it("clicks Sunday weekStartDay button (admin)", async () => {
-    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const { default: Component } =
+      await import("~/components/ProfileModal.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
     store.members = [baseMember({ id: "u1", role: "admin" as const })];
     store.household = baseHousehold();
     await nextTick();
-    const sundayBtn = wrapper.findAll("button").find((b) => b.text() === "Sunday");
+    const sundayBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Sunday");
     if (sundayBtn) await sundayBtn.trigger("click");
     expect(wrapper.html()).toBeTruthy();
   });
 
   it("clicks a locale button", async () => {
     const { wrapper } = await mountProfileModal();
-    const spanishBtn = wrapper.findAll("button").find((b) => b.text() === "Español");
+    const spanishBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Español");
     if (spanishBtn) await spanishBtn.trigger("click");
     expect(wrapper.html()).toBeTruthy();
   });
 
   it("clicks a currency button (admin)", async () => {
-    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const { default: Component } =
+      await import("~/components/ProfileModal.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
     store.members = [baseMember({ id: "u1", role: "admin" as const })];
     store.household = baseHousehold();
     await nextTick();
-    const euroBtn = wrapper.findAll(".currency-opt").find((b) => b.text() === "€");
+    const euroBtn = wrapper
+      .findAll(".currency-opt")
+      .find((b) => b.text() === "€");
     if (euroBtn) await euroBtn.trigger("click");
     expect(wrapper.html()).toBeTruthy();
   });
 
   it("initializes with undefined household weekStartDay/currency (covers ?? fallbacks)", async () => {
-    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const { default: Component } =
+      await import("~/components/ProfileModal.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
     store.currentUser = "u1";
@@ -419,18 +431,23 @@ describe("ProfileModal", () => {
     await arthas.trigger("click");
     await nextTick();
 
-    expect(wrapper.find(".color-swatch.on").attributes("title")).toBe("Default");
+    expect(wrapper.find(".color-swatch.on").attributes("title")).toBe(
+      "Default",
+    );
     expect(arthas.attributes("style")).toContain("background");
   });
 
   it("saves with empty name (early return branch)", async () => {
-    const { default: Component } = await import("~/components/ProfileModal.vue");
+    const { default: Component } =
+      await import("~/components/ProfileModal.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
     vi.spyOn(store, "saveSettings").mockResolvedValue(undefined as any);
     const nameInput = wrapper.find("#profile-name");
     if (nameInput.exists()) await nameInput.setValue("");
-    const saveBtn = wrapper.findAll("button").find((b) => b.text().includes("Save"));
+    const saveBtn = wrapper
+      .findAll("button")
+      .find((b) => b.text().includes("Save"));
     if (saveBtn) await saveBtn.trigger("click");
     await nextTick();
     expect(store.saveSettings).not.toHaveBeenCalled();
@@ -740,10 +757,10 @@ describe("dashboard/TaskModal", () => {
 });
 
 describe("shopping/Modal", () => {
-  async function mountShopModal(props = {}) {
+  async function mountShopModal() {
     const { default: Component } =
       await import("~/components/shopping/Modal.vue");
-    const wrapper = await mount(Component, { props });
+    const wrapper = await mount(Component);
     const store = useHomeStore();
     store.household = baseHousehold();
     store.inventory = [
@@ -757,13 +774,6 @@ describe("shopping/Modal", () => {
   function addButton(wrapper: Awaited<ReturnType<typeof mount>>) {
     return wrapper.findAll("button").find((b) => b.text() === "Add item")!;
   }
-
-  it("starts from the name typed in the quick-add field", async () => {
-    const { wrapper } = await mountShopModal({ initialName: " Bread " });
-    expect(
-      (wrapper.find("input[placeholder]").element as HTMLInputElement).value,
-    ).toBe("Bread");
-  });
 
   it("saves name, quantity, price, category and note", async () => {
     const { wrapper, store } = await mountShopModal();
@@ -806,9 +816,8 @@ describe("shopping/Modal", () => {
   });
 
   it("keeps a name the user typed when linking an inventory item", async () => {
-    const { wrapper, store } = await mountShopModal({
-      initialName: "Anti-dandruff shampoo",
-    });
+    const { wrapper, store } = await mountShopModal();
+    await wrapper.find("input[placeholder]").setValue("Anti-dandruff shampoo");
     await wrapper.findComponent({ name: "VSelect" }).setValue("i7");
     await nextTick();
     await addButton(wrapper).trigger("click");
