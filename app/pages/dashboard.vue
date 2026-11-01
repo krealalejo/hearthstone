@@ -81,12 +81,6 @@
               ><v-icon style="font-size: 18px">{{ room.icon }}</v-icon></span
             >
             <h3>{{ room.name }}</h3>
-            <span class="meta"
-              >·
-              {{
-                $t("dashboard.task", { n: items.length }, items.length)
-              }}</span
-            >
             <span class="prog"
               >{{ items.filter((t) => t.done).length }}/{{ items.length }}
               {{ $t("dashboard.done") }}</span
