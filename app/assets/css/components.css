@@ -199,6 +199,10 @@
 .me-card:hover {
   border-color: var(--ink-3);
 }
+.me-card.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
 .me-name {
   display: block;
   font-size: 13.5px;
@@ -219,6 +223,8 @@
 }
 
 .topbar {
+  position: relative;
+  z-index: 50;
   display: flex;
   align-items: center;
   gap: 18px;
@@ -1722,10 +1728,17 @@
 /* ════════════════════════════════════════════════════════════
    MODALS (Vuetify v-dialog override)
    ════════════════════════════════════════════════════════════ */
-.qh-dialog .v-overlay__scrim {
+.qh-dialog .v-overlay__scrim,
+.qh-scrim .v-overlay__scrim {
   background: #0e0b0799;
   backdrop-filter: blur(6px);
   opacity: 1;
+}
+body:has(.qh-scrim.v-overlay--active) :is(.topbar, .mobile-top) {
+  background: var(--bg);
+}
+.qh-scrim.v-bottom-sheet > .v-overlay__content {
+  bottom: var(--tabbar-h, 0px);
 }
 .qh-dialog .v-overlay__content {
   background: var(--surface);
@@ -1873,6 +1886,14 @@
     display: none;
   }
 
+  :root {
+    --mobile-top-h: calc(69px + env(safe-area-inset-top));
+    --tabbar-h: calc(68px + env(safe-area-inset-bottom));
+  }
+  .qh-dialog.qh-scrim.v-dialog > .v-overlay__content {
+    max-height: calc(100dvh - var(--mobile-top-h) - var(--tabbar-h) - 32px);
+  }
+
   .mobile-top {
     display: flex;
     align-items: center;
@@ -1885,6 +1906,13 @@
     top: 0;
     z-index: 50;
     flex-shrink: 0;
+  }
+  .mobile-top .mt-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: inherit;
+    text-decoration: none;
   }
   .mobile-top .brand-mark {
     width: 30px;

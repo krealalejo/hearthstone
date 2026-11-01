@@ -242,6 +242,18 @@ export const useHomeStore = defineStore("home", {
       }
     },
 
+    async clearNotifications() {
+      const previous = this.notifications;
+      if (!previous.length) return;
+      this.notifications = [];
+      try {
+        await api("/api/notifications", { method: "DELETE" });
+      } catch (err) {
+        this.notifications = previous;
+        await this._fail(err, t("toast.updateFailed"));
+      }
+    },
+
     async syncTimezone() {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       if (!timezone || timezone === this.household.timezone) return;
