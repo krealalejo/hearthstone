@@ -2,6 +2,7 @@
 
 # Release signing — never commit secrets
 keystore.properties
+google-services.json
 *.jks
 *.keystore
 
@@ -104,3 +105,5 @@ app/src/main/assets/public
 app/src/main/assets/capacitor.config.json
 app/src/main/assets/capacitor.plugins.json
 app/src/main/res/xml/config.xml
+
+docs
