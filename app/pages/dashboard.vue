@@ -35,9 +35,20 @@
       </div>
     </div>
 
-    <div class="sec-head">
+    <div class="sec-head page-head">
       <h2>{{ $t("dashboard.weeklyTasks") }}</h2>
       <span class="line" />
+      <v-btn
+        class="page-head-action"
+        color="primary"
+        size="small"
+        @click="modalTask = {}"
+      >
+        <v-icon size="15" start>mdi-plus</v-icon>{{ $t("dashboard.newTask") }}
+      </v-btn>
+    </div>
+
+    <div class="inv-filter">
       <v-btn-toggle
         v-model="filter"
         mandatory
@@ -54,9 +65,6 @@
           $t("dashboard.filterOpen")
         }}</v-btn>
       </v-btn-toggle>
-      <v-btn color="primary" size="small" @click="modalTask = {}">
-        <v-icon size="15" start>mdi-plus</v-icon>{{ $t("dashboard.newTask") }}
-      </v-btn>
     </div>
 
     <div class="dash-grid">
