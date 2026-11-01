@@ -44,6 +44,30 @@ vi.mock("gsap", () => ({
   },
 }));
 
+beforeAll(() => {
+  if (!globalThis.visualViewport) {
+    Object.defineProperty(globalThis, "visualViewport", {
+      value: {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        width: 390,
+        height: 844,
+        offsetLeft: 0,
+        offsetTop: 0,
+        scale: 1,
+        pageLeft: 0,
+        pageTop: 0,
+      },
+      writable: true,
+    });
+  }
+});
+
+async function flushDialog() {
+  await nextTick();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+}
+
 const mountedWrappers: Array<{ unmount: () => void }> = [];
 
 async function mount<T>(
@@ -217,30 +241,6 @@ describe("pages/inventory", () => {
 });
 
 describe("pages/shopping", () => {
-  beforeAll(() => {
-    if (!globalThis.visualViewport) {
-      Object.defineProperty(globalThis, "visualViewport", {
-        value: {
-          addEventListener: vi.fn(),
-          removeEventListener: vi.fn(),
-          width: 390,
-          height: 844,
-          offsetLeft: 0,
-          offsetTop: 0,
-          scale: 1,
-          pageLeft: 0,
-          pageTop: 0,
-        },
-        writable: true,
-      });
-    }
-  });
-
-  async function flushDialog() {
-    await nextTick();
-    await new Promise((resolve) => setTimeout(resolve, 0));
-  }
-
   async function mountShopping() {
     const { default: Component } = await import("~/pages/shopping.vue");
     const wrapper = await mount(Component, { attachTo: document.body });
@@ -333,5 +333,22 @@ describe("pages/todos", () => {
       .findAllComponents({ name: "VBtn" })
       .find((btn) => btn.text().includes("Open Home"));
     expect(link?.props("to")).toBe("/dashboard");
+  });
+});
+
+describe("pages/todos add button", () => {
+  it("opens the add modal on To-do from the header button", async () => {
+    const { default: Component } = await import("~/pages/todos.vue");
+    const wrapper = await mount(Component, { attachTo: document.body });
+    expect(wrapper.find("input").exists()).toBe(false);
+    const action = wrapper.find(".page-head .page-head-action");
+    expect(action.text()).toBe("Add");
+    await action.trigger("click");
+    await flushDialog();
+    const headings = Array.from(
+      document.querySelectorAll(".modal-head h2"),
+    ).map((h) => h.textContent?.trim());
+    expect(headings).toContain("New to-do");
+    wrapper.unmount();
   });
 });

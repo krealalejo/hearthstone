@@ -63,7 +63,13 @@
     "effortLight": "Ligera",
     "effortMedium": "Media",
     "effortHard": "Difícil",
-    "effortDeep": "Profunda"
+    "effortDeep": "Profunda",
+    "kindTodo": "Pendiente",
+    "kindTask": "Tarea semanal",
+    "titleNewTodo": "Nuevo pendiente",
+    "subtitleTodo": "Algo puntual para tachar",
+    "fieldTodo": "Pendiente",
+    "addTodo": "Añadir pendiente"
   },
   "inventory": {
     "title": "Inventario",

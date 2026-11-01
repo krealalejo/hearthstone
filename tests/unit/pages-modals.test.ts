@@ -743,6 +743,85 @@ describe("dashboard/TaskModal", () => {
     );
   });
 
+  async function mountAddModal() {
+    const { default: Component } =
+      await import("~/components/dashboard/TaskModal.vue");
+    const wrapper = await mount(Component, {
+      props: { task: null, allowTodo: true },
+    });
+    const store = useHomeStore();
+    vi.spyOn(store, "addTodo").mockImplementation(vi.fn() as any);
+    vi.spyOn(store, "saveTask").mockImplementation(vi.fn() as any);
+    const kindButton = (label: string) =>
+      wrapper
+        .find(".kind-switch")
+        .findAll("button")
+        .find((b) => b.text().includes(label))!;
+    return { wrapper, store, kindButton };
+  }
+
+  it("starts on To-do with only the text field when to-dos are allowed", async () => {
+    const { wrapper } = await mountAddModal();
+    expect(wrapper.find("h2").text()).toBe("New to-do");
+    expect(wrapper.find(".kind-switch").exists()).toBe(true);
+    expect(wrapper.find("#task-desc").exists()).toBe(false);
+    expect(wrapper.find(".v-chip").exists()).toBe(false);
+  });
+
+  it("adds a to-do instead of a task", async () => {
+    const { wrapper, store } = await mountAddModal();
+    await wrapper.find("#task-title").setValue("Call the plumber");
+    await wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Add to-do")!
+      .trigger("click");
+    expect(store.addTodo).toHaveBeenCalledWith("Call the plumber");
+    expect(store.saveTask).not.toHaveBeenCalled();
+    expect(wrapper.emitted("close")).toBeTruthy();
+  });
+
+  it("adds a to-do with Enter", async () => {
+    const { wrapper, store } = await mountAddModal();
+    const input = wrapper.find("#task-title");
+    await input.setValue("Buy stamps");
+    await input.trigger("keydown", { key: "Enter" });
+    expect(store.addTodo).toHaveBeenCalledWith("Buy stamps");
+  });
+
+  it("switches to the full task form and creates a weekly task", async () => {
+    const { wrapper, store, kindButton } = await mountAddModal();
+    await kindButton("Weekly task").trigger("click");
+    expect(wrapper.find("h2").text()).toBe("New task");
+    expect(wrapper.find("#task-desc").exists()).toBe(true);
+    await wrapper.find("#task-title").setValue("Water plants");
+    await wrapper
+      .findAll("button")
+      .find((b) => b.text() === "Add task")!
+      .trigger("click");
+    expect(store.saveTask).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "Water plants" }),
+    );
+    expect(store.addTodo).not.toHaveBeenCalled();
+  });
+
+  it("hides the kind switch when editing a task", async () => {
+    const { default: Component } =
+      await import("~/components/dashboard/TaskModal.vue");
+    const wrapper = await mount(Component, {
+      props: { task: baseTask(), allowTodo: true },
+    });
+    expect(wrapper.find(".kind-switch").exists()).toBe(false);
+    expect(wrapper.find("#task-desc").exists()).toBe(true);
+  });
+
+  it("hides the kind switch on Home", async () => {
+    const { default: Component } =
+      await import("~/components/dashboard/TaskModal.vue");
+    const wrapper = await mount(Component, { props: { task: null } });
+    expect(wrapper.find(".kind-switch").exists()).toBe(false);
+    expect(wrapper.find("h2").text()).toBe("New task");
+  });
+
   it("save button is disabled when title is empty", async () => {
     const { default: Component } =
       await import("~/components/dashboard/TaskModal.vue");

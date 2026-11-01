@@ -1,6 +1,6 @@
 <template>
   <div class="content-inner">
-    <div class="sec-head">
+    <div class="sec-head page-head">
       <h2>{{ $t("todos.title") }}</h2>
       <span class="count">{{
         $t(
@@ -10,18 +10,14 @@
         )
       }}</span>
       <span class="line" />
-    </div>
-
-    <div class="shop-add">
-      <v-text-field
-        v-model="draft"
-        :placeholder="$t('todos.addPlaceholder')"
-        maxlength="300"
-        hide-details
-        @keydown.enter="addTodo"
-      />
-      <v-btn color="primary" :loading="adding" @click="addTodo">
-        <v-icon size="17" start>mdi-plus</v-icon>{{ $t("todos.add") }}
+      <v-btn
+        class="page-head-action"
+        color="primary"
+        size="small"
+        aria-haspopup="dialog"
+        @click="openTaskModal({ allowTodo: true })"
+      >
+        <v-icon size="15" start>mdi-plus</v-icon>{{ $t("todos.add") }}
       </v-btn>
     </div>
 
@@ -62,7 +58,7 @@
       v-for="task in pendingTasks"
       :key="task.id"
       :task="task"
-      @edit="modalTask = { task }"
+      @edit="openTaskModal({ task })"
     />
 
     <template v-if="doneItems.length">
@@ -79,7 +75,9 @@
 
     <v-dialog v-model="taskModalOpen" max-width="480" class="qh-dialog">
       <DashboardTaskModal
+        :key="modalKey"
         :task="modalTask?.task ?? null"
+        :allow-todo="modalTask?.allowTodo"
         @close="modalTask = null"
         @saved="modalTask = null"
       />
@@ -96,13 +94,17 @@ definePageMeta({ middleware: "auth" });
 
 const store = useHomeStore();
 
-const draft = ref("");
-const adding = ref(false);
-
 const pendingItems = computed(() => store.todos.filter((i) => !i.done));
 const doneItems = computed(() => store.todos.filter((i) => i.done));
 
-const modalTask = ref<{ task?: Task } | null>(null);
+const modalTask = ref<{ task?: Task; allowTodo?: boolean } | null>(null);
+const modalKey = ref(0);
+
+function openTaskModal(target: { task?: Task; allowTodo?: boolean }) {
+  modalKey.value += 1;
+  modalTask.value = target;
+}
+
 const taskModalOpen = computed({
   get: () => modalTask.value !== null,
   set: (v) => {
@@ -120,15 +122,6 @@ const pendingTasks = computed(() =>
     .filter((tk) => !tk.done)
     .sort((a, b) => taskOwnerRank(a) - taskOwnerRank(b)),
 );
-
-async function addTodo() {
-  if (adding.value) return;
-  const text = draft.value;
-  draft.value = "";
-  adding.value = true;
-  await store.addTodo(text);
-  adding.value = false;
-}
 </script>
 
 <style scoped>

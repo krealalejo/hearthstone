@@ -63,7 +63,13 @@
     "effortLight": "Light",
     "effortMedium": "Medium",
     "effortHard": "Hard",
-    "effortDeep": "Deep"
+    "effortDeep": "Deep",
+    "kindTodo": "To-do",
+    "kindTask": "Weekly task",
+    "titleNewTodo": "New to-do",
+    "subtitleTodo": "A one-off item to check off",
+    "fieldTodo": "To-do",
+    "addTodo": "Add to-do"
   },
   "inventory": {
     "title": "Inventory",

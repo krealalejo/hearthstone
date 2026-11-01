@@ -63,7 +63,13 @@
     "effortLight": "Lleugera",
     "effortMedium": "Mitjana",
     "effortHard": "Difícil",
-    "effortDeep": "Profunda"
+    "effortDeep": "Profunda",
+    "kindTodo": "Pendent",
+    "kindTask": "Tasca setmanal",
+    "titleNewTodo": "Nou pendent",
+    "subtitleTodo": "Una cosa puntual per marcar",
+    "fieldTodo": "Pendent",
+    "addTodo": "Afegeix el pendent"
   },
   "inventory": {
     "title": "Inventari",
