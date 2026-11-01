@@ -1732,7 +1732,22 @@
   border: 1px solid var(--hairline);
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-lg);
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.qh-dialog .v-overlay__content > div {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+.qh-dialog .modal-head,
+.qh-dialog .modal-foot {
+  flex-shrink: 0;
+}
+.qh-dialog .modal-body {
+  min-height: 0;
   overscroll-behavior: contain;
 }
 .qh-dialog.v-dialog > .v-overlay__content {
