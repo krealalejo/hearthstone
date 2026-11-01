@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from "vue";
-import type { InventoryItem } from "~/stores/home";
+import type { InventoryItem } from "~/types/home";
 import { useHomeStore } from "~/stores/home";
 import { useAnimations } from "~/composables/useAnimations";
 import { CATEGORIES } from "~/utils/categories";

@@ -171,7 +171,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import type { Member } from "~/stores/home";
+import type { Member } from "~/types/home";
 import { useHomeStore } from "~/stores/home";
 import { levelInfo } from "~/utils/home";
 

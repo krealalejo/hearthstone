@@ -57,7 +57,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { useHomeStore, type AppNotification } from "~/stores/home";
+import { useHomeStore } from "~/stores/home";
+import type { AppNotification } from "~/types/home";
 import { usePushNotifications } from "~/composables/usePushNotifications";
 
 const store = useHomeStore();

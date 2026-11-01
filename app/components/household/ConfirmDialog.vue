@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Member } from "~/stores/home";
+import type { Member } from "~/types/home";
 
 defineProps<{
   modelValue: boolean;

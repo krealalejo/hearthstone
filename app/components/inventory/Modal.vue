@@ -123,7 +123,7 @@
 
 <script setup lang="ts">
 import { reactive, computed } from "vue";
-import type { InventoryItem } from "~/stores/home";
+import type { InventoryItem } from "~/types/home";
 import { useHomeStore } from "~/stores/home";
 import { CATEGORIES, type Category } from "~/utils/categories";
 

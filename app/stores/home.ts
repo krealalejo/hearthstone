@@ -17,19 +17,6 @@ import type {
 } from "~/types/home";
 import { unregisterPushDevice } from "~/composables/usePushNotifications";
 
-export type {
-  Member,
-  Room,
-  Task,
-  InventoryItem,
-  ShoppingItem,
-  TodoItem,
-  HistoryEntry,
-  Toast,
-  Household,
-  AppNotification,
-};
-
 export type NewShopItem = Pick<ShoppingItem, "name"> &
   Partial<Pick<ShoppingItem, "invId" | "qty" | "price" | "cat" | "note">>;
 

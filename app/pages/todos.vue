@@ -87,7 +87,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import type { Task } from "~/stores/home";
+import type { Task } from "~/types/home";
 import { useHomeStore } from "~/stores/home";
 
 definePageMeta({ middleware: "auth" });

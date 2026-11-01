@@ -190,7 +190,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from "vue";
-import type { Task } from "~/stores/home";
+import type { Task } from "~/types/home";
 import { useHomeStore } from "~/stores/home";
 import type { RepeatUnit } from "~/utils/recurrence";
 

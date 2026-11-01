@@ -7,7 +7,7 @@ import type {
   Task,
   HistoryEntry,
   AppNotification,
-} from "~/stores/home";
+} from "~/types/home";
 import { useHomeStore } from "~/stores/home";
 import { api } from "~/utils/api";
 

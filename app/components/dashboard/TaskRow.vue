@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import type { Task } from "~/stores/home";
+import type { Task } from "~/types/home";
 import { useHomeStore } from "~/stores/home";
 import { useAnimations } from "~/composables/useAnimations";
 import { useConfetti } from "~/composables/useConfetti";
