@@ -91,6 +91,11 @@ export const householdPatchSchema = z
     weekStartDay: z.enum(["monday", "sunday"]).optional(),
     currency: z.string().max(10).optional(),
     restockSyncedAt: z.iso.datetime().optional(),
+    timezone: z
+      .string()
+      .max(64)
+      .refine(isTimeZone, { message: "Invalid timezone" })
+      .optional(),
   })
   .refine(
     (d) =>
@@ -99,9 +104,23 @@ export const householdPatchSchema = z
       d.lastResetWeek !== undefined ||
       d.weekStartDay !== undefined ||
       d.currency !== undefined ||
-      d.restockSyncedAt !== undefined,
+      d.restockSyncedAt !== undefined ||
+      d.timezone !== undefined,
     { message: "At least one field required" },
   );
+
+export const deviceTokenSchema = z.object({
+  token: z.string().min(1, "token required").max(4096),
+});
+
+function isTimeZone(value: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export function validate<T>(schema: z.ZodType<T>, body: unknown): T {
   const result = schema.safeParse(body);

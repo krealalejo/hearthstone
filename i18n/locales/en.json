@@ -358,5 +358,18 @@
     "householdSub": "Members and invites",
     "profile": "Profile & settings",
     "profileSub": "Avatar, language and preferences"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "open": "Open notifications",
+    "empty": "No notifications yet",
+    "push": "Push notifications on this device",
+    "pushDenied": "Notifications are blocked for this app",
+    "pushFailed": "Could not update push notifications",
+    "weekReminder": {
+      "title": "2 days left this week",
+      "mine": "{n} task assigned to you | {n} tasks assigned to you",
+      "unassigned": "{n} unassigned task | {n} unassigned tasks"
+    }
   }
 }

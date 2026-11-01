@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
     weekStartDay,
     currency,
     restockSyncedAt,
+    timezone,
   } = validate(householdPatchSchema, await readBody(event));
 
   const updates: Record<string, unknown> = {};
@@ -19,6 +20,7 @@ export default defineEventHandler(async (event) => {
   if (weekStartDay !== undefined) updates.weekStartDay = weekStartDay;
   if (currency) updates.currency = currency;
   if (restockSyncedAt) updates.restockSyncedAt = restockSyncedAt;
+  if (timezone) updates.timezone = timezone;
 
   const hh = await Household.findByIdAndUpdate(householdId, updates, {
     returnDocument: "after",

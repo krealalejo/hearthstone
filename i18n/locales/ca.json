@@ -358,5 +358,18 @@
     "householdSub": "Membres i invitacions",
     "profile": "Perfil i configuració",
     "profileSub": "Avatar, idioma i preferències"
+  },
+  "notifications": {
+    "title": "Notificacions",
+    "open": "Obrir notificacions",
+    "empty": "Encara no hi ha notificacions",
+    "push": "Notificacions push en aquest dispositiu",
+    "pushDenied": "Les notificacions estan bloquejades per a aquesta app",
+    "pushFailed": "No s’han pogut actualitzar les notificacions push",
+    "weekReminder": {
+      "title": "Queden 2 dies de setmana",
+      "mine": "{n} tasca teva pendent | {n} tasques teves pendents",
+      "unassigned": "{n} tasca sense assignar | {n} tasques sense assignar"
+    }
   }
 }

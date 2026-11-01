@@ -156,6 +156,28 @@ describe("household.patch", () => {
     });
   });
 
+  it("stores a valid timezone", async () => {
+    mockReadBody.mockResolvedValue({ timezone: "Europe/Madrid" });
+    mockHouseholdFindByIdAndUpdate.mockResolvedValue(
+      fakeDoc("hh1", { timezone: "Europe/Madrid" }),
+    );
+    const { default: handler } = await import("#server/api/household.patch");
+    await (handler as Function)(mockEvent());
+    expect(mockHouseholdFindByIdAndUpdate).toHaveBeenCalledWith(
+      expect.anything(),
+      { timezone: "Europe/Madrid" },
+      expect.anything(),
+    );
+  });
+
+  it("rejects an unknown timezone", async () => {
+    mockReadBody.mockResolvedValue({ timezone: "Mars/Olympus" });
+    const { default: handler } = await import("#server/api/household.patch");
+    await expect((handler as Function)(mockEvent())).rejects.toMatchObject({
+      statusCode: 400,
+    });
+  });
+
   it("throws 400 when no fields provided", async () => {
     mockReadBody.mockResolvedValue({});
     const { default: handler } = await import("#server/api/household.patch");

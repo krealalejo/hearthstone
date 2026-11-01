@@ -358,5 +358,18 @@
     "householdSub": "Miembros e invitaciones",
     "profile": "Perfil y ajustes",
     "profileSub": "Avatar, idioma y preferencias"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "open": "Abrir notificaciones",
+    "empty": "Aún no hay notificaciones",
+    "push": "Notificaciones push en este dispositivo",
+    "pushDenied": "Las notificaciones están bloqueadas para esta app",
+    "pushFailed": "No se pudieron actualizar las notificaciones push",
+    "weekReminder": {
+      "title": "Quedan 2 días de semana",
+      "mine": "{n} tarea tuya pendiente | {n} tareas tuyas pendientes",
+      "unassigned": "{n} tarea sin asignar | {n} tareas sin asignar"
+    }
   }
 }
