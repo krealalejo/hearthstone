@@ -68,6 +68,7 @@
     "newItem": "New item",
     "catFood": "Food & Groceries",
     "catCleaning": "Cleaning Supplies",
+    "catHygiene": "Hygiene & Personal Care",
     "catMisc": "Miscellaneous"
   },
   "inventoryModal": {

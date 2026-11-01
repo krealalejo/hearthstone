@@ -165,6 +165,19 @@ describe("pages/inventory", () => {
     expect(wrapper.text()).toContain("Food");
   });
 
+  it("groups hygiene items under their own category", async () => {
+    const { default: Component } = await import("~/pages/inventory.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.bootstrapped = true;
+    store.inventory = [
+      baseInvItem({ id: "i2", name: "Toothpaste", cat: "hygiene" }),
+    ];
+    await nextTick();
+    expect(wrapper.text()).toContain("Hygiene & Personal Care");
+    expect(wrapper.text()).toContain("Toothpaste");
+  });
+
   it("shows items when inventory populated", async () => {
     const { default: Component } = await import("~/pages/inventory.vue");
     const wrapper = await mount(Component);

@@ -68,6 +68,7 @@ import { ref, computed, watch, nextTick } from "vue";
 import type { InventoryItem } from "~/stores/home";
 import { useHomeStore } from "~/stores/home";
 import { useAnimations } from "~/composables/useAnimations";
+import { CATEGORIES } from "~/utils/categories";
 
 definePageMeta({ middleware: "auth" });
 
@@ -75,11 +76,9 @@ const store = useHomeStore();
 const { animateStagger } = useAnimations();
 const { t } = useI18n();
 
-const CATS = computed(() => [
-  { id: "food", name: t("inventory.catFood"), icon: "mdi-basket" },
-  { id: "cleaning", name: t("inventory.catCleaning"), icon: "mdi-spray" },
-  { id: "misc", name: t("inventory.catMisc"), icon: "mdi-package-variant" },
-]);
+const CATS = computed(() =>
+  CATEGORIES.map((c) => ({ ...c, name: t(c.labelKey) })),
+);
 
 const tab = ref("all");
 const invListEl = ref<HTMLElement | null>(null);

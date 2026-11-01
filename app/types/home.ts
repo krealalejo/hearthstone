@@ -1,3 +1,5 @@
+import type { Category } from "~/utils/categories";
+
 export interface Member {
   id: string;
   name: string;
@@ -33,7 +35,7 @@ export interface Task {
 export interface InventoryItem {
   id: string;
   name: string;
-  cat: "food" | "cleaning" | "misc";
+  cat: Category;
   qty: number;
   min: number;
   optimal: number;

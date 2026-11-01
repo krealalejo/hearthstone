@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+export const INVENTORY_CATEGORIES = [
+  "food",
+  "cleaning",
+  "hygiene",
+  "misc",
+] as const;
+
 const passwordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters")
@@ -45,7 +52,7 @@ export const taskSchema = z.object({
 
 export const inventorySchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
-  cat: z.enum(["food", "cleaning", "misc"]).optional(),
+  cat: z.enum(INVENTORY_CATEGORIES).optional(),
   qty: z.number().min(0).optional(),
   min: z.number().min(0).optional(),
   optimal: z.number().min(0).optional(),

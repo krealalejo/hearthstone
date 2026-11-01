@@ -68,6 +68,7 @@
     "newItem": "Nuevo artículo",
     "catFood": "Alimentación",
     "catCleaning": "Limpieza",
+    "catHygiene": "Higiene",
     "catMisc": "Varios"
   },
   "inventoryModal": {
