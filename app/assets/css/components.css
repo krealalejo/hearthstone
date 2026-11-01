@@ -723,14 +723,14 @@
   flex-direction: column;
   gap: 6px;
 }
-.field label {
+.field > label {
   font-size: 12.5px;
   font-weight: 600;
   color: var(--ink-2);
 }
-.field input,
-.field textarea,
-.field select {
+.field > input,
+.field > textarea,
+.field > select {
   height: 42px;
   padding: 0 13px;
   border: 1px solid var(--hairline);
@@ -742,15 +742,15 @@
   outline: none;
   transition: border-color 0.15s;
 }
-.field textarea {
+.field > textarea {
   height: auto;
   padding: 11px 13px;
   resize: vertical;
   min-height: 66px;
 }
-.field input:focus,
-.field textarea:focus,
-.field select:focus {
+.field > input:focus,
+.field > textarea:focus,
+.field > select:focus {
   border-color: var(--accent);
 }
 .field-row {
