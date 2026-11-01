@@ -17,6 +17,7 @@ vi.stubGlobal("createError", mockCreateError);
 
 const mockNotificationFind = vi.fn();
 const mockNotificationUpdateMany = vi.fn();
+const mockNotificationDeleteMany = vi.fn();
 const mockDeviceFindOneAndUpdate = vi.fn();
 const mockDeviceDeleteOne = vi.fn();
 
@@ -24,6 +25,7 @@ vi.mock("#server/models/AppNotification", () => ({
   AppNotification: {
     find: mockNotificationFind,
     updateMany: mockNotificationUpdateMany,
+    deleteMany: mockNotificationDeleteMany,
   },
 }));
 vi.mock("#server/models/DeviceToken", () => ({
@@ -73,6 +75,20 @@ describe("notifications.patch", () => {
       { userId: "u1", householdId: "hh1", readAt: null },
       { readAt: expect.any(Date) },
     );
+    expect(result).toEqual({ ok: true });
+  });
+});
+
+describe("notifications.delete", () => {
+  it("deletes only the caller's notifications", async () => {
+    const { default: handler } = await import(
+      "#server/api/notifications.delete"
+    );
+    const result = await (handler as Function)(mockEvent());
+    expect(mockNotificationDeleteMany).toHaveBeenCalledWith({
+      userId: "u1",
+      householdId: "hh1",
+    });
     expect(result).toEqual({ ok: true });
   });
 });

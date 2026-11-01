@@ -2,12 +2,16 @@
   <v-menu
     v-model="open"
     location="bottom center"
+    class="qh-scrim"
+    :z-index="20"
     content-class="bell-menu"
+    scrim
     :close-on-content-click="false"
-    offset="8"
+    :offset="offset"
   >
     <template #activator="{ props: activator }">
       <button
+        ref="bellButton"
         v-bind="activator"
         class="btn btn-ghost btn-icon bell"
         :title="$t('notifications.open')"
@@ -20,7 +24,17 @@
       </button>
     </template>
     <div class="bell-panel">
-      <div class="bell-head">{{ $t("notifications.title") }}</div>
+      <div class="bell-head">
+        {{ $t("notifications.title") }}
+        <button
+          v-if="store.notifications.length"
+          class="btn btn-ghost btn-sm bell-clear"
+          @click="store.clearNotifications()"
+        >
+          <v-icon style="font-size: 15px">mdi-delete-outline</v-icon
+          >{{ $t("notifications.clear") }}
+        </button>
+      </div>
       <div v-if="!store.notifications.length" class="bell-empty">
         {{ $t("notifications.empty") }}
       </div>
@@ -66,9 +80,18 @@ const { t, locale } = useI18n();
 const push = usePushNotifications();
 const open = ref(false);
 const unreadIds = ref(new Set<string>());
+const bellButton = ref<HTMLElement | null>(null);
+const offset = ref(20);
+
+function alignToBar() {
+  const button = bellButton.value;
+  const bar = button?.closest(".topbar, .mobile-top");
+  if (!button || !bar) return;
+}
 
 watch(open, (isOpen) => {
   if (!isOpen) return;
+  alignToBar();
   unreadIds.value = new Set(
     store.notifications.filter((n) => !n.readAt).map((n) => n.id),
   );
@@ -146,6 +169,13 @@ async function togglePush() {
   font-size: 16px;
   font-weight: 600;
   border-bottom: 1px solid var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.bell-clear {
+  font-family: var(--font-ui);
 }
 .bell-empty {
   padding: 22px 16px;

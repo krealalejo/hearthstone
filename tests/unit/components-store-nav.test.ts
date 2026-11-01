@@ -191,11 +191,12 @@ describe("AppTabBar", () => {
     wrapper.unmount();
   });
 
-  it("emits open-profile from the profile item", async () => {
+  it("navigates to the profile page from the profile item", async () => {
     const { wrapper, items } = await openMore();
+    const push = vi.spyOn(useRouter(), "push");
     items()[3]!.click();
     await nextTick();
-    expect(wrapper.emitted("open-profile")).toBeTruthy();
+    expect(push).toHaveBeenCalledWith("/profile");
     wrapper.unmount();
   });
 

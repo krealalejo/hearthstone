@@ -199,6 +199,10 @@
 .me-card:hover {
   border-color: var(--ink-3);
 }
+.me-card.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
 .me-name {
   display: block;
   font-size: 13.5px;
@@ -219,6 +223,8 @@
 }
 
 .topbar {
+  position: relative;
+  z-index: 50;
   display: flex;
   align-items: center;
   gap: 18px;
@@ -723,14 +729,14 @@
   flex-direction: column;
   gap: 6px;
 }
-.field label {
+.field > label {
   font-size: 12.5px;
   font-weight: 600;
   color: var(--ink-2);
 }
-.field input,
-.field textarea,
-.field select {
+.field > input,
+.field > textarea,
+.field > select {
   height: 42px;
   padding: 0 13px;
   border: 1px solid var(--hairline);
@@ -742,15 +748,15 @@
   outline: none;
   transition: border-color 0.15s;
 }
-.field textarea {
+.field > textarea {
   height: auto;
   padding: 11px 13px;
   resize: vertical;
   min-height: 66px;
 }
-.field input:focus,
-.field textarea:focus,
-.field select:focus {
+.field > input:focus,
+.field > textarea:focus,
+.field > select:focus {
   border-color: var(--accent);
 }
 .field-row {
@@ -1722,17 +1728,39 @@
 /* ════════════════════════════════════════════════════════════
    MODALS (Vuetify v-dialog override)
    ════════════════════════════════════════════════════════════ */
-.qh-dialog .v-overlay__scrim {
+.qh-dialog .v-overlay__scrim,
+.qh-scrim .v-overlay__scrim {
   background: #0e0b0799;
   backdrop-filter: blur(6px);
   opacity: 1;
+}
+body:has(.qh-scrim.v-overlay--active) :is(.topbar, .mobile-top) {
+  background: var(--bg);
+}
+.qh-scrim.v-bottom-sheet > .v-overlay__content {
+  bottom: var(--tabbar-h, 0px);
 }
 .qh-dialog .v-overlay__content {
   background: var(--surface);
   border: 1px solid var(--hairline);
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-lg);
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.qh-dialog .v-overlay__content > div {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+.qh-dialog .modal-head,
+.qh-dialog .modal-foot {
+  flex-shrink: 0;
+}
+.qh-dialog .modal-body {
+  min-height: 0;
   overscroll-behavior: contain;
 }
 .qh-dialog.v-dialog > .v-overlay__content {
@@ -1858,6 +1886,14 @@
     display: none;
   }
 
+  :root {
+    --mobile-top-h: calc(69px + env(safe-area-inset-top));
+    --tabbar-h: calc(68px + env(safe-area-inset-bottom));
+  }
+  .qh-dialog.qh-scrim.v-dialog > .v-overlay__content {
+    max-height: calc(100dvh - var(--mobile-top-h) - var(--tabbar-h) - 32px);
+  }
+
   .mobile-top {
     display: flex;
     align-items: center;
@@ -1870,6 +1906,13 @@
     top: 0;
     z-index: 50;
     flex-shrink: 0;
+  }
+  .mobile-top .mt-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: inherit;
+    text-decoration: none;
   }
   .mobile-top .brand-mark {
     width: 30px;
@@ -2025,7 +2068,7 @@
     grid-template-columns: 1fr;
   }
   .qh-dialog .v-overlay__content {
-    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    border-radius: var(--r-lg);
   }
 }
 

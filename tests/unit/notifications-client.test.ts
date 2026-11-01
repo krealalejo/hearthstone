@@ -128,6 +128,33 @@ describe("store notifications", () => {
     expect(store.notifications[0]!.readAt).toBeNull();
     expect(store.toasts).toHaveLength(1);
   });
+
+  it("clears all notifications", async () => {
+    vi.mocked($fetch).mockResolvedValue({ ok: true });
+    const store = useHomeStore();
+    store.setNotifications([notification(), notification({ id: "n2" })]);
+    await store.clearNotifications();
+    expect(store.notifications).toEqual([]);
+    expect($fetch).toHaveBeenCalledWith("/api/notifications", {
+      method: "DELETE",
+    });
+  });
+
+  it("does not call the API when there is nothing to clear", async () => {
+    const store = useHomeStore();
+    store.setNotifications([]);
+    await store.clearNotifications();
+    expect($fetch).not.toHaveBeenCalled();
+  });
+
+  it("restores and toasts when clearing fails", async () => {
+    vi.mocked($fetch).mockRejectedValue(new Error("down"));
+    const store = useHomeStore();
+    store.setNotifications([notification()]);
+    await store.clearNotifications();
+    expect(store.notifications).toHaveLength(1);
+    expect(store.toasts).toHaveLength(1);
+  });
 });
 
 describe("store syncTimezone", () => {
@@ -334,12 +361,27 @@ describe("NotificationBell", () => {
     wrapper.unmount();
   });
 
+  it("clears notifications from the panel", async () => {
+    vi.mocked($fetch).mockResolvedValue({ ok: true });
+    const wrapper = await mountBell();
+    const store = useHomeStore();
+    store.setNotifications([notification()]);
+    await openPanel(wrapper);
+    (document.querySelector(".bell-clear") as HTMLElement).click();
+    await flushPromises();
+    expect(store.notifications).toEqual([]);
+    expect(document.querySelector(".bell-clear")).toBeNull();
+    expect(document.querySelector(".bell-empty")).not.toBeNull();
+    wrapper.unmount();
+  });
+
   it("shows the empty state", async () => {
     const wrapper = await mountBell();
     await openPanel(wrapper);
     expect(document.querySelector(".bell-empty")?.textContent).toContain(
       "No notifications yet",
     );
+    expect(document.querySelector(".bell-clear")).toBeNull();
     wrapper.unmount();
   });
 

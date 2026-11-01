@@ -58,6 +58,7 @@ const TITLES = computed(() => ({
   },
   "history-weeks": { h: t("history.weeksTitle"), s: t("topbar.histWeeksSub") },
   household: { h: t("nav.household"), s: t("topbar.householdSub") },
+  profile: { h: t("profile.title"), s: t("topbar.profileSub") },
 }));
 
 const title = computed(() => {

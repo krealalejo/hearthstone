@@ -82,8 +82,9 @@
       <button
         type="button"
         class="plain-button me-card"
+        :class="{ active: route.name === 'profile' }"
         :aria-label="$t('a11y.openProfile')"
-        @click="emit('open-profile')"
+        @click="router.push('/profile')"
       >
         <AppAvatar :member="store.me" size="md" />
         <span style="flex: 1; min-width: 0">
@@ -107,7 +108,6 @@ import { useRoute, useRouter } from "vue-router";
 import { useHomeStore } from "~/stores/home";
 import { levelInfo } from "~/utils/home";
 
-const emit = defineEmits<{ "open-profile": [] }>();
 const store = useHomeStore();
 const route = useRoute();
 const router = useRouter();
