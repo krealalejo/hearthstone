@@ -302,7 +302,8 @@
     "toggleTodo": "Toggle to-do",
     "removeTodo": "Remove to-do",
     "editTodo": "Edit to-do",
-    "editPrice": "Edit price"
+    "editPrice": "Edit price",
+    "quantity": "Quantity"
   },
   "task": {
     "claim": "Claim",

@@ -302,7 +302,8 @@
     "toggleTodo": "Marca el pendent",
     "removeTodo": "Elimina el pendent",
     "editTodo": "Edita el pendent",
-    "editPrice": "Edita el preu"
+    "editPrice": "Edita el preu",
+    "quantity": "Quantitat"
   },
   "task": {
     "claim": "Reclama",

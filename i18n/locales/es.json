@@ -302,7 +302,8 @@
     "toggleTodo": "Marcar pendiente",
     "removeTodo": "Eliminar pendiente",
     "editTodo": "Editar pendiente",
-    "editPrice": "Editar precio"
+    "editPrice": "Editar precio",
+    "quantity": "Cantidad"
   },
   "task": {
     "claim": "Reclamar",
