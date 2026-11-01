@@ -2,19 +2,6 @@
   <div class="content-inner">
     <div class="sec-head page-head">
       <h2>{{ $t("shopping.title") }}</h2>
-      <span class="count"
-        >{{
-          $t(
-            "shopping.itemCount",
-            { n: store.shopping.length },
-            store.shopping.length,
-          )
-        }}
-        ·
-        {{
-          $t("shopping.autoAdded", { n: autoItems.length }, autoItems.length)
-        }}</span
-      >
       <span class="line" />
       <v-btn
         class="page-head-action"
