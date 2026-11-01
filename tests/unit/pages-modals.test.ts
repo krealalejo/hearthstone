@@ -714,6 +714,29 @@ describe("dashboard/TaskModal", () => {
     }
   });
 
+  it("saves the effort picked from the xp tiles", async () => {
+    const { default: Component } =
+      await import("~/components/dashboard/TaskModal.vue");
+    const wrapper = await mount(Component, {
+      props: { task: baseTask({ xp: 10 }) },
+    });
+    const store = useHomeStore();
+    vi.spyOn(store, "saveTask").mockImplementation(vi.fn() as any);
+    const tile = wrapper
+      .findAll(".xp-opt")
+      .find((b) => b.find(".xp-n").text() === "35")!;
+    await tile.trigger("click");
+    expect(tile.attributes("aria-checked")).toBe("true");
+    expect(wrapper.findAll(".xp-opt.on")).toHaveLength(1);
+    await wrapper
+      .findAll("button")
+      .find((b) => b.text().includes("Save"))!
+      .trigger("click");
+    expect(store.saveTask).toHaveBeenCalledWith(
+      expect.objectContaining({ xp: 35 }),
+    );
+  });
+
   it("hides the interval picker when the task does not repeat", async () => {
     const { default: Component } =
       await import("~/components/dashboard/TaskModal.vue");

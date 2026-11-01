@@ -114,25 +114,21 @@
           <div class="label">
             {{ $t("taskModal.fieldEffort", { xp: form.xp }) }}
           </div>
-          <v-btn-toggle
-            v-model="form.xp"
-            mandatory
-            variant="outlined"
-            rounded="sm"
-            class="effort-toggle"
-          >
-            <v-btn
+          <div class="xp-pick" role="radiogroup">
+            <button
               v-for="opt in XP_OPTS"
               :key="opt.n"
-              :value="opt.n"
-              size="small"
+              type="button"
+              role="radio"
+              class="xp-opt"
+              :class="{ on: form.xp === opt.n }"
+              :aria-checked="form.xp === opt.n"
+              @click="form.xp = opt.n"
             >
-              <div style="text-align: center; line-height: 1.2">
-                <div style="font-weight: 600">{{ opt.n }}</div>
-                <div style="font-size: 10px; opacity: 0.75">{{ opt.l }}</div>
-              </div>
-            </v-btn>
-          </v-btn-toggle>
+              <div class="xp-n">{{ opt.n }}</div>
+              <div class="xp-l">{{ opt.l }}</div>
+            </button>
+          </div>
         </div>
         <div class="repeat-box">
           <v-switch
@@ -292,20 +288,30 @@ function handleDelete() {
   border-color: var(--accent);
   color: var(--accent-ink);
 }
-.effort-toggle {
-  display: flex;
-  width: 100%;
-  height: auto;
+.xp-pick {
+  gap: 6px;
 }
-.effort-toggle :deep(.v-btn) {
-  flex: 1;
-  height: 48px;
+.xp-opt {
   min-width: 0;
-  padding: 0 4px;
+  padding: 9px 4px;
+}
+.xp-opt:hover:not(.on) {
+  border-color: var(--ink-3);
+}
+.xp-opt .xp-n {
+  font-size: 18px;
+  line-height: 1.1;
+}
+.xp-opt .xp-l {
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .repeat-box {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
   padding: 10px 14px;
   border: 1px solid var(--hairline);
@@ -318,10 +324,14 @@ function handleDelete() {
   color: var(--ink-2);
   opacity: 1;
 }
+.repeat-box :deep(.v-switch) {
+  flex: none;
+}
 .repeat-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 10px;
 }
 .repeat-row :deep(.stepper) {
