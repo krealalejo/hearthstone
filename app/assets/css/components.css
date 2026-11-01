@@ -2025,7 +2025,7 @@
     grid-template-columns: 1fr;
   }
   .qh-dialog .v-overlay__content {
-    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    border-radius: var(--r-lg);
   }
 }
 
