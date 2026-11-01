@@ -7,7 +7,7 @@
         <span class="brand-mark">
           <img src="/favicon.png" alt="Hearthstone" />
         </span>
-        <span class="mt-title">{{ mobileTitle }}</span>
+        <span class="mt-title">Hearthstone</span>
         <span class="mt-spacer" />
         <NotificationBell />
         <button
@@ -43,30 +43,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRoute } from "vue-router";
+import { ref } from "vue";
 import { useHomeStore } from "~/stores/home";
 import { useBootstrap } from "~/composables/useBootstrap";
 import { useColorMode } from "~/composables/useColorMode";
 
 const { isDark, toggle } = useColorMode();
-const { t } = useI18n();
 const store = useHomeStore();
-const route = useRoute();
 const profileOpen = ref(false);
 
 useBootstrap();
-
-const VIEW_TITLE_KEYS: Record<string, string> = {
-  inventory: "nav.inventory",
-  shopping: "nav.shopping",
-  "history-purchases": "nav.history",
-  "history-weeks": "nav.history",
-  household: "nav.household",
-};
-
-const mobileTitle = computed(() => {
-  const key = VIEW_TITLE_KEYS[(route.name as string) ?? ""];
-  return key ? t(key) : "Hearthstone";
-});
 </script>

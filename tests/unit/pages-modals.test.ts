@@ -1054,15 +1054,18 @@ describe("default layout", () => {
     expect(wrapper.html()).toBeTruthy();
   });
 
-  it("renders unknown route title as Hearth (mobileTitle ?? branch)", async () => {
-    const { default: Component } = await import("~/layouts/default.vue");
-    const wrapper = await mount(Component, {
-      route: "/unknown-route",
-      slots: { default: "<div />" },
-    });
-    await nextTick();
-    expect(wrapper.find(".mt-title").exists()).toBe(true);
-  });
+  it.each(["/dashboard", "/inventory", "/shopping", "/unknown-route"])(
+    "renders Hearthstone as mobile title on %s",
+    async (route) => {
+      const { default: Component } = await import("~/layouts/default.vue");
+      const wrapper = await mount(Component, {
+        route,
+        slots: { default: "<div />" },
+      });
+      await nextTick();
+      expect(wrapper.find(".mt-title").text()).toBe("Hearthstone");
+    },
+  );
 
   it("opens and closes profile dialog via sidebar open-profile event", async () => {
     const { default: Component } = await import("~/layouts/default.vue");
