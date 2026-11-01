@@ -110,7 +110,8 @@
     "pricedItems": "Priced items",
     "estimatedTotal": "Estimated total",
     "finalize": "Finalize purchase",
-    "restockNote": "{n} item will be replenished to their optimal stock level. | {n} items will be replenished to their optimal stock level."
+    "restockNote": "{n} item will be replenished to their optimal stock level. | {n} items will be replenished to their optimal stock level.",
+    "options": "More options"
   },
   "todos": {
     "title": "To-do list",
@@ -319,5 +320,19 @@
     "saving": "Saving…",
     "invalidLink": "Reset link is invalid",
     "genericError": "Something went wrong"
+  },
+  "shoppingModal": {
+    "title": "Add to shopping list",
+    "subtitle": "Add details now or just a name — you can change qty and price later.",
+    "fieldName": "Item",
+    "namePlaceholder": "e.g. Olive oil",
+    "fieldInv": "Link to inventory",
+    "invHint": "Linked items restock the inventory when you finalize.",
+    "fieldQty": "Quantity",
+    "fieldPrice": "Price",
+    "fieldCat": "Category",
+    "fieldNote": "Note",
+    "notePlaceholder": "e.g. Brand X, 1L",
+    "add": "Add item"
   }
 }

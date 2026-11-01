@@ -27,6 +27,16 @@
             hide-details
             @keydown.enter="addItem"
           />
+          <v-btn
+            variant="outlined"
+            icon
+            class="shop-options"
+            :aria-label="$t('shopping.options')"
+            :title="$t('shopping.options')"
+            @click="optionsOpen = true"
+          >
+            <v-icon size="18">mdi-tune-variant</v-icon>
+          </v-btn>
           <v-btn color="primary" :loading="adding" @click="addItem">
             <v-icon size="17" start>mdi-plus</v-icon>{{ $t("shopping.add") }}
           </v-btn>
@@ -144,6 +154,10 @@
         </div>
       </div>
     </div>
+
+    <v-dialog v-model="optionsOpen" max-width="480" class="qh-dialog">
+      <ShoppingModal :initial-name="draft" @close="closeOptions" />
+    </v-dialog>
   </div>
 </template>
 
@@ -160,6 +174,12 @@ const store = useHomeStore();
 const draft = ref("");
 const checkingOut = ref(false);
 const adding = ref(false);
+const optionsOpen = ref(false);
+
+function closeOptions() {
+  optionsOpen.value = false;
+  draft.value = "";
+}
 
 async function finalize() {
   checkingOut.value = true;

@@ -110,7 +110,8 @@
     "pricedItems": "Articles amb preu",
     "estimatedTotal": "Total estimat",
     "finalize": "Finalitzar compra",
-    "restockNote": "{n} article es reposarà al seu nivell òptim. | {n} articles es reposaran al seu nivell òptim."
+    "restockNote": "{n} article es reposarà al seu nivell òptim. | {n} articles es reposaran al seu nivell òptim.",
+    "options": "Més opcions"
   },
   "todos": {
     "title": "Llista de pendents",
@@ -319,5 +320,19 @@
     "saving": "Desant…",
     "invalidLink": "L'enllaç de restabliment no és vàlid",
     "genericError": "Alguna cosa ha anat malament"
+  },
+  "shoppingModal": {
+    "title": "Afegeix a la llista",
+    "subtitle": "Afegeix els detalls ara o només el nom: la quantitat i el preu es poden canviar després.",
+    "fieldName": "Article",
+    "namePlaceholder": "p. ex. Oli d'oliva",
+    "fieldInv": "Vincula a l'inventari",
+    "invHint": "Els articles vinculats reposen l'inventari en finalitzar la compra.",
+    "fieldQty": "Quantitat",
+    "fieldPrice": "Preu",
+    "fieldCat": "Categoria",
+    "fieldNote": "Nota",
+    "notePlaceholder": "p. ex. Marca X, 1 L",
+    "add": "Afegeix l'article"
   }
 }

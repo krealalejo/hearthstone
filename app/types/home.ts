@@ -55,6 +55,8 @@ export interface ShoppingItem {
   qty: number;
   price: number | null;
   checked: boolean;
+  cat?: Category | null;
+  note?: string;
 }
 
 export interface TodoItem {

@@ -233,6 +233,55 @@ describe("shopping persistence", () => {
     expect(store.flashShopId).toBe("s_real");
   });
 
+  it("addShop sends and keeps every option", async () => {
+    (vi.mocked($fetch) as any).mockResolvedValue({ id: "s_real" });
+    const store = useHomeStore();
+
+    await store.addShop({
+      name: "  Toothpaste ",
+      invId: "i9",
+      qty: 3,
+      price: 2.4,
+      cat: "hygiene",
+      note: " Mint ",
+    });
+
+    expect($fetch).toHaveBeenCalledWith(
+      "/api/shopping",
+      expect.objectContaining({
+        method: "POST",
+        body: {
+          source: "manual",
+          name: "Toothpaste",
+          invId: "i9",
+          qty: 3,
+          price: 2.4,
+          cat: "hygiene",
+          note: "Mint",
+        },
+      }),
+    );
+    expect(store.shopping[0]).toMatchObject({
+      id: "s_real",
+      name: "Toothpaste",
+      invId: "i9",
+      qty: 3,
+      price: 2.4,
+      cat: "hygiene",
+      note: "Mint",
+      checked: false,
+    });
+  });
+
+  it("addShop ignores a blank name", async () => {
+    const store = useHomeStore();
+
+    await store.addShop({ name: "   ", qty: 2 });
+
+    expect(store.shopping).toHaveLength(0);
+    expect($fetch).not.toHaveBeenCalled();
+  });
+
   it("addManualShop rolls the item back out when the POST fails", async () => {
     makeFetchFail();
     const store = useHomeStore();

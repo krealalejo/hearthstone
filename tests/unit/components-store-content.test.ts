@@ -258,6 +258,33 @@ describe("inventory/Item", () => {
 });
 
 describe("shopping/Item", () => {
+  it("shows the category badge and note when present", async () => {
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
+    const { default: Component } =
+      await import("~/components/shopping/Item.vue");
+    const wrapper = await mountSuspended(Component, {
+      props: {
+        item: baseShopItem({ cat: "hygiene", note: "Mint, 75ml" }),
+        flashId: null,
+      },
+    });
+    expect(wrapper.find(".src-cat").text()).toContain("Hygiene");
+    expect(wrapper.find(".shop-note").text()).toBe("Mint, 75ml");
+  });
+
+  it("omits the category badge and note when absent", async () => {
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "🏠" };
+    const { default: Component } =
+      await import("~/components/shopping/Item.vue");
+    const wrapper = await mountSuspended(Component, {
+      props: { item: baseShopItem(), flashId: null },
+    });
+    expect(wrapper.find(".src-cat").exists()).toBe(false);
+    expect(wrapper.find(".shop-note").exists()).toBe(false);
+  });
+
   it("renders item name", async () => {
     const store = useHomeStore();
     store.household = { id: "hh1", name: "Home", emoji: "🏠" };

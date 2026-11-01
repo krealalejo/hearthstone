@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { inventorySchema, taskSchema } from "../../server/utils/validate";
+import {
+  inventorySchema,
+  shoppingSchema,
+  taskSchema,
+} from "../../server/utils/validate";
 
 describe("inventorySchema", () => {
   it.each(["food", "cleaning", "hygiene", "misc"])("accepts cat %s", (cat) => {
@@ -33,6 +37,32 @@ describe("taskSchema", () => {
   ])("rejects %s", (_label, extra) => {
     expect(
       taskSchema.safeParse({ title: "Water plants", ...extra }).success,
+    ).toBe(false);
+  });
+});
+
+describe("shoppingSchema", () => {
+  it("accepts a category and trims the note", () => {
+    const result = shoppingSchema.safeParse({
+      name: "Shampoo",
+      cat: "hygiene",
+      note: "  2-in-1 ",
+    });
+    expect(result.success && result.data.note).toBe("2-in-1");
+  });
+
+  it("accepts a null category", () => {
+    expect(
+      shoppingSchema.safeParse({ name: "Shampoo", cat: null }).success,
+    ).toBe(true);
+  });
+
+  it.each([
+    ["an unknown category", { cat: "garden" }],
+    ["a note over 200 characters", { note: "x".repeat(201) }],
+  ])("rejects %s", (_label, extra) => {
+    expect(
+      shoppingSchema.safeParse({ name: "Shampoo", ...extra }).success,
     ).toBe(false);
   });
 });

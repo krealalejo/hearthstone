@@ -189,6 +189,14 @@ describe("pages/inventory", () => {
 });
 
 describe("pages/shopping", () => {
+  it("offers a more-options button next to quick add", async () => {
+    const { default: Component } = await import("~/pages/shopping.vue");
+    const wrapper = await mount(Component);
+    const options = wrapper.find(".shop-options");
+    expect(options.exists()).toBe(true);
+    expect(options.attributes("aria-label")).toBe("More options");
+  });
+
   it("renders shopping page", async () => {
     const { default: Component } = await import("~/pages/shopping.vue");
     const wrapper = await mount(Component);

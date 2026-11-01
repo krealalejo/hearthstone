@@ -184,39 +184,4 @@ function handleDelete() {
   width: 44px;
   height: 42px;
 }
-
-.price-input {
-  height: 42px;
-  padding: 0 13px;
-  border: 1px solid var(--hairline);
-  border-radius: 9px;
-  background: var(--surface);
-  color: var(--ink);
-  font-size: 14px;
-  font-family: var(--font-ui);
-  outline: none;
-  width: 100%;
-  transition: border-color 0.15s;
-  -moz-appearance: textfield;
-}
-.price-input:focus {
-  border-color: var(--accent);
-}
-.price-input::-webkit-outer-spin-button,
-.price-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-}
-.price-wrap {
-  position: relative;
-}
-.price-currency {
-  position: absolute;
-  right: 13px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ink-3);
-  pointer-events: none;
-}
 </style>

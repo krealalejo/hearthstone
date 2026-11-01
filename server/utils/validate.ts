@@ -70,6 +70,8 @@ export const shoppingSchema = z.object({
   qty: z.number().min(0).optional(),
   price: z.number().min(0).nullable().optional(),
   checked: z.boolean().optional(),
+  cat: z.enum(INVENTORY_CATEGORIES).nullable().optional(),
+  note: z.string().trim().max(200).optional(),
 });
 
 export const todoSchema = z.object({

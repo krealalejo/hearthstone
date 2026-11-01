@@ -110,7 +110,8 @@
     "pricedItems": "Artículos con precio",
     "estimatedTotal": "Total estimado",
     "finalize": "Finalizar compra",
-    "restockNote": "{n} artículo se repondrá a su nivel óptimo. | {n} artículos se repondrán a su nivel óptimo."
+    "restockNote": "{n} artículo se repondrá a su nivel óptimo. | {n} artículos se repondrán a su nivel óptimo.",
+    "options": "Más opciones"
   },
   "todos": {
     "title": "Lista de pendientes",
@@ -319,5 +320,19 @@
     "saving": "Guardando…",
     "invalidLink": "El enlace de restablecimiento no es válido",
     "genericError": "Algo salió mal"
+  },
+  "shoppingModal": {
+    "title": "Añadir a la lista",
+    "subtitle": "Añade los detalles ahora o solo el nombre: la cantidad y el precio se pueden cambiar después.",
+    "fieldName": "Artículo",
+    "namePlaceholder": "p. ej. Aceite de oliva",
+    "fieldInv": "Vincular al inventario",
+    "invHint": "Los artículos vinculados reponen el inventario al finalizar la compra.",
+    "fieldQty": "Cantidad",
+    "fieldPrice": "Precio",
+    "fieldCat": "Categoría",
+    "fieldNote": "Nota",
+    "notePlaceholder": "p. ej. Marca X, 1 L",
+    "add": "Añadir artículo"
   }
 }

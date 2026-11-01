@@ -16,10 +16,15 @@
     </button>
     <div class="shop-body">
       <div class="shop-name">{{ item.name }}</div>
+      <div v-if="item.note" class="shop-note">{{ item.note }}</div>
       <div class="shop-sub">
         <span class="src-badge" :class="badgeClass">
           <v-icon style="font-size: 11px">{{ badgeIcon }}</v-icon>
           {{ badgeLabel }}
+        </span>
+        <span v-if="category" class="src-badge src-cat">
+          <v-icon style="font-size: 11px">{{ category.icon }}</v-icon>
+          {{ t(category.labelKey).split(" ")[0] }}
         </span>
         <span v-if="!editable" class="item-price">{{ money(item.price) }}</span>
         <span v-else class="price-editable">
@@ -58,6 +63,7 @@ import { ref, computed, watch, nextTick, onMounted } from "vue";
 import type { ShoppingItem } from "~/stores/home";
 import { useHomeStore, useMoney } from "~/stores/home";
 import { useAnimations } from "~/composables/useAnimations";
+import { CATEGORIES } from "~/utils/categories";
 
 const props = defineProps<{
   item: ShoppingItem;
@@ -82,6 +88,9 @@ const badgeIcon = computed(() =>
 );
 const badgeLabel = computed(() =>
   props.item.source === "auto" ? t("badge.auto") : t("badge.oneOff"),
+);
+const category = computed(() =>
+  CATEGORIES.find((c) => c.id === props.item.cat),
 );
 const currency = computed(() => store.household.currency ?? "$");
 
@@ -123,6 +132,18 @@ watch(
 </script>
 
 <style scoped>
+.shop-note {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 1px;
+  overflow-wrap: anywhere;
+}
+
+.src-cat {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
 .item-price {
   font-size: 11.5px;
   font-weight: 600;

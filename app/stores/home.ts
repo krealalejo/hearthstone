@@ -27,6 +27,9 @@ export type {
   Household,
 };
 
+export type NewShopItem = Pick<ShoppingItem, "name"> &
+  Partial<Pick<ShoppingItem, "invId" | "qty" | "price" | "cat" | "note">>;
+
 function toastId(): string {
   const arr = new Uint32Array(1);
   crypto.getRandomValues(arr);
@@ -655,23 +658,32 @@ export const useHomeStore = defineStore("home", {
     },
 
     async addManualShop(name: string) {
-      const trimmed = name.trim();
+      await this.addShop({ name });
+    },
+
+    async addShop(input: NewShopItem) {
+      const trimmed = input.name.trim();
       if (!trimmed) return;
       const temp = tempId();
+      const fields = {
+        name: trimmed,
+        invId: input.invId ?? null,
+        qty: Math.max(1, input.qty ?? 1),
+        price: input.price ?? null,
+        cat: input.cat ?? null,
+        note: input.note?.trim() ?? "",
+      };
       this.shopping.push({
         id: temp,
-        name: trimmed,
         source: "manual",
-        invId: null,
-        qty: 1,
-        price: null,
         checked: false,
+        ...fields,
       });
       const item = this.shopping[this.shopping.length - 1]!;
       this.flashShopId = temp;
       const creation = api<ShoppingItem>("/api/shopping", {
         method: "POST",
-        body: { name: trimmed, source: "manual", qty: 1 },
+        body: { source: "manual", ...fields },
       }).then((created) => {
         item.id = created.id;
         if (this.flashShopId === temp) this.flashShopId = created.id;

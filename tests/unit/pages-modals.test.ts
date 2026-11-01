@@ -739,6 +739,91 @@ describe("dashboard/TaskModal", () => {
   });
 });
 
+describe("shopping/Modal", () => {
+  async function mountShopModal(props = {}) {
+    const { default: Component } =
+      await import("~/components/shopping/Modal.vue");
+    const wrapper = await mount(Component, { props });
+    const store = useHomeStore();
+    store.household = baseHousehold();
+    store.inventory = [
+      baseInvItem({ id: "i7", name: "Shampoo", cat: "hygiene", price: 4.5 }),
+    ];
+    await nextTick();
+    vi.spyOn(store, "addShop").mockImplementation(vi.fn() as any);
+    return { wrapper, store };
+  }
+
+  function addButton(wrapper: Awaited<ReturnType<typeof mount>>) {
+    return wrapper.findAll("button").find((b) => b.text() === "Add item")!;
+  }
+
+  it("starts from the name typed in the quick-add field", async () => {
+    const { wrapper } = await mountShopModal({ initialName: " Bread " });
+    expect(
+      (wrapper.find("input[placeholder]").element as HTMLInputElement).value,
+    ).toBe("Bread");
+  });
+
+  it("saves name, quantity, price, category and note", async () => {
+    const { wrapper, store } = await mountShopModal();
+    await wrapper.find("input[placeholder]").setValue("Candles");
+    await wrapper.findAll(".stepper button").at(-1)!.trigger("click");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await wrapper.find("#shop-price").setValue("3.2");
+    await wrapper
+      .findAll(".v-chip")
+      .find((c) => c.text().includes("Miscellaneous"))!
+      .trigger("click");
+    await wrapper.find("#shop-note").setValue("Birthday");
+    await addButton(wrapper).trigger("click");
+
+    expect(store.addShop).toHaveBeenCalledWith({
+      name: "Candles",
+      invId: null,
+      qty: 2,
+      price: 3.2,
+      cat: "misc",
+      note: "Birthday",
+    });
+    expect(wrapper.emitted("close")).toBeTruthy();
+  });
+
+  it("prefills name, category and price from the linked inventory item", async () => {
+    const { wrapper, store } = await mountShopModal();
+    await wrapper.findComponent({ name: "VSelect" }).setValue("i7");
+    await nextTick();
+    await addButton(wrapper).trigger("click");
+
+    expect(store.addShop).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Shampoo",
+        invId: "i7",
+        cat: "hygiene",
+        price: 4.5,
+      }),
+    );
+  });
+
+  it("keeps a name the user typed when linking an inventory item", async () => {
+    const { wrapper, store } = await mountShopModal({
+      initialName: "Anti-dandruff shampoo",
+    });
+    await wrapper.findComponent({ name: "VSelect" }).setValue("i7");
+    await nextTick();
+    await addButton(wrapper).trigger("click");
+
+    expect(store.addShop).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "Anti-dandruff shampoo", invId: "i7" }),
+    );
+  });
+
+  it("disables Add while the name is empty", async () => {
+    const { wrapper } = await mountShopModal();
+    expect(addButton(wrapper).attributes("disabled")).toBeDefined();
+  });
+});
+
 const dialogStub = { template: "<div><slot /></div>" };
 
 describe("household/ConfirmDialog", () => {
