@@ -7,6 +7,20 @@ describe("home store — getters", () => {
     setActivePinia(createPinia());
   });
 
+  it("todoCount counts pending todos and pending weekly tasks", () => {
+    const store = useHomeStore();
+    store.todos = [
+      { id: "td1", text: "A", done: false },
+      { id: "td2", text: "B", done: true },
+    ] as typeof store.todos;
+    store.tasks = [
+      { id: "t1", title: "Mop", done: false },
+      { id: "t2", title: "Dust", done: true },
+      { id: "t3", title: "Vacuum", done: false },
+    ] as typeof store.tasks;
+    expect(store.todoCount).toBe(3);
+  });
+
   it("shopCount counts unchecked shopping items", () => {
     const store = useHomeStore();
     store.shopping = [

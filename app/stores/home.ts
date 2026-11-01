@@ -165,7 +165,9 @@ export const useHomeStore = defineStore("home", {
     activeMembers: (s) => s.members.filter((m) => m.status === "active"),
     pendingMembers: (s) => s.members.filter((m) => m.status === "pending"),
     shopCount: (s) => s.shopping.filter((i) => !i.checked).length,
-    todoCount: (s) => s.todos.filter((i) => !i.done).length,
+    todoCount: (s) =>
+      s.todos.filter((i) => !i.done).length +
+      s.tasks.filter((tk) => !tk.done).length,
     unreadNotifications: (s) => s.notifications.filter((n) => !n.readAt).length,
   },
 

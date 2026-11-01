@@ -183,6 +183,17 @@ describe("AppSidebar", () => {
     expect(wrapper.find(".nav-badge").exists()).toBe(false);
   });
 
+  it("shows todos badge for pending weekly tasks", async () => {
+    const { default: Component } = await import("~/components/AppSidebar.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.household = baseHousehold();
+    store.members = [baseMember()];
+    store.tasks = [baseTask({ done: false })];
+    await nextTick();
+    expect(wrapper.find(".nav-badge").text()).toBe("1");
+  });
+
   it("emits open-profile when me-card clicked", async () => {
     const { default: Component } = await import("~/components/AppSidebar.vue");
     const wrapper = await mount(Component);
