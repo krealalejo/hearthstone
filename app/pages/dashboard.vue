@@ -48,7 +48,7 @@
       </v-btn>
     </div>
 
-    <div class="inv-filter">
+    <div class="inv-filter inv-filter--even">
       <v-btn-toggle
         v-model="filter"
         mandatory

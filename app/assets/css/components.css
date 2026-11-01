@@ -1996,6 +1996,10 @@
   .inv-filter .seg .v-btn {
     flex: 1 0 auto;
   }
+  .inv-filter--even .seg .v-btn {
+    flex: 1 1 0;
+    padding-inline: 8px;
+  }
 
   .hh-card {
     flex-wrap: wrap;
