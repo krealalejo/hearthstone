@@ -209,14 +209,13 @@ describe("AppTabBar", () => {
     expect(wrapper.find(".tab-dot").exists()).toBe(true);
   });
 
-  it("shows inventory badge when lowCount > 0", async () => {
+  it("shows no inventory badge when stock is low", async () => {
     const { default: Component } = await import("~/components/AppTabBar.vue");
     const wrapper = await mountSuspended(Component);
     const store = useHomeStore();
     store.inventory = [baseInvItem({ qty: 0, min: 1 })];
     await nextTick();
-    const badges = wrapper.findAll(".tab-badge");
-    expect(badges.length).toBeGreaterThan(0);
+    expect(wrapper.findAll(".tab-badge")).toHaveLength(0);
   });
 
   it("shows no badge when counts are 0", async () => {

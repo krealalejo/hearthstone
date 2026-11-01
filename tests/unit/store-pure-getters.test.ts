@@ -7,43 +7,6 @@ describe("home store — getters", () => {
     setActivePinia(createPinia());
   });
 
-  it("lowCount counts items at or below min", () => {
-    const store = useHomeStore();
-    store.inventory = [
-      {
-        id: "i1",
-        name: "A",
-        cat: "food",
-        qty: 1,
-        min: 2,
-        optimal: 5,
-        price: null,
-        icon: "",
-      },
-      {
-        id: "i2",
-        name: "B",
-        cat: "food",
-        qty: 2,
-        min: 2,
-        optimal: 5,
-        price: null,
-        icon: "",
-      },
-      {
-        id: "i3",
-        name: "C",
-        cat: "food",
-        qty: 5,
-        min: 2,
-        optimal: 5,
-        price: null,
-        icon: "",
-      },
-    ];
-    expect(store.lowCount).toBe(2);
-  });
-
   it("shopCount counts unchecked shopping items", () => {
     const store = useHomeStore();
     store.shopping = [

@@ -172,7 +172,7 @@ describe("AppSidebar", () => {
     expect(wrapper.text()).toContain("2 members");
   });
 
-  it("shows inventory badge when lowCount > 0", async () => {
+  it("shows no inventory badge when stock is low", async () => {
     const { default: Component } = await import("~/components/AppSidebar.vue");
     const wrapper = await mount(Component);
     const store = useHomeStore();
@@ -180,7 +180,7 @@ describe("AppSidebar", () => {
     store.members = [baseMember()];
     store.inventory = [{ ...baseInvItem(), qty: 0, min: 3 }];
     await nextTick();
-    expect(wrapper.find(".nav-badge").exists()).toBe(true);
+    expect(wrapper.find(".nav-badge").exists()).toBe(false);
   });
 
   it("emits open-profile when me-card clicked", async () => {
