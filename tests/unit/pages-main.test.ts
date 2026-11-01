@@ -235,3 +235,49 @@ describe("pages/shopping", () => {
     expect(wrapper.html()).toBeTruthy();
   });
 });
+
+describe("pages/todos", () => {
+  async function mountTodos() {
+    const { default: Component } = await import("~/pages/todos.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.bootstrapped = true;
+    store.currentUserId = "u1";
+    store.members = [baseMember(), baseMember({ id: "u2", name: "Bob" })];
+    return { wrapper, store };
+  }
+
+  it("lists pending weekly tasks with mine first, then open, then others", async () => {
+    const { wrapper, store } = await mountTodos();
+    store.tasks = [
+      baseTask({ id: "t1", title: "Bob's task", assignee: "u2" }),
+      baseTask({ id: "t2", title: "Open task", assignee: null }),
+      baseTask({ id: "t3", title: "Done task", assignee: "u1", done: true }),
+      baseTask({ id: "t4", title: "My task", assignee: "u1" }),
+    ];
+    await nextTick();
+    const titles = wrapper.findAll(".task-title").map((el) => el.text());
+    expect(titles).toEqual(["My task", "Open task", "Bob's task"]);
+    expect(wrapper.text()).toContain("1 of 4 done");
+  });
+
+  it("says when every weekly task is done", async () => {
+    const { wrapper, store } = await mountTodos();
+    store.tasks = [baseTask({ done: true })];
+    await nextTick();
+    expect(wrapper.findAll(".task-title")).toHaveLength(0);
+    expect(wrapper.text()).toContain("All weekly tasks are done.");
+  });
+
+  it("says when there are no weekly tasks", async () => {
+    const { wrapper, store } = await mountTodos();
+    store.tasks = [];
+    await nextTick();
+    expect(wrapper.text()).toContain("No weekly tasks yet.");
+  });
+
+  it("links to Home for the full task board", async () => {
+    const { wrapper } = await mountTodos();
+    expect(wrapper.find('a[href="/dashboard"]').exists()).toBe(true);
+  });
+});

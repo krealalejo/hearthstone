@@ -122,7 +122,11 @@
     "emptyBody": "Add a to-do above and check it off when it’s done.",
     "completed": "Completed",
     "clearCompleted": "Clear completed",
-    "editHint": "Click to edit"
+    "editHint": "Click to edit",
+    "tasksProgress": "{done} of {n} done",
+    "openHome": "Open Home",
+    "allTasksDone": "All weekly tasks are done.",
+    "noTasks": "No weekly tasks yet."
   },
   "history": {
     "purchasesTab": "Purchases",

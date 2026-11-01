@@ -122,7 +122,11 @@
     "emptyBody": "Añade un pendiente arriba y márcalo cuando esté hecho.",
     "completed": "Completados",
     "clearCompleted": "Borrar completados",
-    "editHint": "Haz clic para editar"
+    "editHint": "Haz clic para editar",
+    "tasksProgress": "{done} de {n} hechas",
+    "openHome": "Ver en Inicio",
+    "allTasksDone": "Todas las tareas semanales están hechas.",
+    "noTasks": "Aún no hay tareas semanales."
   },
   "history": {
     "purchasesTab": "Compras",

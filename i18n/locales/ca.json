@@ -122,7 +122,11 @@
     "emptyBody": "Afegeix un pendent a dalt i marca’l quan estigui fet.",
     "completed": "Completats",
     "clearCompleted": "Esborra els completats",
-    "editHint": "Fes clic per editar"
+    "editHint": "Fes clic per editar",
+    "tasksProgress": "{done} de {n} fetes",
+    "openHome": "Veure a Inici",
+    "allTasksDone": "Totes les tasques setmanals estan fetes.",
+    "noTasks": "Encara no hi ha tasques setmanals."
   },
   "history": {
     "purchasesTab": "Compres",
