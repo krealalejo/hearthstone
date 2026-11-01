@@ -9,6 +9,7 @@
         </span>
         <span class="mt-title">{{ mobileTitle }}</span>
         <span class="mt-spacer" />
+        <NotificationBell />
         <button
           class="btn btn-ghost btn-icon"
           :title="isDark ? $t('a11y.lightMode') : $t('a11y.darkMode')"

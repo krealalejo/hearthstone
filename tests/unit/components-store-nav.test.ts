@@ -251,7 +251,7 @@ describe("AppTopbar", () => {
   it("clicks color mode toggle button", async () => {
     const { default: Component } = await import("~/components/AppTopbar.vue");
     const wrapper = await mountSuspended(Component);
-    const toggleBtn = wrapper.find("button.btn-icon");
+    const toggleBtn = wrapper.find("button.btn-icon:not(.bell)");
     if (toggleBtn.exists()) await toggleBtn.trigger("click");
     expect(wrapper.find(".topbar").exists()).toBe(true);
   });

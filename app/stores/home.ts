@@ -13,7 +13,9 @@ import type {
   HistoryEntry,
   Toast,
   Household,
+  AppNotification,
 } from "~/types/home";
+import { unregisterPushDevice } from "~/composables/usePushNotifications";
 
 export type {
   Member,
@@ -25,6 +27,7 @@ export type {
   HistoryEntry,
   Toast,
   Household,
+  AppNotification,
 };
 
 export type NewShopItem = Pick<ShoppingItem, "name"> &
@@ -99,6 +102,7 @@ export const useHomeStore = defineStore("home", {
     todos: [] as TodoItem[],
     history: [] as HistoryEntry[],
     toasts: [] as Toast[],
+    notifications: [] as AppNotification[],
     flashShopId: null as string | null,
   }),
 
@@ -163,6 +167,7 @@ export const useHomeStore = defineStore("home", {
     lowCount: (s) => s.inventory.filter((i) => i.qty <= i.min).length,
     shopCount: (s) => s.shopping.filter((i) => !i.checked).length,
     todoCount: (s) => s.todos.filter((i) => !i.done).length,
+    unreadNotifications: (s) => s.notifications.filter((n) => !n.readAt).length,
   },
 
   actions: {
@@ -178,6 +183,7 @@ export const useHomeStore = defineStore("home", {
     },
 
     async logout() {
+      await unregisterPushDevice();
       await api("/api/auth/logout", { method: "POST" }).catch(() => null);
       if (import.meta.client) {
         globalThis.location.assign("/login");
@@ -229,6 +235,36 @@ export const useHomeStore = defineStore("home", {
 
     setHousehold(h: Household) {
       this.household = h;
+    },
+
+    setNotifications(items: AppNotification[]) {
+      this.notifications = items;
+    },
+
+    async markNotificationsRead() {
+      const unread = this.notifications.filter((n) => !n.readAt);
+      if (!unread.length) return;
+      const readAt = new Date().toISOString();
+      unread.forEach((n) => (n.readAt = readAt));
+      try {
+        await api("/api/notifications", { method: "PATCH" });
+      } catch (err) {
+        unread.forEach((n) => (n.readAt = null));
+        await this._fail(err, t("toast.updateFailed"));
+      }
+    },
+
+    async syncTimezone() {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (!timezone || timezone === this.household.timezone) return;
+      const previous = this.household.timezone;
+      this.household.timezone = timezone;
+      await api("/api/household", {
+        method: "PATCH",
+        body: { timezone },
+      }).catch(() => {
+        this.household.timezone = previous;
+      });
     },
 
     setCurrentUser(user: { id: string; name: string; role: string }) {

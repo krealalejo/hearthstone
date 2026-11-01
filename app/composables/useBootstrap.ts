@@ -6,6 +6,7 @@ import type {
   Household,
   Task,
   HistoryEntry,
+  AppNotification,
 } from "~/stores/home";
 import { useHomeStore } from "~/stores/home";
 import { api } from "~/utils/api";
@@ -26,6 +27,7 @@ export function useBootstrap() {
         tasks,
         history,
         todos,
+        notifications,
       ] = await Promise.all([
         api<{ userId: string; name?: string; role: string }>(
           "/api/auth/me",
@@ -38,6 +40,9 @@ export function useBootstrap() {
         api<Task[]>("/api/tasks", { headers }).catch(() => null),
         api<HistoryEntry[]>("/api/history", { headers }).catch(() => null),
         api<TodoItem[]>("/api/todos", { headers }).catch(() => null),
+        api<AppNotification[]>("/api/notifications", { headers }).catch(
+          () => null,
+        ),
       ]);
 
       if (user) {
@@ -54,11 +59,13 @@ export function useBootstrap() {
       if (tasks) store.setTasks(tasks);
       if (history) store.setHistory(history);
       if (todos) store.setTodos(todos);
+      if (notifications) store.setNotifications(notifications);
 
       store.setBootstrapped(true);
 
       if (import.meta.client) {
         store.applyAccentColor();
+        if (household) await store.syncTimezone();
         await store.checkAutoReset();
         if (inventory && shopping && household) {
           await store.syncLowStockOnce();

@@ -89,4 +89,14 @@ export interface Household {
   weekStartDay?: "monday" | "sunday";
   currency?: string;
   restockSyncedAt?: string | null;
+  timezone?: string;
+  lastReminderWeek?: string;
+}
+
+export interface AppNotification {
+  id: string;
+  type: "week-reminder";
+  data: { mine: number; unassigned: number };
+  readAt: string | null;
+  createdAt: string;
 }
