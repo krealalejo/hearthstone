@@ -60,6 +60,9 @@ export function useBootstrap() {
       if (import.meta.client) {
         store.applyAccentColor();
         await store.checkAutoReset();
+        if (inventory && shopping && household) {
+          await store.syncLowStockOnce();
+        }
       }
       return true;
     },

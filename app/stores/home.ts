@@ -556,7 +556,7 @@ export const useHomeStore = defineStore("home", {
       return this._queueAutoRestock(this.inventory[idx]!);
     },
 
-    _queueAutoRestock(item: InventoryItem): string | null {
+    _queueAutoRestock(item: InventoryItem, notify = true): string | null {
       const needsRestock =
         item.qty <= item.min &&
         !this.shopping.some((sh) => sh.invId === item.id);
@@ -573,13 +573,52 @@ export const useHomeStore = defineStore("home", {
         checked: false,
       });
       this.flashShopId = temp;
+      if (notify) {
+        this._toast({
+          kind: "restock",
+          title: t("toast.restockAdded"),
+          body: t("toast.restockBelowMin", { name: item.name }),
+          link: "shopping",
+        });
+      }
+      return temp;
+    },
+
+    async syncLowStockOnce() {
+      if (this.household.restockSyncedAt) return;
+      const syncedAt = new Date().toISOString();
+      this.household.restockSyncedAt = syncedAt;
+      try {
+        await api("/api/household", {
+          method: "PATCH",
+          body: { restockSyncedAt: syncedAt },
+        });
+      } catch {
+        this.household.restockSyncedAt = null;
+        return;
+      }
+      const queued = this.inventory.flatMap((item) => {
+        const temp = this._queueAutoRestock(item, false);
+        return temp ? [{ item, temp }] : [];
+      });
+      if (!queued.length) return;
       this._toast({
         kind: "restock",
         title: t("toast.restockAdded"),
-        body: t("toast.restockBelowMin", { name: item.name }),
+        body: tc("toast.restockSynced", queued.length),
         link: "shopping",
       });
-      return temp;
+      const results = await Promise.allSettled(
+        queued.map(({ item, temp }) => this._persistAutoRestock(item, temp)),
+      );
+      const failed = new Set(
+        queued
+          .filter((_, i) => results[i]!.status === "rejected")
+          .map(({ temp }) => temp),
+      );
+      if (failed.size) {
+        this.shopping = this.shopping.filter((sh) => !failed.has(sh.id));
+      }
     },
 
     async _persistAutoRestock(item: InventoryItem, temp: string) {

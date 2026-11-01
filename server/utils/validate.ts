@@ -90,6 +90,7 @@ export const householdPatchSchema = z
     lastResetWeek: z.string().optional(),
     weekStartDay: z.enum(["monday", "sunday"]).optional(),
     currency: z.string().max(10).optional(),
+    restockSyncedAt: z.iso.datetime().optional(),
   })
   .refine(
     (d) =>
@@ -97,7 +98,8 @@ export const householdPatchSchema = z
       d.emoji !== undefined ||
       d.lastResetWeek !== undefined ||
       d.weekStartDay !== undefined ||
-      d.currency !== undefined,
+      d.currency !== undefined ||
+      d.restockSyncedAt !== undefined,
     { message: "At least one field required" },
   );
 

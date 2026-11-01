@@ -280,7 +280,8 @@
     "purchaseLogged": "Purchase logged",
     "purchaseItems": "{n} item | {n} items",
     "purchaseRestocked": "{n} restocked",
-    "addTodoFailed": "Failed to add to-do"
+    "addTodoFailed": "Failed to add to-do",
+    "restockSynced": "{n} low item from your inventory was added. | {n} low items from your inventory were added."
   },
   "badge": {
     "auto": "Auto",

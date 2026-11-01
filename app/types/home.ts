@@ -88,4 +88,5 @@ export interface Household {
   lastResetWeek?: string;
   weekStartDay?: "monday" | "sunday";
   currency?: string;
+  restockSyncedAt?: string | null;
 }

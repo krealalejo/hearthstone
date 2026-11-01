@@ -280,7 +280,8 @@
     "purchaseLogged": "Compra registrada",
     "purchaseItems": "{n} artículo | {n} artículos",
     "purchaseRestocked": "{n} reabastecido | {n} reabastecidos",
-    "addTodoFailed": "No se pudo añadir el pendiente"
+    "addTodoFailed": "No se pudo añadir el pendiente",
+    "restockSynced": "Se ha añadido {n} artículo bajo de tu inventario. | Se han añadido {n} artículos bajos de tu inventario."
   },
   "badge": {
     "auto": "Auto",

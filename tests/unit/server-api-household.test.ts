@@ -133,6 +133,29 @@ describe("household.patch", () => {
     expect(result["name"]).toBe("New Name");
   });
 
+  it("stores the restock sync timestamp", async () => {
+    const syncedAt = "2026-11-01T10:00:00.000Z";
+    mockReadBody.mockResolvedValue({ restockSyncedAt: syncedAt });
+    mockHouseholdFindByIdAndUpdate.mockResolvedValue(
+      fakeDoc("hh1", { restockSyncedAt: syncedAt }),
+    );
+    const { default: handler } = await import("#server/api/household.patch");
+    await (handler as Function)(mockEvent());
+    expect(mockHouseholdFindByIdAndUpdate).toHaveBeenCalledWith(
+      expect.anything(),
+      { restockSyncedAt: syncedAt },
+      expect.anything(),
+    );
+  });
+
+  it("rejects a non-ISO restock sync timestamp", async () => {
+    mockReadBody.mockResolvedValue({ restockSyncedAt: "today" });
+    const { default: handler } = await import("#server/api/household.patch");
+    await expect((handler as Function)(mockEvent())).rejects.toMatchObject({
+      statusCode: 400,
+    });
+  });
+
   it("throws 400 when no fields provided", async () => {
     mockReadBody.mockResolvedValue({});
     const { default: handler } = await import("#server/api/household.patch");

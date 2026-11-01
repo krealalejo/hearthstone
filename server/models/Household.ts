@@ -6,6 +6,7 @@ export interface IHousehold {
   lastResetWeek?: string;
   weekStartDay?: "monday" | "sunday";
   currency?: string;
+  restockSyncedAt?: Date | null;
 }
 
 const HouseholdSchema = new Schema<IHousehold>(
@@ -19,6 +20,7 @@ const HouseholdSchema = new Schema<IHousehold>(
       default: "monday",
     },
     currency: { type: String, default: "$" },
+    restockSyncedAt: { type: Date, default: null },
   },
   { timestamps: true, toJSON: { virtuals: true } },
 );
