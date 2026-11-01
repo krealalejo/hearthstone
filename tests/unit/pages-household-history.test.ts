@@ -128,6 +128,18 @@ describe("pages/household", () => {
     expect(wrapper.text()).toContain("Test House");
   });
 
+  it("exposes the full name as a tooltip on the clamped heading", async () => {
+    const { default: Component } = await import("~/pages/household.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    const longName = "The Very Long Household Name Of The Smith Family Home";
+    store.household = baseHousehold({ name: longName });
+    store.members = [baseMember()];
+    await nextTick();
+    const heading = wrapper.find(".hh-card-name");
+    expect(heading.attributes("title")).toBe(longName);
+  });
+
   it("shows members list", async () => {
     const { default: Component } = await import("~/pages/household.vue");
     const wrapper = await mount(Component);

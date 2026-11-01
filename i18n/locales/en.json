@@ -50,7 +50,11 @@
     "fieldAssign": "Assign to",
     "anyone": "Anyone",
     "fieldEffort": "Effort · {xp} XP",
-    "recurring": "Recurring weekly",
+    "repeat": "Repeat",
+    "every": "Every",
+    "unitDay": "day | days",
+    "unitWeek": "week | weeks",
+    "unitMonth": "month | months",
     "delete": "Delete",
     "cancel": "Cancel",
     "save": "Save changes",
@@ -59,15 +63,20 @@
     "effortLight": "Light",
     "effortMedium": "Medium",
     "effortHard": "Hard",
-    "effortDeep": "Deep"
+    "effortDeep": "Deep",
+    "kindTodo": "To-do",
+    "kindTask": "Weekly task",
+    "titleNewTodo": "New to-do",
+    "subtitleTodo": "A one-off item to check off",
+    "fieldTodo": "To-do",
+    "addTodo": "Add to-do"
   },
   "inventory": {
     "title": "Inventory",
-    "itemCount": "{n} item | {n} items",
-    "lowSuffix": " · {n} low",
     "newItem": "New item",
     "catFood": "Food & Groceries",
     "catCleaning": "Cleaning Supplies",
+    "catHygiene": "Hygiene & Personal Care",
     "catMisc": "Miscellaneous"
   },
   "inventoryModal": {
@@ -91,7 +100,6 @@
     "title": "Shopping list",
     "itemCount": "{n} item | {n} items",
     "autoAdded": "{n} auto-added",
-    "addPlaceholder": "Add a one-off item…  (e.g. birthday candles)",
     "add": "Add",
     "emptyTitle": "List is empty",
     "emptyBody": "Items appear here automatically when stock runs low, or add your own above.",
@@ -116,7 +124,11 @@
     "emptyBody": "Add a to-do above and check it off when it’s done.",
     "completed": "Completed",
     "clearCompleted": "Clear completed",
-    "editHint": "Click to edit"
+    "editHint": "Click to edit",
+    "tasksProgress": "{done} of {n} done",
+    "openHome": "Open Home",
+    "allTasksDone": "All weekly tasks are done.",
+    "noTasks": "No weekly tasks yet."
   },
   "history": {
     "purchasesTab": "Purchases",
@@ -270,7 +282,8 @@
     "purchaseLogged": "Purchase logged",
     "purchaseItems": "{n} item | {n} items",
     "purchaseRestocked": "{n} restocked",
-    "addTodoFailed": "Failed to add to-do"
+    "addTodoFailed": "Failed to add to-do",
+    "restockSynced": "{n} low item from your inventory was added. | {n} low items from your inventory were added."
   },
   "badge": {
     "auto": "Auto",
@@ -292,11 +305,17 @@
     "toggleTodo": "Toggle to-do",
     "removeTodo": "Remove to-do",
     "editTodo": "Edit to-do",
-    "editPrice": "Edit price"
+    "editPrice": "Edit price",
+    "quantity": "Quantity"
   },
   "task": {
     "claim": "Claim",
-    "weekly": "weekly"
+    "weekly": "weekly",
+    "daily": "daily",
+    "monthly": "monthly",
+    "everyDays": "every {n} days",
+    "everyWeeks": "every {n} weeks",
+    "everyMonths": "every {n} months"
   },
   "reset": {
     "doneTitle": "Password updated",
@@ -309,5 +328,48 @@
     "saving": "Saving…",
     "invalidLink": "Reset link is invalid",
     "genericError": "Something went wrong"
+  },
+  "shoppingModal": {
+    "title": "Add to shopping list",
+    "subtitle": "Add details now or just a name — you can change qty and price later.",
+    "fieldName": "Item",
+    "namePlaceholder": "e.g. Olive oil",
+    "fieldInv": "Link to inventory",
+    "invHint": "Linked items restock the inventory when you finalize.",
+    "fieldQty": "Quantity",
+    "fieldPrice": "Price",
+    "fieldCat": "Category",
+    "fieldNote": "Note",
+    "notePlaceholder": "e.g. Brand X, 1L",
+    "add": "Add item"
+  },
+  "tabs": {
+    "home": "Home",
+    "inventory": "Inventory",
+    "shopping": "Shopping",
+    "todos": "To-dos",
+    "more": "More"
+  },
+  "more": {
+    "purchases": "Purchase history",
+    "purchasesSub": "Past shopping trips and totals",
+    "weeks": "Weekly history",
+    "weeksSub": "Points and tasks per week",
+    "householdSub": "Members and invites",
+    "profile": "Profile & settings",
+    "profileSub": "Avatar, language and preferences"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "open": "Open notifications",
+    "empty": "No notifications yet",
+    "push": "Push notifications on this device",
+    "pushDenied": "Notifications are blocked for this app",
+    "pushFailed": "Could not update push notifications",
+    "weekReminder": {
+      "title": "2 days left this week",
+      "mine": "{n} task assigned to you | {n} tasks assigned to you",
+      "unassigned": "{n} unassigned task | {n} unassigned tasks"
+    }
   }
 }

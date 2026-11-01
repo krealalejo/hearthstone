@@ -7,41 +7,18 @@ describe("home store — getters", () => {
     setActivePinia(createPinia());
   });
 
-  it("lowCount counts items at or below min", () => {
+  it("todoCount counts pending todos and pending weekly tasks", () => {
     const store = useHomeStore();
-    store.inventory = [
-      {
-        id: "i1",
-        name: "A",
-        cat: "food",
-        qty: 1,
-        min: 2,
-        optimal: 5,
-        price: null,
-        icon: "",
-      },
-      {
-        id: "i2",
-        name: "B",
-        cat: "food",
-        qty: 2,
-        min: 2,
-        optimal: 5,
-        price: null,
-        icon: "",
-      },
-      {
-        id: "i3",
-        name: "C",
-        cat: "food",
-        qty: 5,
-        min: 2,
-        optimal: 5,
-        price: null,
-        icon: "",
-      },
-    ];
-    expect(store.lowCount).toBe(2);
+    store.todos = [
+      { id: "td1", text: "A", done: false },
+      { id: "td2", text: "B", done: true },
+    ] as typeof store.todos;
+    store.tasks = [
+      { id: "t1", title: "Mop", done: false },
+      { id: "t2", title: "Dust", done: true },
+      { id: "t3", title: "Vacuum", done: false },
+    ] as typeof store.tasks;
+    expect(store.todoCount).toBe(3);
   });
 
   it("shopCount counts unchecked shopping items", () => {

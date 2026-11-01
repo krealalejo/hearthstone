@@ -158,6 +158,68 @@ describe("saveInv", () => {
     expect(store.inventory[0]!.id).toBe("i_new");
   });
 
+  it("adds a new item at or below its minimum to the shopping list", async () => {
+    const created = baseItem({
+      id: "i_new",
+      name: "Soap",
+      qty: 1,
+      min: 2,
+      optimal: 5,
+    });
+    vi.mocked($fetch)
+      .mockResolvedValueOnce(created as never)
+      .mockResolvedValueOnce({ id: "s_real" } as never);
+    const store = useHomeStore();
+
+    await store.saveInv({ name: "Soap", qty: 1, min: 2, optimal: 5 });
+
+    expect(store.shopping).toHaveLength(1);
+    expect(store.shopping[0]).toMatchObject({
+      id: "s_real",
+      name: "Soap",
+      source: "auto",
+      invId: "i_new",
+      qty: 4,
+    });
+    expect($fetch).toHaveBeenLastCalledWith(
+      "/api/shopping",
+      expect.objectContaining({
+        method: "POST",
+        body: expect.objectContaining({
+          source: "auto",
+          invId: "i_new",
+          qty: 4,
+        }),
+      }),
+    );
+    expect(store.toasts[0]!.title).toBe("Added to shopping list");
+  });
+
+  it("does not add a new item above its minimum to the shopping list", async () => {
+    makeFetch(baseItem({ id: "i_new", qty: 4, min: 1 }));
+    const store = useHomeStore();
+
+    await store.saveInv({ name: "Milk", qty: 4, min: 1 });
+
+    expect(store.shopping).toHaveLength(0);
+    expect($fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the new item but drops the restock entry when its POST fails", async () => {
+    const err = Object.assign(new Error("fetch failed"), { statusCode: 500 });
+    vi.mocked($fetch)
+      .mockResolvedValueOnce(baseItem({ id: "i_new", qty: 0, min: 1 }) as never)
+      .mockRejectedValueOnce(err);
+    const store = useHomeStore();
+
+    await store.saveInv({ name: "Milk", qty: 0, min: 1 });
+
+    expect(store.inventory).toHaveLength(1);
+    expect(store.shopping).toHaveLength(0);
+    expect(store.flashShopId).toBeNull();
+    expect(store.toasts.at(-1)!.title).toBe("Failed to add item");
+  });
+
   it("updates existing item via PATCH", async () => {
     makeFetch({});
     const store = useHomeStore();
@@ -255,7 +317,7 @@ describe("saveInv", () => {
     store.inventory = [baseItem()];
 
     await expect(
-      store.saveInv({ id: "i1", name: "Milk", qty: 5 })
+      store.saveInv({ id: "i1", name: "Milk", qty: 5 }),
     ).resolves.toBeUndefined();
   });
 
@@ -294,11 +356,12 @@ describe("setInvQty — race condition branches", () => {
   it("handles case where temp item was removed before POST resolves (idx=-1 branch)", async () => {
     let resolvePost: (v: unknown) => void = () => {};
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (vi.mocked($fetch) as any)
-      .mockResolvedValueOnce({})
-      .mockImplementationOnce(
-        () => new Promise((resolve) => { resolvePost = resolve; }),
-      );
+    (vi.mocked($fetch) as any).mockResolvedValueOnce({}).mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolvePost = resolve;
+        }),
+    );
 
     const store = useHomeStore();
     store.inventory = [baseItem({ qty: 3, min: 2, optimal: 6 })];
@@ -308,9 +371,119 @@ describe("setInvQty — race condition branches", () => {
     await vi.waitFor(() => expect($fetch).toHaveBeenCalledTimes(2));
     store.shopping = [];
     store.flashShopId = "something-else";
-    resolvePost({ id: "s_new", name: "Milk", source: "auto", invId: "i1", qty: 5, price: 2.5, checked: false });
+    resolvePost({
+      id: "s_new",
+      name: "Milk",
+      source: "auto",
+      invId: "i1",
+      qty: 5,
+      price: 2.5,
+      checked: false,
+    });
 
     await pending;
     expect(store.inventory[0]!.qty).toBe(1);
+  });
+});
+
+describe("syncLowStockOnce", () => {
+  function patchCalls() {
+    return vi
+      .mocked($fetch)
+      .mock.calls.filter(([url]) => url === "/api/household");
+  }
+
+  it("adds every low item missing from the list once and marks the household", async () => {
+    makeFetch({ id: "s_real" });
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "" };
+    store.inventory = [
+      baseItem({ id: "low1", name: "Soap", qty: 0, min: 1 }),
+      baseItem({ id: "low2", name: "Rice", qty: 1, min: 1 }),
+      baseItem({ id: "listed", name: "Salt", qty: 0, min: 1 }),
+      baseItem({ id: "ok", name: "Milk", qty: 5, min: 1 }),
+    ];
+    store.shopping = [
+      {
+        id: "s1",
+        name: "Salt",
+        source: "auto",
+        invId: "listed",
+        qty: 1,
+        price: null,
+        checked: false,
+      },
+    ];
+
+    await store.syncLowStockOnce();
+
+    expect(store.shopping.map((sh) => sh.invId).sort()).toEqual([
+      "listed",
+      "low1",
+      "low2",
+    ]);
+    expect(store.household.restockSyncedAt).toBeTruthy();
+    expect(patchCalls()).toHaveLength(1);
+    expect(store.toasts).toHaveLength(1);
+    expect(store.toasts[0]!.title).toBe("Added to shopping list");
+  });
+
+  it("does nothing once the household has been synced", async () => {
+    const store = useHomeStore();
+    store.household = {
+      id: "hh1",
+      name: "Home",
+      emoji: "",
+      restockSyncedAt: "2026-11-01T10:00:00.000Z",
+    };
+    store.inventory = [baseItem({ qty: 0, min: 1 })];
+
+    await store.syncLowStockOnce();
+
+    expect(store.shopping).toHaveLength(0);
+    expect($fetch).not.toHaveBeenCalled();
+  });
+
+  it("marks the household without a toast when nothing is low", async () => {
+    makeFetch({});
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "" };
+    store.inventory = [baseItem({ qty: 5, min: 1 })];
+
+    await store.syncLowStockOnce();
+
+    expect(store.household.restockSyncedAt).toBeTruthy();
+    expect(store.toasts).toHaveLength(0);
+  });
+
+  it("adds nothing and retries next time when marking the household fails", async () => {
+    makeFetchFail();
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "" };
+    store.inventory = [baseItem({ qty: 0, min: 1 })];
+
+    await store.syncLowStockOnce();
+
+    expect(store.household.restockSyncedAt).toBeNull();
+    expect(store.shopping).toHaveLength(0);
+  });
+
+  it("drops the entries whose POST failed", async () => {
+    const err = Object.assign(new Error("fetch failed"), { statusCode: 500 });
+    vi.mocked($fetch)
+      .mockResolvedValueOnce({} as never)
+      .mockResolvedValueOnce({ id: "s_ok" } as never)
+      .mockRejectedValueOnce(err);
+    const store = useHomeStore();
+    store.household = { id: "hh1", name: "Home", emoji: "" };
+    store.inventory = [
+      baseItem({ id: "a", qty: 0, min: 1 }),
+      baseItem({ id: "b", qty: 0, min: 1 }),
+    ];
+
+    await store.syncLowStockOnce();
+
+    expect(store.shopping).toHaveLength(1);
+    expect(store.shopping[0]!.id).toBe("s_ok");
   });
 });

@@ -95,7 +95,7 @@ import { useHomeStore, useMoney } from "~/stores/home";
 
 const { money } = useMoney();
 const { locale } = useI18n();
-import type { HistoryEntry, Task } from "~/stores/home";
+import type { HistoryEntry, Task } from "~/types/home";
 
 definePageMeta({ middleware: "auth" });
 

@@ -163,7 +163,6 @@ function onNavClick(nav: (typeof NAV.value)[number]) {
 }
 
 const badges = computed<Record<string, number | undefined>>(() => ({
-  inventory: store.lowCount || undefined,
   shopping: store.shopCount || undefined,
   todos: store.todoCount || undefined,
 }));

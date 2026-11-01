@@ -181,9 +181,9 @@ describe("home store — sync actions", () => {
     expect(store.shopping).toHaveLength(0);
   });
 
-  it("addManualShop adds item with trimmed name and sets flashShopId", async () => {
+  it("addShop with only a name adds item with trimmed name and sets flashShopId", async () => {
     const store = useHomeStore();
-    await store.addManualShop("  Eggs  ");
+    await store.addShop({ name: "  Eggs  " });
     expect(store.shopping).toHaveLength(1);
     expect(store.shopping[0]!.name).toBe("Eggs");
     expect(store.shopping[0]!.source).toBe("manual");
@@ -191,9 +191,9 @@ describe("home store — sync actions", () => {
     expect(store.flashShopId).toBe(store.shopping[0]!.id);
   });
 
-  it("addManualShop ignores empty string", async () => {
+  it("addShop with only a name ignores empty string", async () => {
     const store = useHomeStore();
-    await store.addManualShop("   ");
+    await store.addShop({ name: "   " });
     expect(store.shopping).toHaveLength(0);
   });
 

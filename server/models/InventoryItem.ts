@@ -3,7 +3,7 @@ import mongoose, { Schema, Types, type Model } from "mongoose";
 export interface IInventoryItem {
   householdId: Types.ObjectId;
   name: string;
-  cat: "food" | "cleaning" | "misc";
+  cat: "food" | "cleaning" | "hygiene" | "misc";
   qty: number;
   min: number;
   optimal: number;
@@ -22,7 +22,7 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
     name: { type: String, required: true },
     cat: {
       type: String,
-      enum: ["food", "cleaning", "misc"],
+      enum: ["food", "cleaning", "hygiene", "misc"],
       required: true,
     },
     qty: { type: Number, default: 0 },

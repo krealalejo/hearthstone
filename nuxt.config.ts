@@ -11,6 +11,10 @@ export default defineNuxtConfig({
     googleClientSecret: "",
     googleRedirectUri: "",
     resendApiKey: "",
+    cronSecret: "",
+    fcmProjectId: "",
+    fcmClientEmail: "",
+    fcmPrivateKey: "",
     public: {
       baseUrl: "",
     },

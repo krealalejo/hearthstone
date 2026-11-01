@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
-import type { TodoItem } from "~/stores/home";
+import type { TodoItem } from "~/types/home";
 import { useHomeStore } from "~/stores/home";
 
 const props = defineProps<{ item: TodoItem }>();

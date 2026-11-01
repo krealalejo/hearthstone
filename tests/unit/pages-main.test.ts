@@ -1,4 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeAll,
+  beforeEach,
+  afterEach,
+} from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { nextTick } from "vue";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
@@ -35,6 +43,30 @@ vi.mock("gsap", () => ({
     timeline: vi.fn(() => ({ to: vi.fn(), from: vi.fn(), play: vi.fn() })),
   },
 }));
+
+beforeAll(() => {
+  if (!globalThis.visualViewport) {
+    Object.defineProperty(globalThis, "visualViewport", {
+      value: {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        width: 390,
+        height: 844,
+        offsetLeft: 0,
+        offsetTop: 0,
+        scale: 1,
+        pageLeft: 0,
+        pageTop: 0,
+      },
+      writable: true,
+    });
+  }
+});
+
+async function flushDialog() {
+  await nextTick();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+}
 
 const mountedWrappers: Array<{ unmount: () => void }> = [];
 
@@ -165,6 +197,39 @@ describe("pages/inventory", () => {
     expect(wrapper.text()).toContain("Food");
   });
 
+  it("keeps New item in the header and the filter on its own row", async () => {
+    const { default: Component } = await import("~/pages/inventory.vue");
+    const wrapper = await mount(Component);
+    const head = wrapper.find(".page-head");
+    expect(head.find(".page-head-action").text()).toContain("New item");
+    expect(head.find(".v-btn-group").exists()).toBe(false);
+    expect(wrapper.find(".inv-filter .v-btn-group").exists()).toBe(true);
+  });
+
+  it("shows only the title and New item in the header", async () => {
+    const { default: Component } = await import("~/pages/inventory.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.inventory = [baseInvItem({ qty: 0, min: 1 })];
+    await nextTick();
+    const head = wrapper.find(".page-head");
+    expect(head.find(".count").exists()).toBe(false);
+    expect(head.text()).toBe("InventoryNew item");
+  });
+
+  it("groups hygiene items under their own category", async () => {
+    const { default: Component } = await import("~/pages/inventory.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.bootstrapped = true;
+    store.inventory = [
+      baseInvItem({ id: "i2", name: "Toothpaste", cat: "hygiene" }),
+    ];
+    await nextTick();
+    expect(wrapper.text()).toContain("Hygiene & Personal Care");
+    expect(wrapper.text()).toContain("Toothpaste");
+  });
+
   it("shows items when inventory populated", async () => {
     const { default: Component } = await import("~/pages/inventory.vue");
     const wrapper = await mount(Component);
@@ -176,30 +241,37 @@ describe("pages/inventory", () => {
 });
 
 describe("pages/shopping", () => {
+  async function mountShopping() {
+    const { default: Component } = await import("~/pages/shopping.vue");
+    const wrapper = await mount(Component, { attachTo: document.body });
+    const modalOpen = () =>
+      Array.from(document.querySelectorAll(".modal-head h2")).some(
+        (h) => h.textContent === "Add to shopping list",
+      );
+    return { wrapper, modalOpen };
+  }
+
+  it("puts the Add button in the page header with no text field", async () => {
+    const { wrapper } = await mountShopping();
+    const action = wrapper.find(".page-head .page-head-action");
+    expect(action.text()).toBe("Add");
+    expect(wrapper.find("input").exists()).toBe(false);
+    wrapper.unmount();
+  });
+
   it("renders shopping page", async () => {
     const { default: Component } = await import("~/pages/shopping.vue");
     const wrapper = await mount(Component);
     expect(wrapper.html()).toBeTruthy();
   });
 
-  it("shows add item input", async () => {
-    const { default: Component } = await import("~/pages/shopping.vue");
-    const wrapper = await mount(Component);
-    expect(wrapper.find("input").exists()).toBe(true);
-  });
-
-  it("calls store.addManualShop when add button clicked", async () => {
-    const { default: Component } = await import("~/pages/shopping.vue");
-    const wrapper = await mount(Component);
-    const store = useHomeStore();
-    vi.spyOn(store, "addManualShop").mockImplementation(vi.fn() as any);
-    await wrapper.find("input").setValue("Bread");
-    const addBtn = wrapper
-      .findAll("button")
-      .find((b) => b.text().includes("Add"));
-    if (addBtn) await addBtn.trigger("click");
-    await nextTick();
-    expect(store.addManualShop).toHaveBeenCalledWith("Bread");
+  it("opens the add form from the Add button", async () => {
+    const { wrapper, modalOpen } = await mountShopping();
+    expect(modalOpen()).toBe(false);
+    await wrapper.find(".page-head-action").trigger("click");
+    await flushDialog();
+    expect(modalOpen()).toBe(true);
+    wrapper.unmount();
   });
 
   it("shows auto vs manual sections", async () => {
@@ -212,5 +284,71 @@ describe("pages/shopping", () => {
     ];
     await nextTick();
     expect(wrapper.html()).toBeTruthy();
+  });
+});
+
+describe("pages/todos", () => {
+  async function mountTodos() {
+    const { default: Component } = await import("~/pages/todos.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.bootstrapped = true;
+    store.currentUserId = "u1";
+    store.members = [baseMember(), baseMember({ id: "u2", name: "Bob" })];
+    return { wrapper, store };
+  }
+
+  it("lists pending weekly tasks with mine first, then open, then others", async () => {
+    const { wrapper, store } = await mountTodos();
+    store.tasks = [
+      baseTask({ id: "t1", title: "Bob's task", assignee: "u2" }),
+      baseTask({ id: "t2", title: "Open task", assignee: null }),
+      baseTask({ id: "t3", title: "Done task", assignee: "u1", done: true }),
+      baseTask({ id: "t4", title: "My task", assignee: "u1" }),
+    ];
+    await nextTick();
+    const titles = wrapper.findAll(".task-title").map((el) => el.text());
+    expect(titles).toEqual(["My task", "Open task", "Bob's task"]);
+    expect(wrapper.text()).toContain("1 of 4 done");
+  });
+
+  it("says when every weekly task is done", async () => {
+    const { wrapper, store } = await mountTodos();
+    store.tasks = [baseTask({ done: true })];
+    await nextTick();
+    expect(wrapper.findAll(".task-title")).toHaveLength(0);
+    expect(wrapper.text()).toContain("All weekly tasks are done.");
+  });
+
+  it("says when there are no weekly tasks", async () => {
+    const { wrapper, store } = await mountTodos();
+    store.tasks = [];
+    await nextTick();
+    expect(wrapper.text()).toContain("No weekly tasks yet.");
+  });
+
+  it("links to Home for the full task board", async () => {
+    const { wrapper } = await mountTodos();
+    const link = wrapper
+      .findAllComponents({ name: "VBtn" })
+      .find((btn) => btn.text().includes("Open Home"));
+    expect(link?.props("to")).toBe("/dashboard");
+  });
+});
+
+describe("pages/todos add button", () => {
+  it("opens the add modal on To-do from the header button", async () => {
+    const { default: Component } = await import("~/pages/todos.vue");
+    const wrapper = await mount(Component, { attachTo: document.body });
+    expect(wrapper.find("input").exists()).toBe(false);
+    const action = wrapper.find(".page-head .page-head-action");
+    expect(action.text()).toBe("Add");
+    await action.trigger("click");
+    await flushDialog();
+    const headings = Array.from(
+      document.querySelectorAll(".modal-head h2"),
+    ).map((h) => h.textContent?.trim());
+    expect(headings).toContain("New to-do");
+    wrapper.unmount();
   });
 });

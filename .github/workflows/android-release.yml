@@ -38,9 +38,14 @@ jobs:
           elif [ "$GITHUB_REF_TYPE" = "tag" ]; then
             TAG="$GITHUB_REF_NAME"
           else
-            LATEST=$(git tag --list 'v*' --sort=-v:refname | head -n1)
-            IFS=. read -r MAJOR MINOR PATCH <<< "${LATEST:-v0.0.0}"
-            TAG="$MAJOR.$MINOR.$((PATCH + 1))"
+            PKG_TAG="v$(jq -r .version package.json)"
+            if git rev-parse -q --verify "refs/tags/$PKG_TAG" > /dev/null; then
+              LATEST=$(git tag --list 'v*' --sort=-v:refname | head -n1)
+              IFS=. read -r MAJOR MINOR PATCH <<< "${LATEST:-v0.0.0}"
+              TAG="$MAJOR.$MINOR.$((PATCH + 1))"
+            else
+              TAG="$PKG_TAG"
+            fi
           fi
           echo "TAG=$TAG" >> "$GITHUB_ENV"
       - uses: pnpm/action-setup@v4
@@ -61,6 +66,15 @@ jobs:
           printf '<!doctype html><html><head><meta charset="utf-8"></head><body></body></html>\n' > dist/index.html
       - name: Sync Capacitor
         run: pnpm exec cap sync android
+      - name: Configure Firebase
+        env:
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON_BASE64" ]; then
+            echo "::warning::GOOGLE_SERVICES_JSON_BASE64 is not set, the APK will not receive push notifications"
+            exit 0
+          fi
+          echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > android/app/google-services.json
       - name: Configure signing
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}

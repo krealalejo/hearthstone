@@ -50,7 +50,11 @@
     "fieldAssign": "Assignar a",
     "anyone": "Qualsevol",
     "fieldEffort": "Esforç · {xp} XP",
-    "recurring": "Repetir setmanalment",
+    "repeat": "Repetir",
+    "every": "Cada",
+    "unitDay": "dia | dies",
+    "unitWeek": "setmana | setmanes",
+    "unitMonth": "mes | mesos",
     "delete": "Eliminar",
     "cancel": "Cancel·lar",
     "save": "Desar canvis",
@@ -59,15 +63,20 @@
     "effortLight": "Lleugera",
     "effortMedium": "Mitjana",
     "effortHard": "Difícil",
-    "effortDeep": "Profunda"
+    "effortDeep": "Profunda",
+    "kindTodo": "Pendent",
+    "kindTask": "Tasca setmanal",
+    "titleNewTodo": "Nou pendent",
+    "subtitleTodo": "Una cosa puntual per marcar",
+    "fieldTodo": "Pendent",
+    "addTodo": "Afegeix el pendent"
   },
   "inventory": {
     "title": "Inventari",
-    "itemCount": "{n} article | {n} articles",
-    "lowSuffix": " · {n} baix",
     "newItem": "Nou article",
     "catFood": "Alimentació",
     "catCleaning": "Neteja",
+    "catHygiene": "Higiene",
     "catMisc": "Diversos"
   },
   "inventoryModal": {
@@ -91,7 +100,6 @@
     "title": "Llista de la compra",
     "itemCount": "{n} article | {n} articles",
     "autoAdded": "{n} afegit automàticament | {n} afegits automàticament",
-    "addPlaceholder": "Afegir article puntual…  (p. ex. espelmes d'aniversari)",
     "add": "Afegir",
     "emptyTitle": "Llista buida",
     "emptyBody": "Els articles apareixen aquí automàticament quan hi ha poc estoc, o afegeix-ne tu mateix a dalt.",
@@ -116,7 +124,11 @@
     "emptyBody": "Afegeix un pendent a dalt i marca’l quan estigui fet.",
     "completed": "Completats",
     "clearCompleted": "Esborra els completats",
-    "editHint": "Fes clic per editar"
+    "editHint": "Fes clic per editar",
+    "tasksProgress": "{done} de {n} fetes",
+    "openHome": "Veure a Inici",
+    "allTasksDone": "Totes les tasques setmanals estan fetes.",
+    "noTasks": "Encara no hi ha tasques setmanals."
   },
   "history": {
     "purchasesTab": "Compres",
@@ -270,7 +282,8 @@
     "purchaseLogged": "Compra registrada",
     "purchaseItems": "{n} article | {n} articles",
     "purchaseRestocked": "{n} reabastit | {n} reabastits",
-    "addTodoFailed": "No s’ha pogut afegir el pendent"
+    "addTodoFailed": "No s’ha pogut afegir el pendent",
+    "restockSynced": "S'ha afegit {n} article baix del teu inventari. | S'han afegit {n} articles baixos del teu inventari."
   },
   "badge": {
     "auto": "Auto",
@@ -292,11 +305,17 @@
     "toggleTodo": "Marca el pendent",
     "removeTodo": "Elimina el pendent",
     "editTodo": "Edita el pendent",
-    "editPrice": "Edita el preu"
+    "editPrice": "Edita el preu",
+    "quantity": "Quantitat"
   },
   "task": {
     "claim": "Reclama",
-    "weekly": "setmanal"
+    "weekly": "setmanal",
+    "daily": "diària",
+    "monthly": "mensual",
+    "everyDays": "cada {n} dies",
+    "everyWeeks": "cada {n} setmanes",
+    "everyMonths": "cada {n} mesos"
   },
   "reset": {
     "doneTitle": "Contrasenya actualitzada",
@@ -309,5 +328,48 @@
     "saving": "Desant…",
     "invalidLink": "L'enllaç de restabliment no és vàlid",
     "genericError": "Alguna cosa ha anat malament"
+  },
+  "shoppingModal": {
+    "title": "Afegeix a la llista",
+    "subtitle": "Afegeix els detalls ara o només el nom: la quantitat i el preu es poden canviar després.",
+    "fieldName": "Article",
+    "namePlaceholder": "p. ex. Oli d'oliva",
+    "fieldInv": "Vincula a l'inventari",
+    "invHint": "Els articles vinculats reposen l'inventari en finalitzar la compra.",
+    "fieldQty": "Quantitat",
+    "fieldPrice": "Preu",
+    "fieldCat": "Categoria",
+    "fieldNote": "Nota",
+    "notePlaceholder": "p. ex. Marca X, 1 L",
+    "add": "Afegeix l'article"
+  },
+  "tabs": {
+    "home": "Inici",
+    "inventory": "Inventari",
+    "shopping": "Compra",
+    "todos": "Pendents",
+    "more": "Més"
+  },
+  "more": {
+    "purchases": "Historial de compres",
+    "purchasesSub": "Compres anteriors i totals",
+    "weeks": "Historial setmanal",
+    "weeksSub": "Punts i tasques per setmana",
+    "householdSub": "Membres i invitacions",
+    "profile": "Perfil i configuració",
+    "profileSub": "Avatar, idioma i preferències"
+  },
+  "notifications": {
+    "title": "Notificacions",
+    "open": "Obrir notificacions",
+    "empty": "Encara no hi ha notificacions",
+    "push": "Notificacions push en aquest dispositiu",
+    "pushDenied": "Les notificacions estan bloquejades per a aquesta app",
+    "pushFailed": "No s’han pogut actualitzar les notificacions push",
+    "weekReminder": {
+      "title": "Queden 2 dies de setmana",
+      "mine": "{n} tasca teva pendent | {n} tasques teves pendents",
+      "unassigned": "{n} tasca sense assignar | {n} tasques sense assignar"
+    }
   }
 }

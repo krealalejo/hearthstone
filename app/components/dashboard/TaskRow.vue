@@ -17,7 +17,7 @@
       <span class="task-title">{{ task.title }}</span>
       <span v-if="task.desc || task.recurring" class="task-desc">
         <span v-if="task.recurring"
-          ><v-icon style="font-size: 11px">mdi-sync</v-icon> {{ t("task.weekly") }}</span
+          ><v-icon style="font-size: 11px">mdi-sync</v-icon> {{ repeatLabel }}</span
         >
         <span v-if="task.recurring && task.desc"> · </span>
         {{ task.desc }}
@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import type { Task } from "~/stores/home";
+import type { Task } from "~/types/home";
 import { useHomeStore } from "~/stores/home";
 import { useAnimations } from "~/composables/useAnimations";
 import { useConfetti } from "~/composables/useConfetti";
@@ -55,6 +55,25 @@ const { fire } = useConfetti();
 
 const gameLevel: string = "balanced";
 const rowEl = ref<HTMLElement | null>(null);
+
+const SINGLE_REPEAT_KEYS = {
+  day: "task.daily",
+  week: "task.weekly",
+  month: "task.monthly",
+} as const;
+const MULTI_REPEAT_KEYS = {
+  day: "task.everyDays",
+  week: "task.everyWeeks",
+  month: "task.everyMonths",
+} as const;
+
+const repeatLabel = computed(() => {
+  const every = props.task.repeatEvery ?? 1;
+  const unit = props.task.repeatUnit ?? "week";
+  return every === 1
+    ? t(SINGLE_REPEAT_KEYS[unit])
+    : t(MULTI_REPEAT_KEYS[unit], { n: every });
+});
 
 const assignee = computed(
   () => store.members.find((m) => m.id === props.task.assignee) ?? null,

@@ -1,19 +1,19 @@
 <template>
   <div class="content-inner">
-    <div class="sec-head">
+    <div class="sec-head page-head">
       <h2>{{ $t("inventory.title") }}</h2>
-      <span class="count"
-        >{{
-          $t(
-            "inventory.itemCount",
-            { n: store.inventory.length },
-            store.inventory.length,
-          )
-        }}{{
-          store.lowCount ? $t("inventory.lowSuffix", { n: store.lowCount }) : ""
-        }}</span
-      >
       <span class="line" />
+      <v-btn
+        class="page-head-action"
+        color="primary"
+        size="small"
+        @click="modalItem = {}"
+      >
+        <v-icon size="15" start>mdi-plus</v-icon>{{ $t("inventory.newItem") }}
+      </v-btn>
+    </div>
+
+    <div class="inv-filter">
       <v-btn-toggle
         v-model="tab"
         mandatory
@@ -28,9 +28,6 @@
           {{ c.name.split(" ")[0] }}
         </v-btn>
       </v-btn-toggle>
-      <v-btn color="primary" size="small" @click="modalItem = {}">
-        <v-icon size="15" start>mdi-plus</v-icon>{{ $t("inventory.newItem") }}
-      </v-btn>
     </div>
 
     <AppSkeleton v-if="!store.bootstrapped" variant="grid" :count="6" />
@@ -65,9 +62,10 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from "vue";
-import type { InventoryItem } from "~/stores/home";
+import type { InventoryItem } from "~/types/home";
 import { useHomeStore } from "~/stores/home";
 import { useAnimations } from "~/composables/useAnimations";
+import { CATEGORIES } from "~/utils/categories";
 
 definePageMeta({ middleware: "auth" });
 
@@ -75,11 +73,9 @@ const store = useHomeStore();
 const { animateStagger } = useAnimations();
 const { t } = useI18n();
 
-const CATS = computed(() => [
-  { id: "food", name: t("inventory.catFood"), icon: "mdi-basket" },
-  { id: "cleaning", name: t("inventory.catCleaning"), icon: "mdi-spray" },
-  { id: "misc", name: t("inventory.catMisc"), icon: "mdi-package-variant" },
-]);
+const CATS = computed(() =>
+  CATEGORIES.map((c) => ({ ...c, name: t(c.labelKey) })),
+);
 
 const tab = ref("all");
 const invListEl = ref<HTMLElement | null>(null);

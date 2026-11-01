@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
     "/api/auth/google/app-exchange",
     "/api/auth/forgot-password",
     "/api/auth/reset-password",
+    "/api/cron/week-reminders",
   ];
   if (!path.startsWith("/api/") || PUBLIC_ROUTES.includes(path)) return;
 

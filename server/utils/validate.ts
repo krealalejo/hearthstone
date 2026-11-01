@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+export const INVENTORY_CATEGORIES = [
+  "food",
+  "cleaning",
+  "hygiene",
+  "misc",
+] as const;
+
 const passwordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters")
@@ -39,13 +46,16 @@ export const taskSchema = z.object({
   assignee: z.string().nullable().optional(),
   xp: z.number().int().min(0).max(1000).optional(),
   recurring: z.boolean().optional(),
+  repeatEvery: z.number().int().min(1).max(365).optional(),
+  repeatUnit: z.enum(["day", "week", "month"]).optional(),
   done: z.boolean().optional(),
   doneBy: z.string().nullable().optional(),
+  doneAt: z.iso.datetime().nullable().optional(),
 });
 
 export const inventorySchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
-  cat: z.enum(["food", "cleaning", "misc"]).optional(),
+  cat: z.enum(INVENTORY_CATEGORIES).optional(),
   qty: z.number().min(0).optional(),
   min: z.number().min(0).optional(),
   optimal: z.number().min(0).optional(),
@@ -60,6 +70,8 @@ export const shoppingSchema = z.object({
   qty: z.number().min(0).optional(),
   price: z.number().min(0).nullable().optional(),
   checked: z.boolean().optional(),
+  cat: z.enum(INVENTORY_CATEGORIES).nullable().optional(),
+  note: z.string().trim().max(200).optional(),
 });
 
 export const todoSchema = z.object({
@@ -78,6 +90,12 @@ export const householdPatchSchema = z
     lastResetWeek: z.string().optional(),
     weekStartDay: z.enum(["monday", "sunday"]).optional(),
     currency: z.string().max(10).optional(),
+    restockSyncedAt: z.iso.datetime().optional(),
+    timezone: z
+      .string()
+      .max(64)
+      .refine(isTimeZone, { message: "Invalid timezone" })
+      .optional(),
   })
   .refine(
     (d) =>
@@ -85,9 +103,24 @@ export const householdPatchSchema = z
       d.emoji !== undefined ||
       d.lastResetWeek !== undefined ||
       d.weekStartDay !== undefined ||
-      d.currency !== undefined,
+      d.currency !== undefined ||
+      d.restockSyncedAt !== undefined ||
+      d.timezone !== undefined,
     { message: "At least one field required" },
   );
+
+export const deviceTokenSchema = z.object({
+  token: z.string().min(1, "token required").max(4096),
+});
+
+function isTimeZone(value: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export function validate<T>(schema: z.ZodType<T>, body: unknown): T {
   const result = schema.safeParse(body);

@@ -161,8 +161,24 @@ describe("checkout", () => {
     store.household = { id: "hh1", name: "Home", emoji: "🏠", currency: "$" };
     store.inventory = [];
     store.shopping = [
-      { id: "s1", name: "Apples", source: "manual", invId: null, qty: 1, price: 1, checked: true },
-      { id: "s2", name: "Bread", source: "manual", invId: null, qty: 1, price: 2, checked: true },
+      {
+        id: "s1",
+        name: "Apples",
+        source: "manual",
+        invId: null,
+        qty: 1,
+        price: 1,
+        checked: true,
+      },
+      {
+        id: "s2",
+        name: "Bread",
+        source: "manual",
+        invId: null,
+        qty: 1,
+        price: 2,
+        checked: true,
+      },
     ];
 
     await store.checkout();
@@ -182,8 +198,24 @@ describe("checkout", () => {
     store.household = { id: "hh1", name: "Home", emoji: "🏠", currency: "$" };
     store.inventory = [baseItem({ qty: 3, optimal: 6 })];
     store.shopping = [
-      { id: "s1", name: "Milk", source: "auto", invId: "i1", qty: 1, price: 2.5, checked: true },
-      { id: "s2", name: "Eggs", source: "manual", invId: null, qty: 2, price: 2.5, checked: true },
+      {
+        id: "s1",
+        name: "Milk",
+        source: "auto",
+        invId: "i1",
+        qty: 1,
+        price: 2.5,
+        checked: true,
+      },
+      {
+        id: "s2",
+        name: "Eggs",
+        source: "manual",
+        invId: null,
+        qty: 2,
+        price: 2.5,
+        checked: true,
+      },
     ];
 
     await store.checkout();
@@ -200,7 +232,15 @@ describe("checkout", () => {
     const store = useHomeStore();
     store.inventory = [baseItem({ qty: 1, optimal: 6 })];
     store.shopping = [
-      { id: "s1", name: "Milk", source: "auto", invId: "i1", qty: 1, price: 2.5, checked: true },
+      {
+        id: "s1",
+        name: "Milk",
+        source: "auto",
+        invId: "i1",
+        qty: 1,
+        price: 2.5,
+        checked: true,
+      },
     ];
 
     await store.checkout();
@@ -214,7 +254,7 @@ describe("checkout", () => {
 });
 
 describe("shopping persistence", () => {
-  it("addManualShop swaps the temp id for the persisted id", async () => {
+  it("addShop with only a name swaps the temp id for the persisted id", async () => {
     (vi.mocked($fetch) as any).mockResolvedValue({
       id: "s_real",
       name: "Eggs",
@@ -226,18 +266,67 @@ describe("shopping persistence", () => {
     });
     const store = useHomeStore();
 
-    await store.addManualShop("Eggs");
+    await store.addShop({ name: "Eggs" });
 
     expect(store.shopping).toHaveLength(1);
     expect(store.shopping[0]!.id).toBe("s_real");
     expect(store.flashShopId).toBe("s_real");
   });
 
-  it("addManualShop rolls the item back out when the POST fails", async () => {
+  it("addShop sends and keeps every option", async () => {
+    (vi.mocked($fetch) as any).mockResolvedValue({ id: "s_real" });
+    const store = useHomeStore();
+
+    await store.addShop({
+      name: "  Toothpaste ",
+      invId: "i9",
+      qty: 3,
+      price: 2.4,
+      cat: "hygiene",
+      note: " Mint ",
+    });
+
+    expect($fetch).toHaveBeenCalledWith(
+      "/api/shopping",
+      expect.objectContaining({
+        method: "POST",
+        body: {
+          source: "manual",
+          name: "Toothpaste",
+          invId: "i9",
+          qty: 3,
+          price: 2.4,
+          cat: "hygiene",
+          note: "Mint",
+        },
+      }),
+    );
+    expect(store.shopping[0]).toMatchObject({
+      id: "s_real",
+      name: "Toothpaste",
+      invId: "i9",
+      qty: 3,
+      price: 2.4,
+      cat: "hygiene",
+      note: "Mint",
+      checked: false,
+    });
+  });
+
+  it("addShop ignores a blank name", async () => {
+    const store = useHomeStore();
+
+    await store.addShop({ name: "   ", qty: 2 });
+
+    expect(store.shopping).toHaveLength(0);
+    expect($fetch).not.toHaveBeenCalled();
+  });
+
+  it("addShop with only a name rolls the item back out when the POST fails", async () => {
     makeFetchFail();
     const store = useHomeStore();
 
-    await store.addManualShop("Eggs");
+    await store.addShop({ name: "Eggs" });
 
     expect(store.shopping).toHaveLength(0);
     expect(store.flashShopId).toBeNull();
@@ -248,7 +337,15 @@ describe("shopping persistence", () => {
     makeFetchFail();
     const store = useHomeStore();
     store.shopping = [
-      { id: "s1", name: "X", source: "manual", invId: null, qty: 1, price: null, checked: false },
+      {
+        id: "s1",
+        name: "X",
+        source: "manual",
+        invId: null,
+        qty: 1,
+        price: null,
+        checked: false,
+      },
     ];
 
     await store.toggleShop("s1");
@@ -261,8 +358,24 @@ describe("shopping persistence", () => {
     makeFetchFail();
     const store = useHomeStore();
     store.shopping = [
-      { id: "s1", name: "X", source: "manual", invId: null, qty: 1, price: null, checked: false },
-      { id: "s2", name: "Y", source: "manual", invId: null, qty: 1, price: null, checked: false },
+      {
+        id: "s1",
+        name: "X",
+        source: "manual",
+        invId: null,
+        qty: 1,
+        price: null,
+        checked: false,
+      },
+      {
+        id: "s2",
+        name: "Y",
+        source: "manual",
+        invId: null,
+        qty: 1,
+        price: null,
+        checked: false,
+      },
     ];
 
     await store.removeShop("s1");

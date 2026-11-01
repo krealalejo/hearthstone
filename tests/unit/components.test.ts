@@ -4,7 +4,6 @@ import ProgressBar from "~/components/ProgressBar.vue";
 import ProgressRing from "~/components/ProgressRing.vue";
 import QuantityStepper from "~/components/QuantityStepper.vue";
 
-
 describe("ProgressBar", () => {
   it("renders bar with correct width percent", async () => {
     const wrapper = await mountSuspended(ProgressBar, {
@@ -50,7 +49,6 @@ describe("ProgressBar", () => {
   });
 });
 
-
 describe("ProgressRing", () => {
   it("renders svg with correct pct text", async () => {
     const wrapper = await mountSuspended(ProgressRing, {
@@ -74,13 +72,79 @@ describe("ProgressRing", () => {
   });
 });
 
+function stepperValue(wrapper: { find: (s: string) => { element: Element } }) {
+  return (wrapper.find("input.val").element as HTMLInputElement).value;
+}
+
+async function typeQuantity(
+  wrapper: Awaited<ReturnType<typeof mountSuspended>>,
+  text: string,
+) {
+  const input = wrapper.find("input.val");
+  await input.trigger("focus");
+  (input.element as HTMLInputElement).value = text;
+  await input.trigger("input");
+  await input.trigger("blur");
+}
 
 describe("QuantityStepper", () => {
+  it("emits a typed value straight away", async () => {
+    const wrapper = await mountSuspended(QuantityStepper, {
+      props: { value: 3, delay: 5000 },
+    });
+    await typeQuantity(wrapper, "250");
+    expect(wrapper.emitted("change")).toEqual([[250]]);
+    expect(stepperValue(wrapper)).toBe("250");
+  });
+
+  it("keeps only digits from what is typed", async () => {
+    const wrapper = await mountSuspended(QuantityStepper, {
+      props: { value: 3 },
+    });
+    await typeQuantity(wrapper, "1a2-");
+    expect(wrapper.emitted("change")).toEqual([[12]]);
+  });
+
+  it("clamps a typed value to the minimum", async () => {
+    const wrapper = await mountSuspended(QuantityStepper, {
+      props: { value: 3, min: 1 },
+    });
+    await typeQuantity(wrapper, "0");
+    expect(wrapper.emitted("change")).toEqual([[1]]);
+    expect(stepperValue(wrapper)).toBe("1");
+  });
+
+  it("restores the previous value when the field is cleared", async () => {
+    const wrapper = await mountSuspended(QuantityStepper, {
+      props: { value: 3 },
+    });
+    await typeQuantity(wrapper, "");
+    expect(wrapper.emitted("change")).toBeUndefined();
+    expect(stepperValue(wrapper)).toBe("3");
+  });
+
+  it("does not emit when the typed value is unchanged", async () => {
+    const wrapper = await mountSuspended(QuantityStepper, {
+      props: { value: 3 },
+    });
+    await typeQuantity(wrapper, "3");
+    expect(wrapper.emitted("change")).toBeUndefined();
+  });
+
+  it("flushes a pending tap when a value is typed", async () => {
+    const wrapper = await mountSuspended(QuantityStepper, {
+      props: { value: 3, delay: 5000 },
+    });
+    await wrapper.find("[aria-label='Increase quantity']").trigger("click");
+    await typeQuantity(wrapper, "4");
+    expect(wrapper.emitted("change")).toEqual([[4]]);
+  });
+
   it("renders the current value", async () => {
     const wrapper = await mountSuspended(QuantityStepper, {
       props: { value: 3 },
     });
-    expect(wrapper.text()).toContain("3");
+    expect(stepperValue(wrapper)).toBe("3");
   });
 
   it("emits change with value-1 on minus button click", async () => {
@@ -97,7 +161,7 @@ describe("QuantityStepper", () => {
       props: { value: 3, delay: 50 },
     });
     await wrapper.find("[aria-label='Increase quantity']").trigger("click");
-    expect(wrapper.text()).toContain("4");
+    expect(stepperValue(wrapper)).toBe("4");
     expect(wrapper.emitted("change")).toBeUndefined();
   });
 
@@ -128,7 +192,7 @@ describe("QuantityStepper", () => {
     });
     await wrapper.find("[aria-label='Increase quantity']").trigger("click");
     await wrapper.setProps({ value: 3 });
-    expect(wrapper.text()).toContain("4");
+    expect(stepperValue(wrapper)).toBe("4");
   });
 
   it("emits change with value+1 on plus button click", async () => {

@@ -21,6 +21,7 @@
         {{ $t("topbar.newWeek") }}
       </button>
     </ClientOnly>
+    <NotificationBell />
     <button
       class="btn btn-ghost btn-icon"
       :aria-label="isDark ? $t('a11y.lightMode') : $t('a11y.darkMode')"

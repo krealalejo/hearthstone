@@ -9,6 +9,7 @@
         </span>
         <span class="mt-title">{{ mobileTitle }}</span>
         <span class="mt-spacer" />
+        <NotificationBell />
         <button
           class="btn btn-ghost btn-icon"
           :title="isDark ? $t('a11y.lightMode') : $t('a11y.darkMode')"
@@ -34,7 +35,7 @@
         <slot />
       </div>
     </div>
-    <AppTabBar />
+    <AppTabBar @open-profile="profileOpen = true" />
     <v-dialog v-model="profileOpen" max-width="480" class="qh-dialog">
       <ProfileModal @close="profileOpen = false" />
     </v-dialog>
