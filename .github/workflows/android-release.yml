@@ -38,9 +38,14 @@ jobs:
           elif [ "$GITHUB_REF_TYPE" = "tag" ]; then
             TAG="$GITHUB_REF_NAME"
           else
-            LATEST=$(git tag --list 'v*' --sort=-v:refname | head -n1)
-            IFS=. read -r MAJOR MINOR PATCH <<< "${LATEST:-v0.0.0}"
-            TAG="$MAJOR.$MINOR.$((PATCH + 1))"
+            PKG_TAG="v$(jq -r .version package.json)"
+            if git rev-parse -q --verify "refs/tags/$PKG_TAG" > /dev/null; then
+              LATEST=$(git tag --list 'v*' --sort=-v:refname | head -n1)
+              IFS=. read -r MAJOR MINOR PATCH <<< "${LATEST:-v0.0.0}"
+              TAG="$MAJOR.$MINOR.$((PATCH + 1))"
+            else
+              TAG="$PKG_TAG"
+            fi
           fi
           echo "TAG=$TAG" >> "$GITHUB_ENV"
       - uses: pnpm/action-setup@v4
