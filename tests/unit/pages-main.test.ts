@@ -174,6 +174,17 @@ describe("pages/inventory", () => {
     expect(wrapper.find(".inv-filter .v-btn-group").exists()).toBe(true);
   });
 
+  it("shows only the title and New item in the header", async () => {
+    const { default: Component } = await import("~/pages/inventory.vue");
+    const wrapper = await mount(Component);
+    const store = useHomeStore();
+    store.inventory = [baseInvItem({ qty: 0, min: 1 })];
+    await nextTick();
+    const head = wrapper.find(".inv-head");
+    expect(head.find(".count").exists()).toBe(false);
+    expect(head.text()).toBe("InventoryNew item");
+  });
+
   it("groups hygiene items under their own category", async () => {
     const { default: Component } = await import("~/pages/inventory.vue");
     const wrapper = await mount(Component);

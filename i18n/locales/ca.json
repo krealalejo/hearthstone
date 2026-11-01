@@ -67,8 +67,6 @@
   },
   "inventory": {
     "title": "Inventari",
-    "itemCount": "{n} article | {n} articles",
-    "lowSuffix": " · {n} baix",
     "newItem": "Nou article",
     "catFood": "Alimentació",
     "catCleaning": "Neteja",

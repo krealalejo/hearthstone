@@ -67,8 +67,6 @@
   },
   "inventory": {
     "title": "Inventory",
-    "itemCount": "{n} item | {n} items",
-    "lowSuffix": " · {n} low",
     "newItem": "New item",
     "catFood": "Food & Groceries",
     "catCleaning": "Cleaning Supplies",

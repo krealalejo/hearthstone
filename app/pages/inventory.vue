@@ -2,17 +2,6 @@
   <div class="content-inner">
     <div class="sec-head inv-head">
       <h2>{{ $t("inventory.title") }}</h2>
-      <span class="count"
-        >{{
-          $t(
-            "inventory.itemCount",
-            { n: store.inventory.length },
-            store.inventory.length,
-          )
-        }}{{
-          store.lowCount ? $t("inventory.lowSuffix", { n: store.lowCount }) : ""
-        }}</span
-      >
       <span class="line" />
       <v-btn
         class="inv-new"

@@ -1442,11 +1442,6 @@
 .inv-head {
   flex-wrap: nowrap;
 }
-.inv-head .count {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .inv-head .inv-new {
   flex-shrink: 0;
   margin-left: auto;
