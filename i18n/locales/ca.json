@@ -94,7 +94,6 @@
     "title": "Llista de la compra",
     "itemCount": "{n} article | {n} articles",
     "autoAdded": "{n} afegit automàticament | {n} afegits automàticament",
-    "addPlaceholder": "Afegir article puntual…  (p. ex. espelmes d'aniversari)",
     "add": "Afegir",
     "emptyTitle": "Llista buida",
     "emptyBody": "Els articles apareixen aquí automàticament quan hi ha poc estoc, o afegeix-ne tu mateix a dalt.",

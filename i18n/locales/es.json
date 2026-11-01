@@ -94,7 +94,6 @@
     "title": "Lista de compra",
     "itemCount": "{n} artículo | {n} artículos",
     "autoAdded": "{n} añadido automáticamente | {n} añadidos automáticamente",
-    "addPlaceholder": "Añadir artículo puntual…  (p. ej. velas de cumpleaños)",
     "add": "Añadir",
     "emptyTitle": "Lista vacía",
     "emptyBody": "Los artículos aparecen aquí automáticamente cuando hay poco stock, o añade los tuyos arriba.",

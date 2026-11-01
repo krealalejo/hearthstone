@@ -1174,10 +1174,6 @@
   gap: 9px;
   margin-bottom: 18px;
 }
-.shop-add-trigger,
-.shop-add-trigger input {
-  cursor: pointer;
-}
 
 .shop-item {
   display: flex;
@@ -1427,10 +1423,15 @@
 /* ════════════════════════════════════════════════════════════
    HOUSEHOLD
    ════════════════════════════════════════════════════════════ */
-.inv-head {
+.page-head {
   flex-wrap: nowrap;
 }
-.inv-head .inv-new {
+.page-head .count {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.page-head .page-head-action {
   flex-shrink: 0;
   margin-left: auto;
 }

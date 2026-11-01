@@ -1,6 +1,6 @@
 <template>
   <div class="content-inner">
-    <div class="sec-head">
+    <div class="sec-head page-head">
       <h2>{{ $t("shopping.title") }}</h2>
       <span class="count"
         >{{
@@ -16,27 +16,19 @@
         }}</span
       >
       <span class="line" />
+      <v-btn
+        class="page-head-action"
+        color="primary"
+        size="small"
+        aria-haspopup="dialog"
+        @click="openAddModal"
+      >
+        <v-icon size="15" start>mdi-plus</v-icon>{{ $t("shopping.add") }}
+      </v-btn>
     </div>
 
     <div class="shop-layout">
       <div>
-        <div class="shop-add">
-          <v-text-field
-            class="shop-add-trigger"
-            :placeholder="$t('shopping.addPlaceholder')"
-            readonly
-            hide-details
-            role="button"
-            aria-haspopup="dialog"
-            @click="openAddModal"
-            @keydown.enter.prevent="openAddModal"
-            @keydown.space.prevent="openAddModal"
-          />
-          <v-btn color="primary" @click="openAddModal">
-            <v-icon size="17" start>mdi-plus</v-icon>{{ $t("shopping.add") }}
-          </v-btn>
-        </div>
-
         <AppSkeleton v-if="!store.bootstrapped" :count="4" />
         <div v-else-if="!store.shopping.length" class="empty">
           <v-icon class="empty-icon">mdi-cart-outline</v-icon>

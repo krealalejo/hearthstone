@@ -94,7 +94,6 @@
     "title": "Shopping list",
     "itemCount": "{n} item | {n} items",
     "autoAdded": "{n} auto-added",
-    "addPlaceholder": "Add a one-off item…  (e.g. birthday candles)",
     "add": "Add",
     "emptyTitle": "List is empty",
     "emptyBody": "Items appear here automatically when stock runs low, or add your own above.",

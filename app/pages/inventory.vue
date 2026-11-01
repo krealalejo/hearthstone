@@ -1,10 +1,10 @@
 <template>
   <div class="content-inner">
-    <div class="sec-head inv-head">
+    <div class="sec-head page-head">
       <h2>{{ $t("inventory.title") }}</h2>
       <span class="line" />
       <v-btn
-        class="inv-new"
+        class="page-head-action"
         color="primary"
         size="small"
         @click="modalItem = {}"

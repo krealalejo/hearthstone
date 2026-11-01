@@ -176,8 +176,8 @@ describe("pages/inventory", () => {
   it("keeps New item in the header and the filter on its own row", async () => {
     const { default: Component } = await import("~/pages/inventory.vue");
     const wrapper = await mount(Component);
-    const head = wrapper.find(".inv-head");
-    expect(head.find(".inv-new").text()).toContain("New item");
+    const head = wrapper.find(".page-head");
+    expect(head.find(".page-head-action").text()).toContain("New item");
     expect(head.find(".v-btn-group").exists()).toBe(false);
     expect(wrapper.find(".inv-filter .v-btn-group").exists()).toBe(true);
   });
@@ -188,7 +188,7 @@ describe("pages/inventory", () => {
     const store = useHomeStore();
     store.inventory = [baseInvItem({ qty: 0, min: 1 })];
     await nextTick();
-    const head = wrapper.find(".inv-head");
+    const head = wrapper.find(".page-head");
     expect(head.find(".count").exists()).toBe(false);
     expect(head.text()).toBe("InventoryNew item");
   });
@@ -251,31 +251,11 @@ describe("pages/shopping", () => {
     return { wrapper, modalOpen };
   }
 
-  it("opens the add form when the quick-add field is clicked", async () => {
-    const { wrapper, modalOpen } = await mountShopping();
-    expect(modalOpen()).toBe(false);
-    await wrapper.find(".shop-add-trigger input").trigger("click");
-    await flushDialog();
-    expect(modalOpen()).toBe(true);
-    wrapper.unmount();
-  });
-
-  it("opens the add form from the keyboard", async () => {
-    const { wrapper, modalOpen } = await mountShopping();
-    await wrapper.find(".shop-add-trigger input").trigger("keydown", {
-      key: "Enter",
-    });
-    await flushDialog();
-    expect(modalOpen()).toBe(true);
-    wrapper.unmount();
-  });
-
-  it("keeps the quick-add field read-only and has no settings button", async () => {
+  it("puts the Add button in the page header with no text field", async () => {
     const { wrapper } = await mountShopping();
-    const input = wrapper.find(".shop-add-trigger input");
-    expect(input.attributes("readonly")).toBeDefined();
-    expect(wrapper.find(".shop-options").exists()).toBe(false);
-    expect(wrapper.html()).not.toContain("mdi-tune-variant");
+    const action = wrapper.find(".page-head .page-head-action");
+    expect(action.text()).toBe("Add");
+    expect(wrapper.find("input").exists()).toBe(false);
     wrapper.unmount();
   });
 
@@ -285,18 +265,10 @@ describe("pages/shopping", () => {
     expect(wrapper.html()).toBeTruthy();
   });
 
-  it("shows add item input", async () => {
-    const { default: Component } = await import("~/pages/shopping.vue");
-    const wrapper = await mount(Component);
-    expect(wrapper.find("input").exists()).toBe(true);
-  });
-
   it("opens the add form from the Add button", async () => {
     const { wrapper, modalOpen } = await mountShopping();
-    await wrapper
-      .findAll("button")
-      .find((b) => b.text() === "Add")!
-      .trigger("click");
+    expect(modalOpen()).toBe(false);
+    await wrapper.find(".page-head-action").trigger("click");
     await flushDialog();
     expect(modalOpen()).toBe(true);
     wrapper.unmount();
