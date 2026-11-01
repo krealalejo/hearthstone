@@ -19,7 +19,7 @@
       :class="{ active: moreActive }"
       aria-haspopup="dialog"
       :aria-expanded="moreOpen"
-      @click="moreOpen = true"
+      @click="moreOpen = !moreOpen"
     >
       <v-icon class="tab-icon">{{
         moreActive
@@ -30,7 +30,7 @@
       {{ t("tabs.more") }}
     </button>
 
-    <v-bottom-sheet v-model="moreOpen">
+    <v-bottom-sheet v-model="moreOpen" class="qh-scrim" :z-index="20">
       <div class="more-sheet">
         <span class="more-handle" />
         <button
@@ -61,7 +61,6 @@ import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useHomeStore } from "~/stores/home";
 
-const emit = defineEmits<{ "open-profile": [] }>();
 const store = useHomeStore();
 const route = useRoute();
 const router = useRouter();
@@ -128,8 +127,8 @@ const MORE = computed(() => [
     label: t("more.profile"),
     sub: t("more.profileSub"),
     icon: "mdi-account-cog-outline",
-    path: null,
-    active: false,
+    path: "/profile",
+    active: route.name === "profile",
     badge: 0,
   },
 ]);
@@ -138,8 +137,7 @@ const moreActive = computed(() => MORE.value.some((item) => item.active));
 
 function openMoreItem(item: (typeof MORE.value)[number]) {
   moreOpen.value = false;
-  if (item.path) router.push(item.path);
-  else emit("open-profile");
+  router.push(item.path);
 }
 
 watch(

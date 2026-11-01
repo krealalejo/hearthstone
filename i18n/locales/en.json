@@ -19,6 +19,7 @@
     "histPurchasesSub": "Every finalized shopping trip",
     "histWeeksSub": "Tasks, purchases & more by week",
     "householdSub": "Members, invites & sharing",
+    "profileSub": "Avatar, language and preferences",
     "week": "Week",
     "newWeek": "New week",
     "hiName": "Hi, {name}"
@@ -180,6 +181,7 @@
   },
   "profile": {
     "title": "Profile & settings",
+    "cardTitle": "Profile",
     "fieldColor": "Color",
     "fieldAvatar": "Avatar",
     "fieldWeekStart": "Week starts on",
@@ -361,6 +363,7 @@
   },
   "notifications": {
     "title": "Notifications",
+    "clear": "Clear all",
     "open": "Open notifications",
     "empty": "No notifications yet",
     "push": "Push notifications on this device",

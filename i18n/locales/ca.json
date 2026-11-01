@@ -19,6 +19,7 @@
     "histPurchasesSub": "Cada compra finalitzada",
     "histWeeksSub": "Tasques, compres i més per setmana",
     "householdSub": "Membres, invitacions i compartir",
+    "profileSub": "Avatar, idioma i preferències",
     "week": "Setmana",
     "newWeek": "Nova setmana",
     "hiName": "Hola, {name}"
@@ -180,6 +181,7 @@
   },
   "profile": {
     "title": "Perfil i configuració",
+    "cardTitle": "Perfil",
     "fieldColor": "Color",
     "fieldAvatar": "Avatar",
     "fieldWeekStart": "La setmana comença el",
@@ -361,6 +363,7 @@
   },
   "notifications": {
     "title": "Notificacions",
+    "clear": "Esborra-les totes",
     "open": "Obrir notificacions",
     "empty": "Encara no hi ha notificacions",
     "push": "Notificacions push en aquest dispositiu",

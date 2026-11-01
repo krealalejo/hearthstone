@@ -1,13 +1,15 @@
 <template>
   <div class="app-shell">
-    <AppSidebar @open-profile="profileOpen = true" />
+    <AppSidebar />
     <div class="main-col">
       <AppTopbar />
       <div class="mobile-top">
-        <span class="brand-mark">
-          <img src="/favicon.png" alt="Hearthstone" />
-        </span>
-        <span class="mt-title">Hearthstone</span>
+        <NuxtLink to="/dashboard" class="mt-brand">
+          <span class="brand-mark">
+            <img src="/favicon.png" alt="Hearthstone" />
+          </span>
+          <span class="mt-title">Hearthstone</span>
+        </NuxtLink>
         <span class="mt-spacer" />
         <NotificationBell />
         <button
@@ -35,8 +37,13 @@
         <slot />
       </div>
     </div>
-    <AppTabBar @open-profile="profileOpen = true" />
-    <v-dialog v-model="profileOpen" max-width="480" class="qh-dialog">
+    <AppTabBar />
+    <v-dialog
+      v-model="profileOpen"
+      max-width="480"
+      class="qh-dialog qh-scrim"
+      :z-index="20"
+    >
       <ProfileModal @close="profileOpen = false" />
     </v-dialog>
   </div>
